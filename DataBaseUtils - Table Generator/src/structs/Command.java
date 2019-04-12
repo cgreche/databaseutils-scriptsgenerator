@@ -1,5 +1,6 @@
 package structs;
 
+//10/04/2019
 public class Command {
 	public enum Type {
 		CREATE_TABLE,
@@ -7,12 +8,12 @@ public class Command {
 	};
 	
 	public enum SubType {
-		ADD_FK,
 		ADD_COLUMN,
+		MODIFY_COLUMN,
+		DROP_COLUMN
 	}
 	
 	private Type type;
-	Table table;
-	TableField field;
-	
+	private Table table;
+	private TableField field;
 }

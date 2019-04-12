@@ -12,6 +12,7 @@ import structs.GenericTypes;
 import structs.Table;
 import structs.TableField;
 
+//10/04/2019
 public class OracleGenerator extends Generator {
 	
 	private static final List<FieldType> oracleTypes;
@@ -91,7 +92,7 @@ public class OracleGenerator extends Generator {
 		List<TableField> fkFields = table.getFKs();
 		if(fkFields != null) {
 			for(TableField field : fkFields) {
-				resultContent += "ALTER TABLE "+ table.getName() + "ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
+				resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
 				+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
 				+ "/\n";
 			}

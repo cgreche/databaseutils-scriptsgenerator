@@ -3,9 +3,14 @@ package structs;
 import java.util.ArrayList;
 import java.util.List;
 
+//10/04/2019
 public class Table {
 	private String name;
 	private List<TableField> fields;
+	
+	public Table() {
+		fields = new ArrayList<>();
+	}
 	
 	public String getName() {
 		return name;

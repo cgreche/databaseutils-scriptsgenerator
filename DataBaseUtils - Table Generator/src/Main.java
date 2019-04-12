@@ -6,25 +6,33 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import generators.Generator;
+import generators.MySQLGenerator;
 import generators.OracleGenerator;
 import structs.Constraints;
-import structs.FieldType;
 import structs.GenericTypes;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
+import ui.TableFieldTable;
 
 public class Main {
+	
+	static Table currentSelectedTable = null;
+	
+	static TableFieldTable table;
 	
 	private static Table createTable1() {
 		TableField field1 = new TableField();
@@ -73,99 +81,108 @@ public class Main {
 		return table;
 	}
 	
+	
+	
+	private static void updateColumnTable() {
+		if(currentSelectedTable != null) {
+			table.setData(currentSelectedTable.getFields());
+		}
+		else {
+			table.setData(null);
+		}
+		
+	}
+	
 	public static void main(String [] args) {
-		/*
+		
 		Table table1 = createTable1();
 		Table table2 = createTable2();
 		
-		Script script = new Script();
-		script.setHeaderMessage("test");
-		script.setTables(Arrays.asList(new Table[] {table1, table2}));
-		
-		Generator generator = new OracleGenerator();
-		generator.generate(script);
-		
-		*/
 		JFrame frame = new JFrame("Simple GUI");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		
-		String[] columnNames = {"Nome","Tipo", "PK", "FK", "Not null", "Tabela referenciada"};
-		DefaultTableModel model = new DefaultTableModel(columnNames,0) {
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				if(columnIndex == 1)
-					return FieldType.class;
-				return super.getColumnClass(columnIndex);
-			}
-		};
-		
-		model.addRow(new Object[]{"GUID", GenericTypes.TEXT, true, false, false, null});
-		model.addRow(new Object[]{"TENANTID", GenericTypes.NUMERIC, false, false, false, null});
-		
-		final JTable table = new JTable(model);
+		table = new TableFieldTable();
 		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		table.setFillsViewportHeight(true);
-		model.addRow(new Object[]{"TEST", GenericTypes.TEXT, false, false, false, null});
 		
+		DefaultListModel<Table> listModel = new DefaultListModel<>();
+		listModel.addElement(table1);
+		listModel.addElement(table2);
+		JList<Table> list = new JList<>(listModel);
+		list.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				if(!arg0.getValueIsAdjusting()) {
+					currentSelectedTable = list.getSelectedValue();
+					updateColumnTable();
+				}
+			}
+		});
+		
+		JTextField textFieldBasePath = new JTextField();
+		JTextField textFieldTableName = new JTextField();
 		JPanel panel = new JPanel();
-		
+		JButton buttonAddTable = new JButton("Add table");
+		buttonAddTable.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Table table = new Table();
+				table.setName(textFieldTableName.getName());
+				listModel.addElement(table);
+			}
+		});
 		JButton buttonAddColumn = new JButton("Add");
 		JButton buttonGenerate = new JButton("Generate");
 		buttonAddColumn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.addRow(new Object[] {});
+				table.addEmptyRow();
 			}
 		});
 		
 		buttonGenerate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<TableField> fields = new ArrayList<>();
-		        Vector data = model.getDataVector();
-		        for(int i = 0; i < data.size(); ++i) {
-		        	Vector o = (Vector)data.get(i);
-		        	String name = (String)o.get(0);
-		        	FieldType type = (FieldType)o.get(1);
-		        	boolean pk = (boolean)o.get(2);
-		        	boolean fk = (boolean)o.get(3);
-		        	boolean notNull = (boolean)o.get(4);
-		        	String referencedTable = (String)o.get(5);
-		        	
-		        	int constraints = 0;
-		        	if(pk) constraints |= Constraints.PK;
-		        	if(fk) constraints |= Constraints.FK;
-		        	if(notNull) constraints |= Constraints.NOT_NULL;
-		        	
-		        	TableField field = new TableField();
-		        	field.setName(name);
-		        	field.setType(type);
-		        	field.setConstraints(constraints);
-		        	field.setReferencedTable(referencedTable);
-		        	fields.add(field);
-		        }
-		        
-		        Table table = new Table();
-		        table.setName("TEST_TABLE");
-		        table.setFields(fields);
-		        
+				List<TableField> data = table.getData();
+
+				Table table = new Table();
+				table.setName("TEST_TABLE");
+				table.setFields(data);
+
+				String basePath = textFieldBasePath.getText();
 				Script script = new Script();
+				script.setBasePath(basePath + "/OracleDB");
 				script.setHeaderMessage("test");
-				script.setTables(Arrays.asList(new Table[] {table}));
+				List<Table> tableList = new ArrayList<Table>();
+			    int size = list.getModel().getSize(); // 4
+			    for (int i = 0; i < size; i++) {
+			      Table item = list.getModel().getElementAt(i);
+			      tableList.add(item);
+			    }
+			    
+				script.setTables(tableList);
 				
 				Generator generator = new OracleGenerator();
 				generator.generate(script);
+
+				script.setBasePath(basePath + "/MySQL");
+				generator = new MySQLGenerator();
+				generator.generate(script);
 			}
 		});
+
 		
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(textFieldBasePath);
+		panel.add(textFieldTableName);
+		panel.add(buttonAddTable);
+		panel.add(list);
 		panel.add(buttonAddColumn);
 		panel.add(buttonGenerate);
 		panel.add(new JScrollPane(table));
 		frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
-        
+		frame.pack();
+		frame.setVisible(true);
 		
 	}
 }

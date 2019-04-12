@@ -1,5 +1,7 @@
 package structs;
 
+//10/04/2019
+
 public class FieldType {
 	public enum GenericType {
 		TEXTO,

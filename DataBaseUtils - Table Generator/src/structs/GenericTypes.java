@@ -1,5 +1,7 @@
 package structs;
 
+//10/04/2019
+
 public class GenericTypes {
 	public static FieldType TEXT = new FieldType("TEXT","TEXTO",true,true);;
 	public static FieldType NUMERIC = new FieldType("NUMERIC","NUMÉRICO",true,true);;

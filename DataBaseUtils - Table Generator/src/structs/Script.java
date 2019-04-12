@@ -3,11 +3,13 @@ package structs;
 import java.util.Date;
 import java.util.List;
 
+//10/04/2019
 public class Script {
 	private Date creationDate;
 	private Date modifyDate;
 	private List<Table> tables;
 	private List<Command> commands;
+	private String basePath;
 	
 	private String headerMessage;
 
@@ -49,6 +51,14 @@ public class Script {
 
 	public void setHeaderMessage(String headerMessage) {
 		this.headerMessage = headerMessage;
+	}
+	
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
 	}
 	
 }

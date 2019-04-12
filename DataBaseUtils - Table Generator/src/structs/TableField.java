@@ -1,11 +1,13 @@
 package structs;
 
+//10/04/2019
 public class TableField {
 	private String name;
 	private FieldType type;
 	private String args;
 	private int constraints;
 	private String referencedTable;
+	private String referencedColumn;
 	
 	public TableField() {
 		
@@ -61,6 +63,14 @@ public class TableField {
 	
 	public void setReferencedTable(String referencedTable) {
 		this.referencedTable = referencedTable;
+	}
+	
+	public String getReferencedColumn() {
+		return referencedColumn;
+	}
+	
+	public void setReferencedColumn(String referencedColumn) {
+		this.referencedColumn = referencedColumn;
 	}
 	
 }
