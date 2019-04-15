@@ -19,7 +19,7 @@ public class FieldTypeComboBoxRenderer extends JLabel implements ListCellRendere
 		if(value == null)
 			setText("Selecione o tipo");
 		else
-			setText(((FieldType)value).getName());
+			setText(value.getName());
 		return this;
 	}
 	

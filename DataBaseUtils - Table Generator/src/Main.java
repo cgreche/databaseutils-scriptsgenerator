@@ -3,11 +3,14 @@
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BoxLayout;
+import javax.swing.CellEditor;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,16 +24,20 @@ import javax.swing.event.ListSelectionListener;
 import generators.Generator;
 import generators.MySQLGenerator;
 import generators.OracleGenerator;
+import structs.AlterTableCommand;
+import structs.Command;
 import structs.Constraints;
+import structs.CreateTableCommand;
 import structs.GenericTypes;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
 import ui.TableFieldTable;
+import ui.TableListRenderer;
 
 public class Main {
 	
-	static Table currentSelectedTable = null;
+	static Script currentSelectedScript = null;
 	
 	static TableFieldTable table;
 	
@@ -81,22 +88,83 @@ public class Main {
 		return table;
 	}
 	
+	private static Script createScript1() {
+		Table table1 = createTable1();
+		Script script = new Script();
+		script.setObjectName(table1.getName());
+		script.addCommand(new CreateTableCommand(table1));
+		TableField field3 = new TableField();
+		field3.setName("ERICLES");
+		field3.setConstraints(Constraints.PK);
+		field3.setType(GenericTypes.DATE);
+		script.addCommand(new AlterTableCommand(table1).addColumn(field3));
+		return script;
+	}
+	
+	private static Script createScript2() {
+		Table table2 = createTable2();
+		Script script = new Script();
+		script.setObjectName(table2.getName());
+		script.addCommand(new CreateTableCommand(table2));
+		
+		TableField field3 = new TableField();
+		field3.setName("GUILHERME");
+		field3.setConstraints(Constraints.PK);
+		field3.setType(GenericTypes.TIMESTAMP);
+		script.addCommand(new AlterTableCommand(table2).addColumn(field3));
+		script.addCommand(new AlterTableCommand(table2).dropColumn(field3));
+		
+		TableField fieldID2 = table2.getFieldByName("ID2");
+		fieldID2.setType(GenericTypes.TEXT);
+		fieldID2.setArgs("100");
+		script.addCommand(new AlterTableCommand(table2).modifyColumn(fieldID2));
+		return script;
+	}
+	
 	
 	
 	private static void updateColumnTable() {
-		if(currentSelectedTable != null) {
-			table.setData(currentSelectedTable.getFields());
+		if(currentSelectedScript != null) {
+			List<Command> commands = currentSelectedScript.getCommands();
+			if(commands == null) {
+				table.setData(null);
+				return;
+			}
+			
+
+			Table resultingTable = new Table();
+			for(Command command : commands) {
+				if(command instanceof CreateTableCommand) {
+					resultingTable = ((CreateTableCommand) command).getTable().clone();
+					table.setData(resultingTable.getFields());
+				}
+				else if(command instanceof AlterTableCommand) {
+					TableField field = ((AlterTableCommand) command).getField();
+					AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
+					if(subType == AlterTableCommand.SubType.MODIFY_COLUMN) {
+						table.modifyField(field);
+					}
+					else if(subType == AlterTableCommand.SubType.DROP_COLUMN) {
+						table.dropField(((AlterTableCommand) command).getField());
+					}
+					else if(subType == AlterTableCommand.SubType.ADD_COLUMN) {
+						table.addField(((AlterTableCommand) command).getField(),false);
+					}
+				}
+			}
+				
 		}
 		else {
 			table.setData(null);
 		}
-		
 	}
 	
 	public static void main(String [] args) {
 		
 		Table table1 = createTable1();
 		Table table2 = createTable2();
+		Script script1 = createScript1();
+		Script script2 = createScript2();
 		
 		JFrame frame = new JFrame("Simple GUI");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -104,16 +172,35 @@ public class Main {
 		table = new TableFieldTable();
 		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		table.setFillsViewportHeight(true);
+		table.addFocusListener(new FocusListener() {
+            public void focusGained(FocusEvent e) {
+            }
+
+            // this function successfully provides cell editing stop
+            // on cell losts focus (but another cell doesn't gain focus)
+            public void focusLost(FocusEvent e) {
+                CellEditor cellEditor = table.getCellEditor();
+                if (cellEditor != null) {
+                    if (cellEditor.getCellEditorValue() != null)
+                        cellEditor.stopCellEditing();
+                    else
+                        cellEditor.cancelCellEditing();
+                }
+                
+                //currentSelectedTable.setFields(table.getData());
+            }
+        });
 		
-		DefaultListModel<Table> listModel = new DefaultListModel<>();
-		listModel.addElement(table1);
-		listModel.addElement(table2);
-		JList<Table> list = new JList<>(listModel);
+		DefaultListModel<Script> listModel = new DefaultListModel<>();
+		listModel.addElement(script1);
+		listModel.addElement(script2);
+		JList<Script> list = new JList<>(listModel);
+		list.setCellRenderer(new TableListRenderer());
 		list.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				if(!arg0.getValueIsAdjusting()) {
-					currentSelectedTable = list.getSelectedValue();
+					currentSelectedScript = list.getSelectedValue();
 					updateColumnTable();
 				}
 			}
@@ -128,7 +215,7 @@ public class Main {
 			public void actionPerformed(ActionEvent e) {
 				Table table = new Table();
 				table.setName(textFieldTableName.getName());
-				listModel.addElement(table);
+				//listModel.addElement(table);
 			}
 		});
 		JButton buttonAddColumn = new JButton("Add");
@@ -143,34 +230,28 @@ public class Main {
 		buttonGenerate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				List<TableField> data = table.getData();
-
-				Table table = new Table();
-				table.setName("TEST_TABLE");
-				table.setFields(data);
-
 				String basePath = textFieldBasePath.getText();
-				Script script = new Script();
-				script.setBasePath(basePath + "/OracleDB");
-				script.setHeaderMessage("test");
-				List<Table> tableList = new ArrayList<Table>();
-			    int size = list.getModel().getSize(); // 4
-			    for (int i = 0; i < size; i++) {
-			      Table item = list.getModel().getElementAt(i);
-			      tableList.add(item);
-			    }
-			    
-				script.setTables(tableList);
 				
-				Generator generator = new OracleGenerator();
-				generator.generate(script);
+				List<Script> scriptList = new ArrayList<Script>();
+				int size = list.getModel().getSize(); // 4
+				for (int i = 0; i < size; i++) {
+					Script script = list.getModel().getElementAt(i);
+					scriptList.add(script);
+				}
+				
+				for(Script script : scriptList) {
+					script.setBasePath(basePath + "/OracleDB");
+					script.setHeaderMessage("test");
+					Generator generator = new OracleGenerator();
+					generator.generate(script);
+					
+					script.setBasePath(basePath + "/MySQL");
+					generator = new MySQLGenerator();
+					generator.generate(script);
+				}
 
-				script.setBasePath(basePath + "/MySQL");
-				generator = new MySQLGenerator();
-				generator.generate(script);
 			}
 		});
-
 		
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(textFieldBasePath);

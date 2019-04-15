@@ -1,5 +1,6 @@
 package ui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -14,7 +15,7 @@ public class TableFieldsTableModel extends AbstractTableModel {
 		
 	private static final long serialVersionUID = -1L;
 	
-	List<TableFieldTableItem> data;
+	List<TableFieldTableItem> data = new ArrayList<>();
 	String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Coluna refenciada"};
 	
 	@Override
@@ -101,7 +102,7 @@ public class TableFieldsTableModel extends AbstractTableModel {
 	}
 	
 	public void addEmptyRow() {
-		addRow(new TableFieldTableItem());
+		addRow(new TableFieldTableItem(new TableField(),0));
 	}
 	
 	public List<TableFieldTableItem> getData() {

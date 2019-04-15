@@ -7,13 +7,5 @@ public class Command {
 		ALTER_TABLE
 	};
 	
-	public enum SubType {
-		ADD_COLUMN,
-		MODIFY_COLUMN,
-		DROP_COLUMN
-	}
-	
 	private Type type;
-	private Table table;
-	private TableField field;
 }

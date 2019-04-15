@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import structs.AlterTableCommand;
 import structs.Constraints;
+import structs.CreateTableCommand;
 import structs.FieldType;
 import structs.GenericTypes;
 import structs.Table;
@@ -49,7 +51,8 @@ public class MySQLGenerator extends Generator {
 	}
 	
 	@Override
-	public String generateCreateTable(Table table) {
+	public String generateCreateTable(CreateTableCommand command) {
+		Table table = command.getTable();
 		String result = "CREATE TABLE ";
 		result += table.getName();
 		result += "(\n";
@@ -87,7 +90,9 @@ public class MySQLGenerator extends Generator {
 	}
 	
 	@Override
-	public void postCreateTableGeneration(Table table) {
+	public void postCreateTableGeneration(CreateTableCommand command) {
+		Table table = command.getTable();
+		
 		String resultContent = "";
 		
 		List<TableField> fkFields = table.getFKs();
@@ -107,5 +112,11 @@ public class MySQLGenerator extends Generator {
 		} catch(Exception e) {
 			
 		}
+	}
+	
+	@Override
+	public String generateAlterTable(AlterTableCommand command) {
+		//todo
+		return null;
 	}
 }
