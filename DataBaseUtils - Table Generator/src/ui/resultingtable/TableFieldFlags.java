@@ -1,4 +1,4 @@
-package ui;
+package ui.resultingtable;
 
 public class TableFieldFlags {
 	public static final int ORIGINAL = 0;

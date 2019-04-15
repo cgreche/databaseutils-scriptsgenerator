@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.CellEditor;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -32,14 +33,15 @@ import structs.GenericTypes;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
-import ui.TableFieldTable;
-import ui.TableListRenderer;
+import ui.ScriptListRenderer;
+import ui.resultingtable.TableFieldTable;
 
 public class Main {
-	
+	static List<Script> scriptList = new ArrayList<>();
 	static Script currentSelectedScript = null;
-	
 	static TableFieldTable table;
+	
+	static JList<Command> listCommands;
 	
 	private static Table createTable1() {
 		TableField field1 = new TableField();
@@ -122,6 +124,14 @@ public class Main {
 	}
 	
 	
+	private static void updateCommandList() {
+		if(currentSelectedScript == null)
+			return;
+		List<Command> commands = currentSelectedScript.getCommands();
+		for(Command command : commands) {
+			((DefaultListModel<Command>) listCommands.getModel()).addElement(command);
+		}
+	}
 	
 	private static void updateColumnTable() {
 		if(currentSelectedScript != null) {
@@ -161,8 +171,6 @@ public class Main {
 	
 	public static void main(String [] args) {
 		
-		Table table1 = createTable1();
-		Table table2 = createTable2();
 		Script script1 = createScript1();
 		Script script2 = createScript2();
 		
@@ -195,13 +203,26 @@ public class Main {
 		listModel.addElement(script1);
 		listModel.addElement(script2);
 		JList<Script> list = new JList<>(listModel);
-		list.setCellRenderer(new TableListRenderer());
+		list.setCellRenderer(new ScriptListRenderer());
 		list.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				if(!arg0.getValueIsAdjusting()) {
 					currentSelectedScript = list.getSelectedValue();
 					updateColumnTable();
+					updateCommandList();
+				}
+			}
+		});
+		
+		DefaultListModel<Command> listModelCommands = new DefaultListModel<>();
+		listCommands = new JList<>(listModelCommands);
+		listCommands.setCellRenderer(new DefaultListCellRenderer());
+		listCommands.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent arg0) {
+				if(!arg0.getValueIsAdjusting()) {
+					
 				}
 			}
 		});
@@ -209,15 +230,20 @@ public class Main {
 		JTextField textFieldBasePath = new JTextField();
 		JTextField textFieldTableName = new JTextField();
 		JPanel panel = new JPanel();
-		JButton buttonAddTable = new JButton("Add table");
-		buttonAddTable.addActionListener(new ActionListener() {
+		JButton buttonAddScript = new JButton("Novo script");
+		JTextField tfScriptName = new JTextField();
+		JButton addCommand = new JButton();
+		buttonAddScript.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Table table = new Table();
-				table.setName(textFieldTableName.getName());
-				//listModel.addElement(table);
+				Script script = new Script();
+				script.setObjectName(tfScriptName.getName());
+				scriptList.add(script);
+				
+				listModel.addElement(script);
 			}
 		});
+		
 		JButton buttonAddColumn = new JButton("Add");
 		JButton buttonGenerate = new JButton("Generate");
 		buttonAddColumn.addActionListener(new ActionListener() {
@@ -256,7 +282,7 @@ public class Main {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(textFieldBasePath);
 		panel.add(textFieldTableName);
-		panel.add(buttonAddTable);
+		panel.add(buttonAddScript);
 		panel.add(list);
 		panel.add(buttonAddColumn);
 		panel.add(buttonGenerate);

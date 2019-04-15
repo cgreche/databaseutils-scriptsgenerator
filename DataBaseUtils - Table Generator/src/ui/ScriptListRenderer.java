@@ -8,10 +8,11 @@ import javax.swing.ListCellRenderer;
 
 import structs.Script;
 
+//15/04/2019
 @SuppressWarnings("serial")
-public class TableListRenderer extends JLabel implements ListCellRenderer<Script> {
+public class ScriptListRenderer extends JLabel implements ListCellRenderer<Script> {
 	
-	public TableListRenderer() {
+	public ScriptListRenderer() {
 		setOpaque(true);
 	}
 	
