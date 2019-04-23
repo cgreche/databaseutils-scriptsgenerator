@@ -7,5 +7,14 @@ public class Command {
 		ALTER_TABLE
 	};
 	
-	private Type type;
+	protected Type type;
+	protected Script script;
+	
+	public Command(Script script) {
+		this.script = script;
+	}
+	
+	public Script getScript() {
+		return script;
+	}
 }

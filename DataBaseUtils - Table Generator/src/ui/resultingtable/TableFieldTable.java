@@ -8,9 +8,10 @@ import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
+import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 
 import structs.FieldType;
 import structs.GenericTypes;
@@ -24,9 +25,25 @@ public class TableFieldTable extends JTable {
 	private TableFieldsTableModel model;
 	DefaultTableCellRenderer tableCellRenderer;
 	
+	private boolean showRemoved;
+	
 	public TableFieldTable() {
 		model = new TableFieldsTableModel();
 		setModel(model);
+		
+		showRemoved = false;
+		
+		RowFilter<TableFieldsTableModel, Integer> filter = new RowFilter<TableFieldsTableModel, Integer>() {
+			public boolean include(Entry<? extends TableFieldsTableModel, ? extends Integer> entry) {
+				TableFieldTableItem item = entry.getModel().getData().get(entry.getIdentifier());
+				return ((item.getFlags() & TableFieldFlags.DROPPED) == 0) || showRemoved;
+			}
+		};
+		
+		TableRowSorter<TableFieldsTableModel> sorter = new TableRowSorter<TableFieldsTableModel>(model);
+		sorter.setRowFilter(filter);
+		this.setRowSorter(sorter);
+		
 		tableCellRenderer = new DefaultTableCellRenderer() {
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -70,15 +87,16 @@ public class TableFieldTable extends JTable {
 		fieldTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
 	}
 	
+	public void showRemoved(boolean show) {
+		showRemoved = show;
+		model.fireTableDataChanged();
+	}
+	
 	public void setData(List<TableField> data) {
 		clearData();
 		for(TableField field : data) {
 			addRow(field);
 		}
-	}
-	
-	private void markAs(int rowIndex, TableFieldFlags flags) {
-		
 	}
 	
 	public void addField(TableField field, boolean original) {
@@ -92,6 +110,7 @@ public class TableFieldTable extends JTable {
 				tfiList.get(i).setField(field);
 				tfiList.get(i).setFlags(TableFieldFlags.MODIFIED);
 				model.fireTableRowsUpdated(i, i);
+				model.fireTableDataChanged(); //this calls the filter again
 				return;
 			}
 		}
@@ -103,6 +122,7 @@ public class TableFieldTable extends JTable {
 			if(field.getName().equals(tfiList.get(i).getField().getName())) {
 				tfiList.get(i).setFlags(TableFieldFlags.DROPPED);
 				model.fireTableRowsUpdated(i, i);
+				model.fireTableDataChanged(); //this calls the filter again
 				return;
 			}
 		}
@@ -137,5 +157,9 @@ public class TableFieldTable extends JTable {
 	
 	public void clearData() {
 		model.clearData();
+	}
+	
+	public void refresh() {
+		model.fireTableDataChanged();
 	}
 }

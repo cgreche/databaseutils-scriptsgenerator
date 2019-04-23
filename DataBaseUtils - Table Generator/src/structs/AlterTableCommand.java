@@ -15,7 +15,8 @@ public class AlterTableCommand extends Command {
 	private Table table;
 	private TableField field;
 	
-	public AlterTableCommand(Table table) {
+	public AlterTableCommand(Script script, Table table) {
+		super(script);
 		this.table = table;
 	}
 	
