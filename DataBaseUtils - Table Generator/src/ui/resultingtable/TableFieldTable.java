@@ -13,8 +13,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
+import structs.AlterTableCommand;
+import structs.Command;
+import structs.CreateTableCommand;
 import structs.FieldType;
 import structs.GenericTypes;
+import structs.Script;
+import structs.Table;
 import structs.TableField;
 
 //11/04/2019
@@ -90,6 +95,35 @@ public class TableFieldTable extends JTable {
 	public void showRemoved(boolean show) {
 		showRemoved = show;
 		model.fireTableDataChanged();
+	}
+	
+	public void setData(Script script) {
+		clearData();
+		if(script == null)
+			return;
+		List<Command> commands = script.getCommands();
+		if(commands.isEmpty())
+			return;
+		
+		for(Command command : commands) {
+			if(command instanceof CreateTableCommand) {
+				Table originalTable = ((CreateTableCommand) command).getTable().clone();
+				this.setData(originalTable.getFields());
+			}
+			else if(command instanceof AlterTableCommand) {
+				TableField field = ((AlterTableCommand) command).getField();
+				AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
+				if(subType == AlterTableCommand.SubType.MODIFY_COLUMN) {
+					this.modifyField(field);
+				}
+				else if(subType == AlterTableCommand.SubType.DROP_COLUMN) {
+					this.dropField(((AlterTableCommand) command).getField());
+				}
+				else if(subType == AlterTableCommand.SubType.ADD_COLUMN) {
+					this.addField(((AlterTableCommand) command).getField(),false);
+				}
+			}
+		}
 	}
 	
 	public void setData(List<TableField> data) {

@@ -10,8 +10,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 
 import structs.CreateTableCommand;
 import structs.Table;
@@ -24,13 +26,20 @@ import ui.frames.createtable.TableCreateTableFields;
 public class CreateTableCommandDialog extends JDialog {
 	
 	public JButton buttonNew;
-	public TableCreateTableFields tableFields;
 	public JPanel panelMain;
+	public JLabel lblTableName;
+	public JTextField tfTableName;
+	public TableCreateTableFields tableFields;
+	public JButton buttonSave;
 	
 	public CreateTableCommand result;
+	
+	boolean editMode;
 
 	public CreateTableCommandDialog(JFrame parent) {
 		super(parent, true);
+		
+		editMode = false;
 		
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -40,40 +49,66 @@ public class CreateTableCommandDialog extends JDialog {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
+				String tableName = tfTableName.getText();
+				
+				if(editMode) {
+					result.getTable().setName(tableName);
+				}
+				else {
+					Table table = new Table();
+					table.setName(tableName);
+					result = new CreateTableCommand(null,table);
+				}
+				
 				result.getTable().setFields(tableFields.getData());
 			}
+			
 			@Override
 			public void windowDeactivated(WindowEvent e) {
 				
 			}
 		});
-		
-		buttonNew = new JButton();
+
+		lblTableName = new JLabel("Nome da tabela");
+		tfTableName = new JTextField();
+
+		buttonNew = new JButton("Novo campo");
 		buttonNew.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				tableFields.addEmptyRow();
 			}
 		});
+		
 		tableFields = new TableCreateTableFields();
+		
+		buttonSave = new JButton("Salvar tabela");
+		
 		panelMain = new JPanel();
 		panelMain.setLayout(new BoxLayout(panelMain,BoxLayout.Y_AXIS));
+		panelMain.add(lblTableName);
+		panelMain.add(tfTableName);
 		panelMain.add(buttonNew);
 		panelMain.add(new JScrollPane(tableFields));
 		this.add(panelMain);
 		this.pack();
 	}
 	
-	public void open(CreateTableCommand command) {
+	public void insertNew() {
+		editMode = false;
+		this.setVisible(true);
+	}
+	
+	public void edit(CreateTableCommand command) {
+		editMode = true;
+		
 		if(command != null) {
 			result = command;
-			
 			Table table = command.getTable();
 			List<TableField> fields = table.getFields();
 			tableFields.setData(fields);
 		}
 		
-		result = new CreateTableCommand(null, new Table());
 		this.setVisible(true);
 	}
 	

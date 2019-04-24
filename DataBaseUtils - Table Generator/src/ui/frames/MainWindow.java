@@ -173,37 +173,7 @@ public class MainWindow extends JFrame {
 	}
 	
 	private void updateColumnTable() {
-		if(currentSelectedScript != null) {
-			List<Command> commands = currentSelectedScript.getCommands();
-			if(commands == null) {
-				tableResultingTable.setData(null);
-				return;
-			}
-			
-			for(Command command : commands) {
-				if(command instanceof CreateTableCommand) {
-					Table originalTable = ((CreateTableCommand) command).getTable().clone();
-					tableResultingTable.setData(originalTable.getFields());
-				}
-				else if(command instanceof AlterTableCommand) {
-					TableField field = ((AlterTableCommand) command).getField();
-					AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
-					if(subType == AlterTableCommand.SubType.MODIFY_COLUMN) {
-						tableResultingTable.modifyField(field);
-					}
-					else if(subType == AlterTableCommand.SubType.DROP_COLUMN) {
-						tableResultingTable.dropField(((AlterTableCommand) command).getField());
-					}
-					else if(subType == AlterTableCommand.SubType.ADD_COLUMN) {
-						tableResultingTable.addField(((AlterTableCommand) command).getField(),false);
-					}
-				}
-			}
-				
-		}
-		else {
-			tableResultingTable.setData(null);
-		}
+		tableResultingTable.setData(currentSelectedScript);
 	}
 	
 	public MainWindow() {
@@ -345,7 +315,7 @@ public class MainWindow extends JFrame {
 					int index = list.locationToIndex(evt.getPoint());
 					Command command = list.getModel().getElementAt(index);
 					if(command instanceof CreateTableCommand) {
-						createTableCommandDialog.open((CreateTableCommand)command);
+						createTableCommandDialog.edit((CreateTableCommand)command);
 						CreateTableCommand resultCommand = createTableCommandDialog.getResult();
 						updateColumnTable();
 					}
@@ -365,7 +335,6 @@ public class MainWindow extends JFrame {
 		panelCommands.setLayout(new BoxLayout(panelCommands, BoxLayout.Y_AXIS));
 		panelCommands.add(buttonNewCommand);
 		panelCommands.add(listCommands);
-		
 		
 		//
 		JButton buttonGenerate = new JButton("Generate");
