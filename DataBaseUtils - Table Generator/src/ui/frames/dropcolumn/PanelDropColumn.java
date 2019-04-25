@@ -14,18 +14,16 @@ import structs.TableField;
 @SuppressWarnings("serial")
 public class PanelDropColumn extends JPanel {
 	
-	JComboBox<TableField> fieldList;
-	Table resultingTable;
+	public JComboBox<TableField> fieldList;
 	
 	public PanelDropColumn() {
 		fieldList = new JComboBox<TableField>();
 		add(fieldList);
 	}
 	
-	public void update(AlterTableCommand command) {
+	public void update(Table table) {
 		fieldList.removeAllItems();
-		resultingTable = command.getScript().getResultTable();
-		List<TableField> fields = resultingTable.getFields();
+		List<TableField> fields = table.getFields();
 		for(TableField field : fields) {
 			fieldList.addItem(field);
 		}

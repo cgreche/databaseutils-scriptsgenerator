@@ -19,8 +19,10 @@ public class ScriptListRenderer extends JLabel implements ListCellRenderer<Scrip
 	@Override
 	public Component getListCellRendererComponent(JList<? extends Script> list, Script value, int index,
 			boolean isSelected, boolean cellHasFocus) {
-		if(value == null)
-			return null;
+		if(value == null) {
+			setText("wow");
+			return this;
+		}
         if (isSelected) {
             setBackground(list.getSelectionBackground());
             setForeground(list.getSelectionForeground());

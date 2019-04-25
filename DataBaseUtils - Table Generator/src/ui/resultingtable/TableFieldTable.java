@@ -102,7 +102,7 @@ public class TableFieldTable extends JTable {
 		if(script == null)
 			return;
 		List<Command> commands = script.getCommands();
-		if(commands.isEmpty())
+		if(commands == null || commands.isEmpty())
 			return;
 		
 		for(Command command : commands) {
@@ -113,13 +113,13 @@ public class TableFieldTable extends JTable {
 			else if(command instanceof AlterTableCommand) {
 				TableField field = ((AlterTableCommand) command).getField();
 				AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
-				if(subType == AlterTableCommand.SubType.MODIFY_COLUMN) {
+				if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
 					this.modifyField(field);
 				}
-				else if(subType == AlterTableCommand.SubType.DROP_COLUMN) {
+				else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
 					this.dropField(((AlterTableCommand) command).getField());
 				}
-				else if(subType == AlterTableCommand.SubType.ADD_COLUMN) {
+				else if(subType == AlterTableCommand.SubType.ADD_FIELD) {
 					this.addField(((AlterTableCommand) command).getField(),false);
 				}
 			}

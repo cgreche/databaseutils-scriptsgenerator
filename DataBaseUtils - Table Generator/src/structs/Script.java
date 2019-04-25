@@ -33,15 +33,15 @@ public class Script {
 				AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
 				int fieldIndex = resultingTable.getFieldIndex(field);
 				if(fieldIndex != -1) {
-					if(subType == AlterTableCommand.SubType.MODIFY_COLUMN) {
+					if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
 						resultingTable.getFields().set(fieldIndex, field);
 					}
-					else if(subType == AlterTableCommand.SubType.DROP_COLUMN) {
+					else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
 						resultingTable.getFields().remove(fieldIndex);
 					}
 				}
 				else {
-					if(subType == AlterTableCommand.SubType.ADD_COLUMN) {
+					if(subType == AlterTableCommand.SubType.ADD_FIELD) {
 						resultingTable.getFields().add(((AlterTableCommand) command).getField());
 					}
 				}

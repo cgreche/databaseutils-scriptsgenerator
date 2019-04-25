@@ -17,5 +17,10 @@ public class CreateTableCommand extends Command implements Cloneable {
 	public void setTable(Table table) {
 		this.table = table;
 	}
+	
+	@Override
+	public String toString() {
+		return "Create Table";
+	}
 
 }

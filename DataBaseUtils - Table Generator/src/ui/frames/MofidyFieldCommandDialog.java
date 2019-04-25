@@ -7,44 +7,41 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 
 import structs.AlterTableCommand;
-import structs.Script;
 import structs.Table;
-import structs.TableField;
-import ui.frames.dropcolumn.PanelDropColumn;
+import ui.modifycolumn.PanelModifyField;
 
 //16-04-2019
 
 @SuppressWarnings("serial")
-public class RemoveFieldCommandDialog extends JDialog {
+public class MofidyFieldCommandDialog extends JDialog {
 	
-	public static PanelDropColumn panelRemoveField;
+	public static PanelModifyField panelEditField;
 	
-	private Table parentTable;
 	private boolean editMode;
 	private AlterTableCommand result;
+	private Table parentTable;
 
-	public RemoveFieldCommandDialog(JFrame parent) {
+	public MofidyFieldCommandDialog(JFrame parent) {
 		super(parent, true);
 		
 		this.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				if(!editMode) {
-					result = new AlterTableCommand(null, parentTable);
-					result.dropColumn((TableField)panelRemoveField.fieldList.getSelectedItem());
+					result = new AlterTableCommand(null,parentTable);
+					result.addColumn(panelEditField.currentField);
 				}
 			}
 		});
 		
-		panelRemoveField = new PanelDropColumn();
-		this.add(panelRemoveField);
+		panelEditField = new PanelModifyField();
+		this.add(panelEditField);
 		this.pack();
 	}
 	
 	public void insertNew(Table parentTable) {
 		editMode = false;
 		this.parentTable = parentTable;
-		panelRemoveField.update(parentTable);
 		this.setVisible(true);
 	}
 	
@@ -52,8 +49,7 @@ public class RemoveFieldCommandDialog extends JDialog {
 		editMode = true;
 		if(command != null) {
 			result = command;
-			parentTable = command.getTable();
-			panelRemoveField.update(parentTable);
+			panelEditField.update(result.getTable());
 		}
 		
 		this.setVisible(true);

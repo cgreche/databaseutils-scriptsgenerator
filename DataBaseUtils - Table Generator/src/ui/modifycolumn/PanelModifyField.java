@@ -2,7 +2,6 @@ package ui.modifycolumn;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.util.List;
 
 import javax.swing.JCheckBox;
@@ -20,7 +19,7 @@ import structs.TableField;
 //16-04-2019
 
 @SuppressWarnings("serial")
-public class PanelModifyColumn extends JPanel {
+public class PanelModifyField extends JPanel {
 	JComboBox<TableField> ddField;
 	JComboBox<FieldType> ddFieldType;
 	JTextField tfSize;
@@ -31,10 +30,9 @@ public class PanelModifyColumn extends JPanel {
 	JTextField tfRetferencedColumn;
 	
 	Script currentScript;
-	Table resultingTable;
-	TableField currentField;
+	public TableField currentField;
 
-	public PanelModifyColumn() {
+	public PanelModifyField() {
 		ddField = new JComboBox<TableField>();
 		ddField.addActionListener(new ActionListener () {
 			@Override
@@ -47,6 +45,8 @@ public class PanelModifyColumn extends JPanel {
 				cbNotNull.setSelected(item.isNotNull());
 				tfReferencedTable.setText(item.getReferencedTable());
 				tfRetferencedColumn.setText(item.getReferencedColumn());
+				
+				currentField = item;
 			}
 		});
 		
@@ -73,10 +73,9 @@ public class PanelModifyColumn extends JPanel {
 		add(tfRetferencedColumn);
 	}
 	
-	public void update(AlterTableCommand command) {
+	public void update(Table table) {
 		ddField.removeAllItems();
-		resultingTable = command.getScript().getResultTable();
-		List<TableField> fields = resultingTable.getFields();
+		List<TableField> fields = table.getFields();
 		for(TableField field : fields) {
 			ddField.addItem(field);
 		}

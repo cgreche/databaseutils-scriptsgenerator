@@ -5,9 +5,9 @@ package structs;
 public class AlterTableCommand extends Command {
 
 	public enum SubType {
-		ADD_COLUMN,
-		MODIFY_COLUMN,
-		DROP_COLUMN
+		ADD_FIELD,
+		MODIFY_FIELD,
+		DROP_FIELD
 	}
 
 	private SubType subType;
@@ -22,19 +22,19 @@ public class AlterTableCommand extends Command {
 	
 	public AlterTableCommand addColumn(TableField field) {
 		this.field = field;
-		subType = SubType.ADD_COLUMN;
+		subType = SubType.ADD_FIELD;
 		return this;
 	}
 
 	public AlterTableCommand modifyColumn(TableField field) {
 		this.field = field;
-		subType = SubType.MODIFY_COLUMN;
+		subType = SubType.MODIFY_FIELD;
 		return this;
 	}
 
 	public AlterTableCommand dropColumn(TableField field) {
 		this.field = field;
-		subType = SubType.DROP_COLUMN;
+		subType = SubType.DROP_FIELD;
 		return this;
 	}
 	
@@ -48,6 +48,24 @@ public class AlterTableCommand extends Command {
 	
 	public TableField getField() {
 		return field;
+	}
+	
+	@Override
+	public String toString() {
+		String cmdString = "Alter Table (";
+		switch(subType) {
+		case ADD_FIELD:
+			cmdString += "Add field";
+			break;
+		case MODIFY_FIELD:
+			cmdString += "Modify field";
+			break;
+		case DROP_FIELD:
+			cmdString += "Remove field";
+			break;
+		}
+		cmdString += ")";
+		return cmdString;
 	}
 	
 }

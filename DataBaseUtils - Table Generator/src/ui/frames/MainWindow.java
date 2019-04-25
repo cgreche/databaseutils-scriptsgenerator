@@ -56,7 +56,7 @@ public class MainWindow extends JFrame {
 	
 	static CreateTableCommandDialog createTableCommandDialog;
 	static AddFieldCommandDialog addFieldCommandDialog;
-	static EditFieldCommandDialog editFieldCommandDialog;
+	static MofidyFieldCommandDialog editFieldCommandDialog;
 	static RemoveFieldCommandDialog removeFieldCommandDialog;
 
 	JList<Command> listCommands;
@@ -64,11 +64,18 @@ public class MainWindow extends JFrame {
 	
 	JPanel panelProject;
 	JPanel panelScripts;
-		JLabel lblScriptName;
-		JTextField tfScriptName;
+		JPanel panelScriptNameField;
+			JLabel lblScriptName;
+			JTextField tfScriptName;
 		JButton btnNewScript;
+		JList<Script> listScripts;
 		
 	static JPanel panelCommands;
+		JButton btnCreateTableCommand;
+		JButton btnAddFieldCommand;
+		JButton btnModifyFieldCommand;
+		JButton btnDropFieldCommand;
+	
 	static JPanel panelHeader;
 	static JPanel panelData;
 	static JPanel panelResult;
@@ -163,10 +170,12 @@ public class MainWindow extends JFrame {
 	}
 	
 	private void updateCommandList() {
+		((DefaultListModel<Command>) listCommands.getModel()).clear();
 		if(currentSelectedScript == null)
 			return;
 		List<Command> commands = currentSelectedScript.getCommands();
-		((DefaultListModel<Command>) listCommands.getModel()).clear();
+		if(commands == null)
+			return;
 		for(Command command : commands) {
 			((DefaultListModel<Command>) listCommands.getModel()).addElement(command);
 		}
@@ -210,13 +219,25 @@ public class MainWindow extends JFrame {
 		menuBar.add(itemAuthor);
 		
 		
-		
+		//
 		createTableCommandDialog = new CreateTableCommandDialog(this);
 		addFieldCommandDialog = new AddFieldCommandDialog(this);
-		editFieldCommandDialog = new EditFieldCommandDialog(this);
+		editFieldCommandDialog = new MofidyFieldCommandDialog(this);
 		removeFieldCommandDialog = new RemoveFieldCommandDialog(this);
 		
+		cbShowRemovedFields = new JCheckBox("Show removed");
+		cbShowRemovedFields.setAlignmentX(RIGHT_ALIGNMENT);
+		cbShowRemovedFields.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        JCheckBox cbShowRemoved = (JCheckBox) e.getSource();
+		        tableResultingTable.showRemoved(cbShowRemoved.isSelected());
+		    }
+		});
+		
+		
 		tableResultingTable = new TableFieldTable();
+		tableResultingTable.setAlignmentX(RIGHT_ALIGNMENT);
 		tableResultingTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		tableResultingTable.setFillsViewportHeight(true);
 		tableResultingTable.addFocusListener(new FocusListener() {
@@ -242,10 +263,10 @@ public class MainWindow extends JFrame {
 		JTextField textFieldBasePath = new JTextField();
 		JTextField textFieldTableName = new JTextField();
 		
-		DefaultListModel<Script> scriptsListModel = new DefaultListModel<>();
-		
-		lblScriptName = new JLabel("Nome ");
+		lblScriptName = new JLabel("Nome ", JLabel.LEFT);
+		lblScriptName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 		tfScriptName = new JTextField();
+		tfScriptName.setMaximumSize(new Dimension(tfScriptName.getMaximumSize().width,tfScriptName.getPreferredSize().height));
 		btnNewScript = new JButton("Novo script");
 		btnNewScript.addActionListener(new ActionListener() {
 			@Override
@@ -254,15 +275,16 @@ public class MainWindow extends JFrame {
 				script.setObjectName(tfScriptName.getName());
 				scriptList.add(script);
 				
-				scriptsListModel.addElement(script);
+				((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
 			}
 		});
 		
 		
+		DefaultListModel<Script> scriptsListModel = new DefaultListModel<>();
 		scriptsListModel.addElement(script1);
 		scriptsListModel.addElement(script2);
-		JList<Script> listScripts = new JList<>(scriptsListModel);
-		listScripts.setSize(new Dimension(500, 70));
+		listScripts = new JList<>(scriptsListModel);
+		//listScripts.setSize(new Dimension(500, 70));
 		listScripts.setCellRenderer(new ScriptListRenderer());
 		listScripts.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -277,32 +299,71 @@ public class MainWindow extends JFrame {
 		
 		panelScripts = new JPanel();
 		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.Y_AXIS));
+		panelScripts.add(lblScriptName);
+		panelScripts.add(tfScriptName);
 		panelScripts.add(btnNewScript);
 		panelScripts.add(listScripts);
-
-		JButton buttonNewCommand = new JButton("Novo comando");
+		
+		//Commands Panel
+		btnCreateTableCommand = new JButton("Create Table");
+		btnCreateTableCommand.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				createTableCommandDialog.insertNew();
+				CreateTableCommand command = createTableCommandDialog.getResult();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				}
+			}
+		});
+		btnAddFieldCommand = new JButton("Add field");
+		btnAddFieldCommand.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
+				AlterTableCommand command = addFieldCommandDialog.getResult();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				}
+			}
+		});
+		
+		btnModifyFieldCommand = new JButton("Modify field");
+		btnModifyFieldCommand.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				editFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
+				AlterTableCommand command = editFieldCommandDialog.getResult();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				}
+			}
+		});
+		
+		btnDropFieldCommand = new JButton("Remove field");
+		btnDropFieldCommand.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				removeFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
+				AlterTableCommand command = removeFieldCommandDialog.getResult();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				}
+			}
+		});
+		
 		DefaultListModel<Command> listModelCommands = new DefaultListModel<>();
 		listCommands = new JList<>(listModelCommands);
-		listCommands.setSize(new Dimension(500, 70));
+		//listCommands.setSize(new Dimension(500, 70));
 		listCommands.setCellRenderer(new DefaultListCellRenderer());
 		listCommands.addListSelectionListener(new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent arg0) {
 				if(!arg0.getValueIsAdjusting()) {
-					/*
-					Command command = listCommands.getSelectedValue();
-					if(command instanceof CreateTableCommand) {
-						createTableWindow.open((CreateTableCommand)command);
-					}
-					else if(command instanceof AlterTableCommand) {
-						AlterTableCommand c = (AlterTableCommand)command;
-						AlterTableCommand.SubType subType = c.getSubType();
-						if(subType == AlterTableCommand.SubType.MODIFY_COLUMN)
-							panelEditField.update(currentSelectedScript);
-						else if(subType == AlterTableCommand.SubType.DROP_COLUMN)
-							panelRemoveField.update(currentSelectedScript);
-					}
-					*/
 				}
 			}
 		});
@@ -322,10 +383,12 @@ public class MainWindow extends JFrame {
 					else if(command instanceof AlterTableCommand) {
 						AlterTableCommand c = (AlterTableCommand)command;
 						AlterTableCommand.SubType subType = c.getSubType();
-						if(subType == AlterTableCommand.SubType.MODIFY_COLUMN)
-							editFieldCommandDialog.open(c);
-						else if(subType == AlterTableCommand.SubType.DROP_COLUMN)
-							removeFieldCommandDialog.open(c);
+						if(subType == AlterTableCommand.SubType.ADD_FIELD)
+							addFieldCommandDialog.edit(c);
+						else if(subType == AlterTableCommand.SubType.MODIFY_FIELD)
+							editFieldCommandDialog.edit(c);
+						else if(subType == AlterTableCommand.SubType.DROP_FIELD)
+							removeFieldCommandDialog.edit(c);
 					}
 				}
 			}
@@ -333,7 +396,10 @@ public class MainWindow extends JFrame {
 
 		panelCommands = new JPanel();
 		panelCommands.setLayout(new BoxLayout(panelCommands, BoxLayout.Y_AXIS));
-		panelCommands.add(buttonNewCommand);
+		panelCommands.add(btnCreateTableCommand);
+		panelCommands.add(btnAddFieldCommand);
+		panelCommands.add(btnModifyFieldCommand);
+		panelCommands.add(btnDropFieldCommand);
 		panelCommands.add(listCommands);
 		
 		//
@@ -371,16 +437,8 @@ public class MainWindow extends JFrame {
 		panelData.add(panelScripts);
 		panelData.add(panelCommands);
 		
-		cbShowRemovedFields = new JCheckBox("Show removed");
-		cbShowRemovedFields.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        JCheckBox cbShowRemoved = (JCheckBox) e.getSource();
-		        tableResultingTable.showRemoved(cbShowRemoved.isSelected());
-		    }
-		});
-		
 		panelResult = new JPanel();
+		panelResult.setLayout(new BoxLayout(panelResult, BoxLayout.Y_AXIS));
 		panelResult.add(cbShowRemovedFields);
 		panelResult.add(new JScrollPane(tableResultingTable));
 		
