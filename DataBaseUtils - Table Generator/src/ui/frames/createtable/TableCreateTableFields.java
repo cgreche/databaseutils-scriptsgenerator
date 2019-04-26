@@ -61,10 +61,7 @@ public class TableCreateTableFields extends JTable {
 	}
 	
 	public void setData(List<TableField> data) {
-		clearData();
-		for(TableField field : data) {
-			addField(field);
-		}
+		model.setData(data);
 	}
 	
 	public void addField(TableField field) {

@@ -15,7 +15,7 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 		
 	private static final long serialVersionUID = -1L;
 	
-	List<TableField> data = new ArrayList<>();
+	List<TableField> data;
 	String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Coluna refenciada"};
 	
 	@Override
@@ -101,6 +101,10 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 	
 	public void addEmptyRow() {
 		addRow(new TableField());
+	}
+	
+	public void setData(List<TableField> data) {
+		this.data = data;
 	}
 	
 	public List<TableField> getData() {

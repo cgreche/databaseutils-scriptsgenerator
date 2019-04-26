@@ -96,27 +96,26 @@ public class MySQLGenerator extends Generator {
 		String resultContent = "";
 		
 		List<TableField> fkFields = table.getFKs();
-		if(fkFields != null) {
-			for(TableField field : fkFields) {
-				resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
-				+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
-				+ "/\n";
-			}
+		if(fkFields == null)
+			return;
+		for(TableField field : fkFields) {
+			resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
+			+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
+			+ "/\n";
 		}
 		
-		String outputFilename = "c:/temp/" + table.getName() + ".con";
+		String outputFilename = "c:/temp/MySQL/" + table.getName() + ".con";
 		try {
 			FileWriter fileWriter = new FileWriter(outputFilename);
 			fileWriter.write(resultContent);
 			fileWriter.close();
 		} catch(Exception e) {
-			
 		}
 	}
 	
 	@Override
 	public String generateAlterTable(AlterTableCommand command) {
 		//todo
-		return null;
+		return "";
 	}
 }

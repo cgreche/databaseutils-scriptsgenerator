@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -35,6 +36,10 @@ public class CreateTableCommandDialog extends JDialog {
 	public CreateTableCommand result;
 	
 	boolean editMode;
+	
+	private CreateTableCommand currentCommand;
+	private Table currentTable;
+	private List<TableField> currentFields;
 
 	public CreateTableCommandDialog(JFrame parent) {
 		super(parent, true);
@@ -51,16 +56,9 @@ public class CreateTableCommandDialog extends JDialog {
 			public void windowClosing(WindowEvent e) {
 				String tableName = tfTableName.getText();
 				
-				if(editMode) {
-					result.getTable().setName(tableName);
-				}
-				else {
-					Table table = new Table();
-					table.setName(tableName);
-					result = new CreateTableCommand(null,table);
-				}
-				
-				result.getTable().setFields(tableFields.getData());
+				//currentCommand references currentTable
+				currentTable.setName(tableName);
+				result = currentCommand;
 			}
 			
 			@Override
@@ -94,6 +92,11 @@ public class CreateTableCommandDialog extends JDialog {
 		this.pack();
 	}
 	
+	private void updateControls() {
+		tfTableName.setText(currentTable.getName());
+		tableFields.setData(currentFields);
+	}
+	
 	public void insertNew() {
 		editMode = false;
 		this.setVisible(true);
@@ -103,12 +106,17 @@ public class CreateTableCommandDialog extends JDialog {
 		editMode = true;
 		
 		if(command != null) {
-			result = command;
-			Table table = command.getTable();
-			List<TableField> fields = table.getFields();
-			tableFields.setData(fields);
+			currentCommand = command;
+			currentTable = command.getTable().clone();
+			currentFields = new ArrayList<>(command.getTable().getFields());
+		}
+		else {
+			currentTable = new Table();
+			currentFields = currentTable.getFields();
+			currentCommand = new CreateTableCommand(null,currentTable);
 		}
 		
+		updateControls();
 		this.setVisible(true);
 	}
 	

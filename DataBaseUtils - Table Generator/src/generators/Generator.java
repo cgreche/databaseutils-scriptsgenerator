@@ -17,23 +17,23 @@ public abstract class Generator {
 		if(commands == null)
 			return;
 		
-		String outputFileNameTab = script.getBasePath() + "/" + ((CreateTableCommand)commands.get(0)).getTable().getName() + ".tab";
+		String outputFileNameTab = script.getBasePath() + "/" + objectName + ".tab";
 		FileWriter fileWriter;
 		try {
-		 fileWriter = new FileWriter(outputFileNameTab);
-		for(Command command : commands) {
-			String resultContent = "";
-			if(command instanceof CreateTableCommand) {
-				resultContent = generateCreateTable((CreateTableCommand)command);
-				postCreateTableGeneration((CreateTableCommand)command);
+			fileWriter = new FileWriter(outputFileNameTab);
+			for(Command command : commands) {
+				String resultContent = "";
+				if(command instanceof CreateTableCommand) {
+					resultContent = generateCreateTable((CreateTableCommand)command);
+					postCreateTableGeneration((CreateTableCommand)command);
+				}
+				else if(command instanceof AlterTableCommand) {
+					resultContent = generateAlterTable((AlterTableCommand)command);
+				}
+				fileWriter.write(resultContent);
 			}
-			else if(command instanceof AlterTableCommand) {
-				resultContent = generateAlterTable((AlterTableCommand)command);
-			}
-			fileWriter.write(resultContent);
-		}
-		
-		fileWriter.close();
+			
+			fileWriter.close();
 		} catch(Exception e) {
 			
 		}

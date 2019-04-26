@@ -1,51 +1,21 @@
 package ui.frames;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import javax.swing.BoxLayout;
-import javax.swing.CellEditor;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
-import generators.Generator;
-import generators.MySQLGenerator;
-import generators.OracleGenerator;
-import structs.AlterTableCommand;
-import structs.Command;
-import structs.Constraints;
-import structs.CreateTableCommand;
-import structs.GenericTypes;
-import structs.Script;
-import structs.Table;
-import structs.TableField;
-import ui.ScriptListRenderer;
-import ui.frames.dropcolumn.PanelDropColumn;
-import ui.resultingtable.TableFieldTable;
+import structs.Project;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
+	
+	public static Project currentProject;
+	
 	public JMenuBar menuBar;
 	
 	public JMenu menuNew;
@@ -58,140 +28,18 @@ public class MainWindow extends JFrame {
 	static AddFieldCommandDialog addFieldCommandDialog;
 	static MofidyFieldCommandDialog editFieldCommandDialog;
 	static RemoveFieldCommandDialog removeFieldCommandDialog;
-
-	JList<Command> listCommands;
-	PanelDropColumn panelRemoveField;
 	
 	JPanel panelProject;
-	JPanel panelScripts;
-		JPanel panelScriptNameField;
-			JLabel lblScriptName;
-			JTextField tfScriptName;
-		JButton btnNewScript;
-		JList<Script> listScripts;
-		
-	static JPanel panelCommands;
-		JButton btnCreateTableCommand;
-		JButton btnAddFieldCommand;
-		JButton btnModifyFieldCommand;
-		JButton btnDropFieldCommand;
 	
-	static JPanel panelHeader;
-	static JPanel panelData;
-	static JPanel panelResult;
-		JCheckBox cbShowRemovedFields;
-	static JPanel panelFooter;
-	
-	JLabel lblProjectTitle = new JLabel("PROJETO DE TESTE 1");
-	static TableFieldTable tableResultingTable;
-	
-	List<Script> scriptList = new ArrayList<>();
-	Script currentSelectedScript = null;
-
-
-	private static Table createTable1() {
-		TableField field1 = new TableField();
-		field1.setName("GUID");
-		field1.setConstraints(Constraints.PK);
-		field1.setArgs("255");
-		field1.setType(GenericTypes.TEXT);
-		
-		TableField field2 = new TableField();
-		field2.setName("IDEVENTO");
-		field2.setArgs("36");
-		field2.setType(GenericTypes.TEXT);
-		field2.setConstraints(Constraints.NOT_NULL|Constraints.FK);
-		field2.setReferencedTable("WOOOOW");
-		
-		TableField field3 = new TableField();
-		field3.setName("TENANTID");
-		field3.setArgs("10,0");
-		field3.setType(GenericTypes.NUMERIC);
-		
-		Table table = new Table();
-		table.setName("S5001_EVT_BASES_TRAB");
-		table.setFields(new ArrayList<>(Arrays.asList(new TableField[] {field1,field2,field3})));
-		return table;
-	}
-	
-	private static Table createTable2() {
-		TableField field1 = new TableField();
-		field1.setName("GUID");
-		field1.setConstraints(Constraints.PK);
-		field1.setType(GenericTypes.TEXT);
-		
-		TableField field3 = new TableField();
-		field3.setName("ID2");
-		field3.setConstraints(Constraints.PK);
-		field3.setType(GenericTypes.NUMERIC);
-		field3.setArgs("100,2");
-		
-		TableField field2 = new TableField();
-		field2.setName("TENANTID");
-		field2.setType(GenericTypes.NUMERIC);
-		
-		Table table = new Table();
-		table.setName("TEST_TABLE");
-		table.setFields(new ArrayList<>(Arrays.asList(new TableField[] {field1,field2,field3})));
-		return table;
-	}
-	
-	private static Script createScript1() {
-		Table table1 = createTable1();
-		Script script = new Script();
-		script.setObjectName(table1.getName());
-		script.addCommand(new CreateTableCommand(script, table1));
-		TableField field3 = new TableField();
-		field3.setName("ERICLES");
-		field3.setConstraints(Constraints.PK);
-		field3.setType(GenericTypes.DATE);
-		script.addCommand(new AlterTableCommand(script,table1).addColumn(field3));
-		return script;
-	}
-	
-	private static Script createScript2() {
-		Table table2 = createTable2();
-		Script script = new Script();
-		script.setObjectName(table2.getName());
-		script.addCommand(new CreateTableCommand(script, table2));
-		
-		TableField field3 = new TableField();
-		field3.setName("GUILHERME");
-		field3.setConstraints(Constraints.PK);
-		field3.setType(GenericTypes.TIMESTAMP);
-		script.addCommand(new AlterTableCommand(script, table2).addColumn(field3));
-		script.addCommand(new AlterTableCommand(script,table2).dropColumn(field3));
-		
-		TableField fieldID2 = table2.getFieldByName("ID2");
-		fieldID2.setType(GenericTypes.TEXT);
-		fieldID2.setArgs("100");
-		script.addCommand(new AlterTableCommand(script,table2).modifyColumn(fieldID2));
-		return script;
-	}
-	
-	private void updateCommandList() {
-		((DefaultListModel<Command>) listCommands.getModel()).clear();
-		if(currentSelectedScript == null)
-			return;
-		List<Command> commands = currentSelectedScript.getCommands();
-		if(commands == null)
-			return;
-		for(Command command : commands) {
-			((DefaultListModel<Command>) listCommands.getModel()).addElement(command);
-		}
-	}
-	
-	private void updateColumnTable() {
-		tableResultingTable.setData(currentSelectedScript);
+	public void openProject(Project project) {
+		currentProject = project;
+		panelProject.setVisible(true);
 	}
 	
 	public MainWindow() {
 		super("eSocial Techne Database Utils - Scripts generator");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		Script script1 = createScript1();
-		Script script2 = createScript2();
-		
 		menuBar = new JMenuBar();
 		menuNew = new JMenu();
 			itemNewProject = new JMenuItem();
@@ -208,16 +56,19 @@ public class MainWindow extends JFrame {
 				public void actionPerformed(ActionEvent ev) {
 					System.out.println("cliqued");
 					newProjectDialog.setVisible(true);
-					boolean result = newProjectDialog.getResult();
-					if(result)
-						System.out.println(newProjectDialog.getProjectName());
+					Project project = newProjectDialog.getResult();
+					if(project != null) {
+						currentProject = project;
+						System.out.println(project.getName());
+						panelProject.setVisible(true);
+					}
 				}
 			});
 		itemAuthor.setText("Author");
 		
 		menuBar.add(menuNew);
 		menuBar.add(itemAuthor);
-		
+		setJMenuBar(menuBar);
 		
 		//
 		createTableCommandDialog = new CreateTableCommandDialog(this);
@@ -225,236 +76,11 @@ public class MainWindow extends JFrame {
 		editFieldCommandDialog = new MofidyFieldCommandDialog(this);
 		removeFieldCommandDialog = new RemoveFieldCommandDialog(this);
 		
-		cbShowRemovedFields = new JCheckBox("Show removed");
-		cbShowRemovedFields.setAlignmentX(RIGHT_ALIGNMENT);
-		cbShowRemovedFields.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        JCheckBox cbShowRemoved = (JCheckBox) e.getSource();
-		        tableResultingTable.showRemoved(cbShowRemoved.isSelected());
-		    }
-		});
-		
-		
-		tableResultingTable = new TableFieldTable();
-		tableResultingTable.setAlignmentX(RIGHT_ALIGNMENT);
-		tableResultingTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-		tableResultingTable.setFillsViewportHeight(true);
-		tableResultingTable.addFocusListener(new FocusListener() {
-			public void focusGained(FocusEvent e) {
-			}
-			
-			// this function successfully provides cell editing stop
-			// on cell losts focus (but another cell doesn't gain focus)
-			public void focusLost(FocusEvent e) {
-				CellEditor cellEditor = tableResultingTable.getCellEditor();
-				if (cellEditor != null) {
-					if (cellEditor.getCellEditorValue() != null)
-						cellEditor.stopCellEditing();
-					else
-						cellEditor.cancelCellEditing();
-				}
-				
-				//currentSelectedTable.setFields(table.getData());
-			}
-		});
-		
-		
-		JTextField textFieldBasePath = new JTextField();
-		JTextField textFieldTableName = new JTextField();
-		
-		lblScriptName = new JLabel("Nome ", JLabel.LEFT);
-		lblScriptName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
-		tfScriptName = new JTextField();
-		tfScriptName.setMaximumSize(new Dimension(tfScriptName.getMaximumSize().width,tfScriptName.getPreferredSize().height));
-		btnNewScript = new JButton("Novo script");
-		btnNewScript.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Script script = new Script();
-				script.setObjectName(tfScriptName.getName());
-				scriptList.add(script);
-				
-				((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
-			}
-		});
-		
-		
-		DefaultListModel<Script> scriptsListModel = new DefaultListModel<>();
-		scriptsListModel.addElement(script1);
-		scriptsListModel.addElement(script2);
-		listScripts = new JList<>(scriptsListModel);
-		//listScripts.setSize(new Dimension(500, 70));
-		listScripts.setCellRenderer(new ScriptListRenderer());
-		listScripts.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				if(!arg0.getValueIsAdjusting()) {
-					currentSelectedScript = listScripts.getSelectedValue();
-					updateCommandList();
-					updateColumnTable();
-				}
-			}
-		});
-		
-		panelScripts = new JPanel();
-		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.Y_AXIS));
-		panelScripts.add(lblScriptName);
-		panelScripts.add(tfScriptName);
-		panelScripts.add(btnNewScript);
-		panelScripts.add(listScripts);
-		
-		//Commands Panel
-		btnCreateTableCommand = new JButton("Create Table");
-		btnCreateTableCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				createTableCommandDialog.insertNew();
-				CreateTableCommand command = createTableCommandDialog.getResult();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
-				}
-			}
-		});
-		btnAddFieldCommand = new JButton("Add field");
-		btnAddFieldCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				addFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
-				AlterTableCommand command = addFieldCommandDialog.getResult();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
-				}
-			}
-		});
-		
-		btnModifyFieldCommand = new JButton("Modify field");
-		btnModifyFieldCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				editFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
-				AlterTableCommand command = editFieldCommandDialog.getResult();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
-				}
-			}
-		});
-		
-		btnDropFieldCommand = new JButton("Remove field");
-		btnDropFieldCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				removeFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
-				AlterTableCommand command = removeFieldCommandDialog.getResult();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
-				}
-			}
-		});
-		
-		DefaultListModel<Command> listModelCommands = new DefaultListModel<>();
-		listCommands = new JList<>(listModelCommands);
-		//listCommands.setSize(new Dimension(500, 70));
-		listCommands.setCellRenderer(new DefaultListCellRenderer());
-		listCommands.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				if(!arg0.getValueIsAdjusting()) {
-				}
-			}
-		});
-		
-		listCommands.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent evt) {
-				JList<Command> list = (JList<Command>)evt.getSource();
-				if (evt.getClickCount() == 2) {
-					// Double-click detected
-					int index = list.locationToIndex(evt.getPoint());
-					Command command = list.getModel().getElementAt(index);
-					if(command instanceof CreateTableCommand) {
-						createTableCommandDialog.edit((CreateTableCommand)command);
-						CreateTableCommand resultCommand = createTableCommandDialog.getResult();
-						updateColumnTable();
-					}
-					else if(command instanceof AlterTableCommand) {
-						AlterTableCommand c = (AlterTableCommand)command;
-						AlterTableCommand.SubType subType = c.getSubType();
-						if(subType == AlterTableCommand.SubType.ADD_FIELD)
-							addFieldCommandDialog.edit(c);
-						else if(subType == AlterTableCommand.SubType.MODIFY_FIELD)
-							editFieldCommandDialog.edit(c);
-						else if(subType == AlterTableCommand.SubType.DROP_FIELD)
-							removeFieldCommandDialog.edit(c);
-					}
-				}
-			}
-		});
-
-		panelCommands = new JPanel();
-		panelCommands.setLayout(new BoxLayout(panelCommands, BoxLayout.Y_AXIS));
-		panelCommands.add(btnCreateTableCommand);
-		panelCommands.add(btnAddFieldCommand);
-		panelCommands.add(btnModifyFieldCommand);
-		panelCommands.add(btnDropFieldCommand);
-		panelCommands.add(listCommands);
-		
-		//
-		JButton buttonGenerate = new JButton("Generate");
-		buttonGenerate.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String basePath = textFieldBasePath.getText();
-				
-				List<Script> scriptList = new ArrayList<Script>();
-				int size = listScripts.getModel().getSize(); // 4
-				for (int i = 0; i < size; i++) {
-					Script script = listScripts.getModel().getElementAt(i);
-					scriptList.add(script);
-				}
-				
-				for(Script script : scriptList) {
-					script.setBasePath(basePath + "/OracleDB");
-					script.setHeaderMessage("test");
-					Generator generator = new OracleGenerator();
-					generator.generate(script);
-					
-					script.setBasePath(basePath + "/MySQL");
-					generator = new MySQLGenerator();
-					generator.generate(script);
-				}
-			}
-		});
-		
-		panelHeader = new JPanel();
-		panelHeader.add(lblProjectTitle);
-		
-		panelData = new JPanel();
-		panelData.setLayout(new BoxLayout(panelData, BoxLayout.X_AXIS));
-		panelData.add(panelScripts);
-		panelData.add(panelCommands);
-		
-		panelResult = new JPanel();
-		panelResult.setLayout(new BoxLayout(panelResult, BoxLayout.Y_AXIS));
-		panelResult.add(cbShowRemovedFields);
-		panelResult.add(new JScrollPane(tableResultingTable));
-		
-		panelFooter = new JPanel();
-		panelFooter.add(buttonGenerate);
-		
-		panelProject = new JPanel();
-		panelProject.setLayout(new BoxLayout(panelProject, BoxLayout.Y_AXIS));
-		panelProject.add(panelHeader);
-		panelProject.add(panelData);
-		panelProject.add(panelResult);
-		panelProject.add(panelFooter);
-		
+		panelProject = new ProjectPanel();
 		this.add(panelProject);
 		this.pack();
 		
-		setJMenuBar(menuBar);
+		panelProject.setVisible(false);
+
 	}
 }

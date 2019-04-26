@@ -83,7 +83,7 @@ public class OracleGenerator extends Generator {
 			}
 		}		
 		
-		result += "\n);";
+		result += "\n)\n/\n";
 		
 		return result;
 	}
@@ -94,21 +94,21 @@ public class OracleGenerator extends Generator {
 		String resultContent = "";
 		
 		List<TableField> fkFields = table.getFKs();
-		if(fkFields != null) {
-			for(TableField field : fkFields) {
-				resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
-				+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
-				+ "/\n";
-			}
-		}
+		if(fkFields == null)
+			return;
 		
-		String outputFilename = "c:/temp/" + table.getName() + ".con";
+		for(TableField field : fkFields) {
+			resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
+			+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
+			+ "/\n";
+		}
+
+		String outputFilename = "c:/temp/OracleDB/" + table.getName() + ".con";
 		try {
 			FileWriter fileWriter = new FileWriter(outputFilename);
 			fileWriter.write(resultContent);
 			fileWriter.close();
 		} catch(Exception e) {
-			
 		}
 	}
 	
@@ -118,8 +118,25 @@ public class OracleGenerator extends Generator {
 		TableField field = command.getField();
 		String result = "ALTER TABLE ";
 		result += table.getName();
-		result += " ADD ";
-		result += generateField(field);
+		
+		switch(command.getSubType()) {
+			case ADD_FIELD:
+				result += " ADD ";
+				result += generateField(field);
+				break;
+				
+			case MODIFY_FIELD:
+				result += " MODIFY ";
+				result += generateField(field);
+				break;
+				
+			case DROP_FIELD:
+				result += " DROP ";
+				result += field.getName();
+				break;
+		}
+		
+		result += "\n/\n";
 		return result;
 	}
 }
