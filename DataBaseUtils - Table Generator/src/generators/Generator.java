@@ -1,6 +1,9 @@
 package generators;
 
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import structs.AlterTableCommand;
@@ -16,6 +19,13 @@ public abstract class Generator {
 		List<Command> commands = script.getCommands();
 		if(commands == null)
 			return;
+		
+		try {
+			Files.createDirectories(Paths.get(script.getBasePath()));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		
 		String outputFileNameTab = script.getBasePath() + "/" + objectName + ".tab";
 		FileWriter fileWriter;

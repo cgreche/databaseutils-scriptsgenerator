@@ -27,7 +27,7 @@ public class MainWindow extends JFrame {
 	static CreateTableCommandDialog createTableCommandDialog;
 	static AddFieldCommandDialog addFieldCommandDialog;
 	static MofidyFieldCommandDialog editFieldCommandDialog;
-	static RemoveFieldCommandDialog removeFieldCommandDialog;
+	static DropFieldCommandDialog dropFieldCommandDialog;
 	
 	JPanel panelProject;
 	
@@ -54,9 +54,8 @@ public class MainWindow extends JFrame {
 			itemNewProject.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ev) {
-					System.out.println("cliqued");
 					newProjectDialog.setVisible(true);
-					Project project = newProjectDialog.getResult();
+					Project project = newProjectDialog.getResultData();
 					if(project != null) {
 						currentProject = project;
 						System.out.println(project.getName());
@@ -74,7 +73,7 @@ public class MainWindow extends JFrame {
 		createTableCommandDialog = new CreateTableCommandDialog(this);
 		addFieldCommandDialog = new AddFieldCommandDialog(this);
 		editFieldCommandDialog = new MofidyFieldCommandDialog(this);
-		removeFieldCommandDialog = new RemoveFieldCommandDialog(this);
+		dropFieldCommandDialog = new DropFieldCommandDialog(this);
 		
 		panelProject = new ProjectPanel();
 		this.add(panelProject);

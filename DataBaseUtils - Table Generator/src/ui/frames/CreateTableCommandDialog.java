@@ -4,12 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import structs.CreateTableCommand;
+import structs.Script;
 import structs.Table;
 import structs.TableField;
 import ui.frames.createtable.TableCreateTableFields;
@@ -24,7 +23,10 @@ import ui.frames.createtable.TableCreateTableFields;
 //16-04-2019
 
 @SuppressWarnings("serial")
-public class CreateTableCommandDialog extends JDialog {
+public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
+	
+	private boolean editMode;
+	
 	
 	public JButton buttonNew;
 	public JPanel panelMain;
@@ -33,18 +35,14 @@ public class CreateTableCommandDialog extends JDialog {
 	public TableCreateTableFields tableFields;
 	public JButton buttonSave;
 	
-	public CreateTableCommand result;
-	
-	boolean editMode;
-	
+	//
+	private Script parentScript;
 	private CreateTableCommand currentCommand;
 	private Table currentTable;
 	private List<TableField> currentFields;
-
+	
 	public CreateTableCommandDialog(JFrame parent) {
-		super(parent, true);
-		
-		editMode = false;
+		super(parent);
 		
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -54,11 +52,7 @@ public class CreateTableCommandDialog extends JDialog {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				String tableName = tfTableName.getText();
-				
-				//currentCommand references currentTable
-				currentTable.setName(tableName);
-				result = currentCommand;
+				result = false;
 			}
 			
 			@Override
@@ -80,7 +74,21 @@ public class CreateTableCommandDialog extends JDialog {
 		
 		tableFields = new TableCreateTableFields();
 		
-		buttonSave = new JButton("Salvar tabela");
+		buttonSave = new JButton("Salvar");
+		buttonSave.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				String tableName = tfTableName.getText();
+				
+				//currentCommand references currentTable
+				currentTable.setName(tableName);
+				
+				setResult(true,currentCommand);
+				CreateTableCommandDialog.this.dispose();
+			}
+			
+		});
 		
 		panelMain = new JPanel();
 		panelMain.setLayout(new BoxLayout(panelMain,BoxLayout.Y_AXIS));
@@ -88,6 +96,7 @@ public class CreateTableCommandDialog extends JDialog {
 		panelMain.add(tfTableName);
 		panelMain.add(buttonNew);
 		panelMain.add(new JScrollPane(tableFields));
+		panelMain.add(buttonSave);
 		this.add(panelMain);
 		this.pack();
 	}
@@ -97,30 +106,33 @@ public class CreateTableCommandDialog extends JDialog {
 		tableFields.setData(currentFields);
 	}
 	
-	public void insertNew() {
+	public void insertNew(Script parentScript) {
+		this.parentScript = parentScript;
+		currentTable = new Table();
+		currentFields = currentTable.getFields();
+		currentCommand = new CreateTableCommand(parentScript,currentTable);
+		updateControls();
+
 		editMode = false;
 		this.setVisible(true);
 	}
 	
 	public void edit(CreateTableCommand command) {
-		editMode = true;
-		
 		if(command != null) {
-			currentCommand = command;
-			currentTable = command.getTable().clone();
-			currentFields = new ArrayList<>(command.getTable().getFields());
-		}
-		else {
-			currentTable = new Table();
-			currentFields = currentTable.getFields();
-			currentCommand = new CreateTableCommand(null,currentTable);
+			parentScript = command.getScript();
+			currentCommand = (CreateTableCommand)command.clone();
+			currentTable = currentCommand.getTable();
+			currentFields = currentCommand.getTable().getFields();
 		}
 		
 		updateControls();
+		
+		editMode = true;
 		this.setVisible(true);
 	}
 	
-	public CreateTableCommand getResult() {
-		return result;
+	public boolean isEditMode() {
+		return editMode;
 	}
+	
 }

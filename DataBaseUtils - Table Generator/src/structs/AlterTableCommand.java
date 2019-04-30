@@ -12,12 +12,12 @@ public class AlterTableCommand extends Command {
 
 	private SubType subType;
 	
-	private Table table;
+	private Table refTable;
 	private TableField field;
 	
-	public AlterTableCommand(Script script, Table table) {
+	public AlterTableCommand(Script script, Table refTable) {
 		super(script);
-		this.table = table;
+		this.refTable = refTable;
 	}
 	
 	public AlterTableCommand addColumn(TableField field) {
@@ -42,8 +42,8 @@ public class AlterTableCommand extends Command {
 		return subType;
 	}
 	
-	public Table getTable() {
-		return table;
+	public Table getRefTable() {
+		return refTable;
 	}
 	
 	public TableField getField() {
@@ -61,11 +61,18 @@ public class AlterTableCommand extends Command {
 			cmdString += "Modify field";
 			break;
 		case DROP_FIELD:
-			cmdString += "Remove field";
+			cmdString += "Drop field";
 			break;
 		}
 		cmdString += ")";
 		return cmdString;
+	}
+	
+	@Override
+	public AlterTableCommand clone() {
+		AlterTableCommand ret = (AlterTableCommand)super.clone();
+		ret.field = field.clone();
+		return ret;
 	}
 	
 }

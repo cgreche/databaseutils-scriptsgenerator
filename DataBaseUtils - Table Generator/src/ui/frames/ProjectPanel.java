@@ -118,9 +118,6 @@ public class ProjectPanel extends JPanel {
 		});
 		
 		
-		JTextField textFieldBasePath = new JTextField();
-		JTextField textFieldTableName = new JTextField();
-		
 		lblScriptName = new JLabel("Nome ", JLabel.LEFT);
 		lblScriptName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 		tfScriptName = new JTextField();
@@ -165,11 +162,13 @@ public class ProjectPanel extends JPanel {
 		btnCreateTableCommand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MainWindow.createTableCommandDialog.insertNew();
-				CreateTableCommand command = MainWindow.createTableCommandDialog.getResult();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				MainWindow.createTableCommandDialog.insertNew(currentSelectedScript);
+				if(MainWindow.createTableCommandDialog.getResult()) {
+					CreateTableCommand command = MainWindow.createTableCommandDialog.getResultData();
+					if(command != null) {
+						currentSelectedScript.addCommand(command);
+						((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+					}
 				}
 			}
 		});
@@ -177,12 +176,7 @@ public class ProjectPanel extends JPanel {
 		btnAddFieldCommand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MainWindow.addFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
-				AlterTableCommand command = MainWindow.addFieldCommandDialog.getResult();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
-				}
+
 			}
 		});
 		
@@ -190,8 +184,8 @@ public class ProjectPanel extends JPanel {
 		btnModifyFieldCommand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MainWindow.editFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
-				AlterTableCommand command = MainWindow.editFieldCommandDialog.getResult();
+				MainWindow.editFieldCommandDialog.insertNew(currentSelectedScript);
+				AlterTableCommand command = MainWindow.editFieldCommandDialog.getResultData();
 				if(command != null) {
 					currentSelectedScript.addCommand(command);
 					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
@@ -203,8 +197,8 @@ public class ProjectPanel extends JPanel {
 		btnDropFieldCommand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MainWindow.removeFieldCommandDialog.insertNew(currentSelectedScript.getResultTable());
-				AlterTableCommand command = MainWindow.removeFieldCommandDialog.getResult();
+				MainWindow.dropFieldCommandDialog.insertNew(currentSelectedScript);
+				AlterTableCommand command = MainWindow.dropFieldCommandDialog.getResultData();
 				if(command != null) {
 					currentSelectedScript.addCommand(command);
 					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
@@ -231,20 +225,31 @@ public class ProjectPanel extends JPanel {
 					// Double-click detected
 					int index = list.locationToIndex(evt.getPoint());
 					Command command = list.getModel().getElementAt(index);
+					boolean result = false;
 					if(command instanceof CreateTableCommand) {
 						MainWindow.createTableCommandDialog.edit((CreateTableCommand)command);
-						CreateTableCommand resultCommand = MainWindow.createTableCommandDialog.getResult();
-						updateColumnTable();
+						if(MainWindow.createTableCommandDialog.getResult()) {
+							CreateTableCommand resultCommand = MainWindow.createTableCommandDialog.getResultData();
+							currentSelectedScript.getCommands().set(index, resultCommand);
+						}
 					}
 					else if(command instanceof AlterTableCommand) {
 						AlterTableCommand c = (AlterTableCommand)command;
 						AlterTableCommand.SubType subType = c.getSubType();
-						if(subType == AlterTableCommand.SubType.ADD_FIELD)
+						if(subType == AlterTableCommand.SubType.ADD_FIELD) {
 							MainWindow.addFieldCommandDialog.edit(c);
-						else if(subType == AlterTableCommand.SubType.MODIFY_FIELD)
+							result = MainWindow.addFieldCommandDialog.getResult();
+						} else if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
 							MainWindow.editFieldCommandDialog.edit(c);
-						else if(subType == AlterTableCommand.SubType.DROP_FIELD)
-							MainWindow.removeFieldCommandDialog.edit(c);
+							result = MainWindow.editFieldCommandDialog.getResult();
+						} else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
+							MainWindow.dropFieldCommandDialog.edit(c);
+							result = MainWindow.dropFieldCommandDialog.getResult();
+						}
+					}
+					
+					if(result) {
+						updateColumnTable();
 					}
 				}
 			}
@@ -259,15 +264,19 @@ public class ProjectPanel extends JPanel {
 		panelCommands.add(listCommands);
 		
 		//
-		JButton buttonGenerate = new JButton("Generate");
+		JButton buttonGenerate = new JButton("Gerar scripts");
 		buttonGenerate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
 				Project project = MainWindow.currentProject;
-				project.setScriptsGenerationBasePath("C:/temp");
 				
-				ProjectHandler handler = new ProjectHandler(MainWindow.currentProject);
+				if(project.getScriptsGenerationBasePath() == null) {
+					//todo(cesar.reche): error message
+					return;
+				}
+				
+				ProjectHandler handler = new ProjectHandler(project);
 				handler.generateScripts();
 			}
 		});
@@ -306,7 +315,6 @@ public class ProjectPanel extends JPanel {
 		for(Script script : scripts) {
 			((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
 		}
-		
 	}
 	
 	@Override
@@ -316,7 +324,7 @@ public class ProjectPanel extends JPanel {
 		if(visible) {
 			updateControls();
 		}
-			
+		
 		super.setVisible(visible);
 	}
 }

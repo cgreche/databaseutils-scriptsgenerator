@@ -3,14 +3,17 @@ package ui.frames;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import structs.AlterTableCommand;
@@ -25,11 +28,12 @@ import structs.TableField;
 @SuppressWarnings("serial")
 public class NewProjectDialog extends JDialog {
 	
-	JLabel lblProjectName;
-	JTextField tfProjectName;
-	JButton btnCreateProject;
+	private JLabel lblProjectName;
+	private JTextField tfProjectName;
+	private JButton btnCreateProject;
 	
-	Project project;
+	private boolean result;
+	private Project project;
 	
 	private static Table createTable1() {
 		TableField field1 = new TableField();
@@ -118,28 +122,72 @@ public class NewProjectDialog extends JDialog {
 		lblProjectName = new JLabel("Nome do projeto");
 		tfProjectName = new JTextField();
 		
+		JPanel panelGenerationTargetPath;
+			JLabel labelGenerationTargetPath;
+			JPanel panelSearchTargetPath;
+				JTextField tfGenerationTargetPath;
+				JButton buttonSearchGenTargetPath;
+			
+		panelGenerationTargetPath = new JPanel();
+		panelGenerationTargetPath.setLayout(new BoxLayout(panelGenerationTargetPath,BoxLayout.Y_AXIS));
+		labelGenerationTargetPath = new JLabel("Caminho para salvar os scripts gerados");
+		
+		panelSearchTargetPath = new JPanel();
+		panelSearchTargetPath.setLayout(new BoxLayout(panelSearchTargetPath,BoxLayout.X_AXIS));
+		tfGenerationTargetPath = new JTextField();
+		buttonSearchGenTargetPath = new JButton("Buscar");
+		buttonSearchGenTargetPath.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final JFileChooser fc = new JFileChooser();
+				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+				int returnVal = fc.showOpenDialog(NewProjectDialog.this);
+		        if (returnVal == JFileChooser.APPROVE_OPTION) {
+		            File file = fc.getSelectedFile();
+		            tfGenerationTargetPath.setText(file.getAbsolutePath());
+		        } else {
+		        }
+			}
+		});
+		panelSearchTargetPath.add(tfGenerationTargetPath);
+		panelSearchTargetPath.add(buttonSearchGenTargetPath);
+		
+		panelGenerationTargetPath.add(labelGenerationTargetPath);
+		panelGenerationTargetPath.add(panelSearchTargetPath);
+		
 		btnCreateProject = new JButton("Criar");
 		btnCreateProject.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				project = new Project();
-				project.setName(tfProjectName.getText());
-				Script script1 = createScript1();
-				Script script2 = createScript2();
 				
+				String projectName = tfProjectName.getText();
+				String generationTargetPath = tfGenerationTargetPath.getText();
+				
+				
+				project = new Project();
+				project.setName(projectName);
+				project.setScriptsGenerationBasePath(generationTargetPath);
+				
+				//
+				Script script1 = createScript1();
+				Script script2 = createScript2();			
 				project.addScript(script1);
 				project.addScript(script2);
-
+				//
+				
+				result = true;
 				NewProjectDialog.this.dispose();
 			}
 			
 		});
 		
 		Container pane = this.getContentPane();
-		pane.setLayout(new BoxLayout(pane,BoxLayout.X_AXIS));
+		pane.setLayout(new BoxLayout(pane,BoxLayout.Y_AXIS));
 		pane.add(lblProjectName);
 		pane.add(tfProjectName);
+		pane.add(panelGenerationTargetPath);
 		pane.add(btnCreateProject);
 		this.pack();
 	}
@@ -149,7 +197,11 @@ public class NewProjectDialog extends JDialog {
 		super.setVisible(visible);
 	}
 	
-	public Project getResult() {
+	public boolean getResult() {
+		return result;
+	}
+	
+	public Project getResultData() {
 		return project;
 	}
 }

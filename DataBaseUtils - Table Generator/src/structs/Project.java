@@ -9,7 +9,6 @@ public class Project {
 	private String projectSavePath;
 	private String scriptsGenerationBasePath;
 	
-	
 	public Project() {
 		scripts = new ArrayList<>();
 	}

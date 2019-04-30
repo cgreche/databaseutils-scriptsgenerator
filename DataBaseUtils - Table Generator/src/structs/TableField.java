@@ -1,7 +1,7 @@
 package structs;
 
 //10/04/2019
-public class TableField {
+public class TableField implements Cloneable {
 	private String name;
 	private FieldType type;
 	private String args;
@@ -73,4 +73,13 @@ public class TableField {
 		this.referencedColumn = referencedColumn;
 	}
 	
+	@Override
+	public TableField clone() {
+		try {
+			return (TableField)super.clone();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

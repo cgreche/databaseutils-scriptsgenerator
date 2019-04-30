@@ -114,10 +114,10 @@ public class OracleGenerator extends Generator {
 	
 	@Override
 	public String generateAlterTable(AlterTableCommand command) {
-		Table table = command.getTable();
+		Table refTable = command.getRefTable();
 		TableField field = command.getField();
 		String result = "ALTER TABLE ";
-		result += table.getName();
+		result += refTable.getName();
 		
 		switch(command.getSubType()) {
 			case ADD_FIELD:

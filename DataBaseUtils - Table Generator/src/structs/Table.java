@@ -63,12 +63,11 @@ public class Table implements Cloneable {
 	
 	@Override
 	public Table clone() {
-		try {
-			return (Table)super.clone();
-		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Table ret = new Table();
+		ret.setName(this.name);
+		for(TableField field : fields) {
+			ret.fields.add((TableField)field.clone());
 		}
-		return null;
+		return ret;
 	}
 }
