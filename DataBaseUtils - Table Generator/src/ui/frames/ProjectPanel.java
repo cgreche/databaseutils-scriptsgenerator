@@ -269,7 +269,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				Project project = MainWindow.currentProject;
+				Project project = MainWindow.projectHandler.getProject();
 				
 				if(project.getScriptsGenerationBasePath() == null) {
 					//todo(cesar.reche): error message
@@ -310,8 +310,8 @@ public class ProjectPanel extends JPanel {
 	}
 	
 	private void updateControls() {
-		lblProjectTitle.setText(MainWindow.currentProject.getName());
-		List<Script> scripts = MainWindow.currentProject.getScripts();
+		lblProjectTitle.setText(MainWindow.projectHandler.getProject().getName());
+		List<Script> scripts = MainWindow.projectHandler.getProject().getScripts();
 		for(Script script : scripts) {
 			((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
 		}

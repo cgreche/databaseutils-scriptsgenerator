@@ -2,7 +2,9 @@ package ui.frames;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -10,16 +12,21 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import structs.Project;
+import structs.ProjectHandler;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
 	
-	public static Project currentProject;
+	public static ProjectHandler projectHandler;
 	
 	public JMenuBar menuBar;
 	
-	public JMenu menuNew;
-		public JMenuItem itemNewProject;
+	public JMenu menuProject;
+		public JMenuItem itemProjectNew;
+		public JMenuItem itemProjectOpen;
+		public JMenuItem itemProjectSave;
+		public JMenuItem itemProjectSaveAs;
+		public JMenuItem itemProjectClose;
 	public JMenuItem itemAuthor;
 	
 	public NewProjectDialog newProjectDialog;
@@ -32,7 +39,7 @@ public class MainWindow extends JFrame {
 	JPanel panelProject;
 	
 	public void openProject(Project project) {
-		currentProject = project;
+		projectHandler = new ProjectHandler(project);
 		panelProject.setVisible(true);
 	}
 	
@@ -41,31 +48,67 @@ public class MainWindow extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		menuBar = new JMenuBar();
-		menuNew = new JMenu();
-			itemNewProject = new JMenuItem();
+		menuProject = new JMenu();
+			itemProjectNew = new JMenuItem();
+			itemProjectOpen = new JMenuItem();
+			itemProjectSave = new JMenuItem();
+			itemProjectSaveAs = new JMenuItem();
+			itemProjectClose = new JMenuItem();
 			
 		itemAuthor = new JMenuItem();
 		
 		newProjectDialog = new NewProjectDialog(this);
 		
-		menuNew.setText("Novo");
-		menuNew.add(itemNewProject);
-			itemNewProject.setText("Novo projeto");
-			itemNewProject.addActionListener(new ActionListener() {
+		menuProject.setText("Projeto");
+		menuProject.add(itemProjectNew);
+			itemProjectNew.setText("Novo");
+			itemProjectNew.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ev) {
 					newProjectDialog.setVisible(true);
 					Project project = newProjectDialog.getResultData();
 					if(project != null) {
-						currentProject = project;
-						System.out.println(project.getName());
+						projectHandler = new ProjectHandler(project);
 						panelProject.setVisible(true);
 					}
 				}
 			});
+			
+		menuProject.add(itemProjectOpen);
+			itemProjectOpen.setText("Abrir");
+		menuProject.add(itemProjectSave);
+			itemProjectSave.setText("Salvar");
+			itemProjectSave.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Project project = projectHandler.getProject();
+					if(project == null)
+						return;
+					
+					if(project.getProjectSavePath() != null) {
+						
+					}
+					else {
+						final JFileChooser fc = new JFileChooser();
+						int returnVal = fc.showSaveDialog(MainWindow.this);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							File file = fc.getSelectedFile();
+							project.setProjectSavePath(file.getPath());
+						} else {
+							
+						}
+					}
+					
+				}
+			});
+		menuProject.add(itemProjectSaveAs);
+			itemProjectSaveAs.setText("Salvar como...");
+		menuProject.add(itemProjectClose);
+			itemProjectClose.setText("Fechar");
+			
 		itemAuthor.setText("Author");
 		
-		menuBar.add(menuNew);
+		menuBar.add(menuProject);
 		menuBar.add(itemAuthor);
 		setJMenuBar(menuBar);
 		
