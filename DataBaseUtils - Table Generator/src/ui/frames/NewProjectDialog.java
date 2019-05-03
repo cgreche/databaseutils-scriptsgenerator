@@ -70,7 +70,7 @@ public class NewProjectDialog extends JDialog {
 		field3.setName("ID2");
 		field3.setConstraints(Constraints.PK);
 		field3.setType(GenericTypes.NUMERIC);
-		field3.setArgs("100,2");
+		field3.setArgs("99,2");
 		
 		TableField field2 = new TableField();
 		field2.setName("TENANTID");
@@ -108,10 +108,12 @@ public class NewProjectDialog extends JDialog {
 		script.addCommand(new AlterTableCommand(script, table2).addColumn(field3));
 		script.addCommand(new AlterTableCommand(script,table2).dropColumn(field3));
 		
-		TableField fieldID2 = table2.getFieldByName("ID2");
+		TableField fieldID2Old = table2.getFieldByName("ID2");
+		TableField fieldID2 = fieldID2Old.clone();
 		fieldID2.setType(GenericTypes.TEXT);
+		fieldID2.setName("ID2_MODIFICADO");
 		fieldID2.setArgs("100");
-		script.addCommand(new AlterTableCommand(script,table2).modifyColumn(fieldID2));
+		script.addCommand(new AlterTableCommand(script,table2).modifyColumn(fieldID2Old,fieldID2));
 		return script;
 	}
 	

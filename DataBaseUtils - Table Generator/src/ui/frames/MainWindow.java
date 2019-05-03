@@ -36,12 +36,7 @@ public class MainWindow extends JFrame {
 	static MofidyFieldCommandDialog editFieldCommandDialog;
 	static DropFieldCommandDialog dropFieldCommandDialog;
 	
-	JPanel panelProject;
-	
-	public void openProject(Project project) {
-		projectHandler = new ProjectHandler(project);
-		panelProject.setVisible(true);
-	}
+	ProjectPanel panelProject;
 	
 	public MainWindow() {
 		super("eSocial Techne Database Utils - Scripts generator");
@@ -68,8 +63,7 @@ public class MainWindow extends JFrame {
 					newProjectDialog.setVisible(true);
 					Project project = newProjectDialog.getResultData();
 					if(project != null) {
-						projectHandler = new ProjectHandler(project);
-						panelProject.setVisible(true);
+						loadProject(project);
 					}
 				}
 			});
@@ -123,6 +117,12 @@ public class MainWindow extends JFrame {
 		this.pack();
 		
 		panelProject.setVisible(false);
-
+	}
+	
+	
+	public void loadProject(Project project) {
+		projectHandler = new ProjectHandler(project);
+		panelProject.setProject(project);
+		panelProject.setVisible(true);
 	}
 }

@@ -7,7 +7,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -60,7 +59,8 @@ public class ProjectPanel extends JPanel {
 	JLabel lblProjectTitle = new JLabel();
 	static TableFieldTable tableResultingTable;
 	
-	List<Script> scriptList = new ArrayList<>();
+	Project project;
+	List<Script> scriptList;
 	Script currentSelectedScript = null;
 
 	private void updateCommandList() {
@@ -127,7 +127,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Script script = new Script();
-				script.setObjectName(tfScriptName.getName());
+				script.setObjectName(tfScriptName.getText());
 				scriptList.add(script);
 				
 				((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
@@ -172,11 +172,18 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
+		
 		btnAddFieldCommand = new JButton("Add field");
 		btnAddFieldCommand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				MainWindow.addFieldCommandDialog.insertNew(currentSelectedScript);
+				if(MainWindow.addFieldCommandDialog.getResult()) {
+					AlterTableCommand command = MainWindow.addFieldCommandDialog.getResultData();
+					currentSelectedScript.addCommand(command);
+					
+					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				}
 			}
 		});
 		
@@ -315,6 +322,11 @@ public class ProjectPanel extends JPanel {
 		for(Script script : scripts) {
 			((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
 		}
+	}
+	
+	public void setProject(Project project) {
+		this.project = project;
+		this.scriptList = project.getScripts();
 	}
 	
 	@Override

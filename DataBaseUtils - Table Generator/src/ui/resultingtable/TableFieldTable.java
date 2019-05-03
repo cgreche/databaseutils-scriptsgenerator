@@ -114,7 +114,7 @@ public class TableFieldTable extends JTable {
 				TableField field = ((AlterTableCommand) command).getField();
 				AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
 				if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
-					this.modifyField(field);
+					this.modifyField(field,((AlterTableCommand) command).getNewField());
 				}
 				else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
 					this.dropField(((AlterTableCommand) command).getField());
@@ -137,11 +137,11 @@ public class TableFieldTable extends JTable {
 		model.addRow(new TableFieldTableItem(field, original ? TableFieldFlags.ORIGINAL : TableFieldFlags.ADDED_LATER));
 	}
 	
-	public void modifyField(TableField field) {
+	public void modifyField(TableField currentField, TableField newField) {
 		List<TableFieldTableItem> tfiList = model.getData();
 		for(int i = 0; i < tfiList.size(); ++i) {
-			if(field.getName().equals(tfiList.get(i).getField().getName())) {
-				tfiList.get(i).setField(field);
+			if(currentField.getName().equals(tfiList.get(i).getField().getName())) {
+				tfiList.get(i).setField(newField);
 				tfiList.get(i).setFlags(TableFieldFlags.MODIFIED);
 				model.fireTableRowsUpdated(i, i);
 				model.fireTableDataChanged(); //this calls the filter again

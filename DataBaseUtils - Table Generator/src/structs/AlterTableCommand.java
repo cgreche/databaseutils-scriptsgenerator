@@ -15,6 +15,8 @@ public class AlterTableCommand extends Command {
 	private Table refTable;
 	private TableField field;
 	
+	private TableField newField;
+	
 	public AlterTableCommand(Script script, Table refTable) {
 		super(script);
 		this.refTable = refTable;
@@ -26,8 +28,9 @@ public class AlterTableCommand extends Command {
 		return this;
 	}
 
-	public AlterTableCommand modifyColumn(TableField field) {
-		this.field = field;
+	public AlterTableCommand modifyColumn(TableField oldField, TableField newField) {
+		this.field = oldField;
+		this.newField = newField;
 		subType = SubType.MODIFY_FIELD;
 		return this;
 	}
@@ -48,6 +51,10 @@ public class AlterTableCommand extends Command {
 	
 	public TableField getField() {
 		return field;
+	}
+	
+	public TableField getNewField() {
+		return newField;
 	}
 	
 	@Override

@@ -109,6 +109,7 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 	public void insertNew(Script parentScript) {
 		this.parentScript = parentScript;
 		currentTable = new Table();
+		currentTable.setName(parentScript.getObjectName());
 		currentFields = currentTable.getFields();
 		currentCommand = new CreateTableCommand(parentScript,currentTable);
 		updateControls();
