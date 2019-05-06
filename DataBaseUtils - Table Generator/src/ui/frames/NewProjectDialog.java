@@ -13,6 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -30,10 +31,19 @@ import structs.TableField;
 @SuppressWarnings("serial")
 public class NewProjectDialog extends JDialog {
 	
-	private JLabel lblProjectName;
-	private JTextField tfProjectName;
-	private JButton btnCreateProject;
+	private JPanel panelProjectName; //todo: use
+		private JLabel lblProjectName;
+		private JTextField tfProjectName;
 	
+	private JPanel panelGenerationTargetPath;
+	private JLabel labelGenerationTargetPath;
+	private JPanel panelSearchTargetPath;
+		private JTextField tfGenerationTargetPath;
+		private JButton buttonSearchGenTargetPath;
+
+	private JButton btnCreateProject;
+
+	//
 	private boolean result;
 	private Project project;
 	
@@ -126,12 +136,6 @@ public class NewProjectDialog extends JDialog {
 		lblProjectName = new JLabel("Nome do projeto");
 		tfProjectName = new JTextField();
 		
-		JPanel panelGenerationTargetPath;
-			JLabel labelGenerationTargetPath;
-			JPanel panelSearchTargetPath;
-				JTextField tfGenerationTargetPath;
-				JButton buttonSearchGenTargetPath;
-			
 		panelGenerationTargetPath = new JPanel();
 		panelGenerationTargetPath.setLayout(new BoxLayout(panelGenerationTargetPath,BoxLayout.Y_AXIS));
 		labelGenerationTargetPath = new JLabel("Caminho para salvar os scripts gerados");
@@ -181,8 +185,10 @@ public class NewProjectDialog extends JDialog {
 				project.addScript(script2);
 				//
 				
-				result = true;
-				NewProjectDialog.this.dispose();
+				if(checkFieldsIntegrity()) {
+					result = true;
+					NewProjectDialog.this.dispose();
+				}
 			}
 			
 		});
@@ -208,4 +214,19 @@ public class NewProjectDialog extends JDialog {
 	public Project getResultData() {
 		return project;
 	}
+	
+	public boolean checkFieldsIntegrity() {
+		if(tfProjectName.getText() == null || "".equals(tfProjectName.getText().trim())) {
+			JOptionPane.showMessageDialog(this, "O nome do projeto não foi informado.");
+			return false;
+		}
+		
+		if(tfGenerationTargetPath.getText() == null || "".equals(tfGenerationTargetPath.getText().trim())) {
+			JOptionPane.showMessageDialog(this, "O caminho de geração dos scripts não foi informado.");
+			return false;
+		}
+		
+		return true;
+	}
+	
 }

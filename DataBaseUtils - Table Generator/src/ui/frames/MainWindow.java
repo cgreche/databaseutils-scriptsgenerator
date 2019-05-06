@@ -9,7 +9,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 
 import structs.Project;
 import structs.ProjectHandler;
@@ -79,22 +78,21 @@ public class MainWindow extends JFrame {
 					if(project == null)
 						return;
 					
-					if(project.getProjectSavePath() != null) {
-						
-					}
-					else {
+					if(projectHandler.getSavePath() == null) {
 						final JFileChooser fc = new JFileChooser();
 						int returnVal = fc.showSaveDialog(MainWindow.this);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							File file = fc.getSelectedFile();
-							project.setProjectSavePath(file.getPath());
+							projectHandler.setSavePath(file.getPath());
 						} else {
-							
+							return;
 						}
 					}
 					
+					projectHandler.save();
 				}
 			});
+			
 		menuProject.add(itemProjectSaveAs);
 			itemProjectSaveAs.setText("Salvar como...");
 		menuProject.add(itemProjectClose);

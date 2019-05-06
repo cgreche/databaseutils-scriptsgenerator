@@ -1,6 +1,6 @@
 package structs;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,16 +17,19 @@ public class ProjectHandler {
 	private Project project;
 	private String currentSavePath;
 	
+	private ProjectSerializer serializer;
+	
 	public ProjectHandler(Project project) {
 		this.project = project;
+		serializer = new ProjectXMLSerializer();
 	}
 	
-	public void save() {
+	public boolean save() {
 		if(currentSavePath == null)
-			return;
+			return false;
 		
 		File file = new File(currentSavePath);
-		Path path = Paths.get(file.getPath());
+		Path path = Paths.get(file.getParent());
 		try {
 			Files.createDirectories(path);
 		} catch (IOException e) {
@@ -34,15 +37,15 @@ public class ProjectHandler {
 			e.printStackTrace();
 		}
 		
-		try(FileWriter fileWriter = new FileWriter(file)) {
-			fileWriter.append("");
-			
+		byte [] fileData = serializer.serialize(project);
+		try(FileOutputStream fout = new FileOutputStream(file)) {
+			fout.write(fileData);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		
+		return true;
 	}
 	
 	public void load() {

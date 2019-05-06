@@ -6,8 +6,10 @@ import java.util.List;
 public class Project {
 	private String name;
 	private List<Script> scripts;
-	private String projectSavePath;
 	private String scriptsGenerationBasePath;
+	
+	private List<Table> tableList;
+	private List<TableField> extraFieldList;
 	
 	public Project() {
 		scripts = new ArrayList<>();
@@ -35,14 +37,6 @@ public class Project {
 
 	public String getScriptsGenerationBasePath() {
 		return scriptsGenerationBasePath;
-	}
-
-	public String getProjectSavePath() {
-		return projectSavePath;
-	}
-
-	public void setProjectSavePath(String projectSavePath) {
-		this.projectSavePath = projectSavePath;
 	}
 
 	public void setScriptsGenerationBasePath(String scriptsGenerationBasePath) {

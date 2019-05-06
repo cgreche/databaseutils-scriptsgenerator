@@ -52,7 +52,7 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				result = false;
+				setResult(false,null);
 			}
 			
 			@Override

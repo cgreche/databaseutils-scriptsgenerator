@@ -11,12 +11,10 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.CellEditor;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -31,26 +29,27 @@ import structs.ModifyFieldCommand;
 import structs.Project;
 import structs.ProjectHandler;
 import structs.Script;
-import ui.ScriptListRenderer;
+import ui.TableCommands;
+import ui.TableScripts;
 import ui.resultingtable.TableFieldTable;
 
 @SuppressWarnings("serial")
 public class ProjectPanel extends JPanel {
 	
-	JList<Command> listCommands;
-	
-	JPanel panelScripts;
-	JPanel panelScriptNameField;
-		JLabel lblScriptName;
-		JTextField tfScriptName;
-	JButton btnNewScript;
-	JList<Script> listScripts;
+	private JPanel panelScripts;
+	private JPanel panelScriptNameField;
+		private JLabel lblScriptName;
+		private JTextField tfScriptName;
+	private JButton btnNewScript;
+	private TableScripts tableScripts;
 	
 	private JPanel panelCommands;
-		JButton btnCreateTableCommand;
-		JButton btnAddFieldCommand;
-		JButton btnModifyFieldCommand;
-		JButton btnDropFieldCommand;
+		private JButton btnCreateTableCommand;
+		private JButton btnAddFieldCommand;
+		private JButton btnModifyFieldCommand;
+		private JButton btnDropFieldCommand;
+		private TableCommands tableCommands;
+
 	
 	private JPanel panelHeader;
 	private JPanel panelData;
@@ -66,15 +65,12 @@ public class ProjectPanel extends JPanel {
 	Script currentSelectedScript = null;
 
 	private void updateCommandList() {
-		((DefaultListModel<Command>) listCommands.getModel()).clear();
 		if(currentSelectedScript == null)
 			return;
 		List<Command> commands = currentSelectedScript.getCommands();
 		if(commands == null)
 			return;
-		for(Command command : commands) {
-			((DefaultListModel<Command>) listCommands.getModel()).addElement(command);
-		}
+		tableCommands.setData(commands);
 	}
 	
 	private void updateColumnTable() {
@@ -132,32 +128,34 @@ public class ProjectPanel extends JPanel {
 				script.setObjectName(tfScriptName.getText());
 				scriptList.add(script);
 				
-				((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
+				//
+				tableScripts.updateUI();
 			}
 		});
 		
 		
-		DefaultListModel<Script> scriptsListModel = new DefaultListModel<>();
-		listScripts = new JList<>(scriptsListModel);
-		//listScripts.setSize(new Dimension(500, 70));
-		listScripts.setCellRenderer(new ScriptListRenderer());
-		listScripts.addListSelectionListener(new ListSelectionListener() {
+		tableScripts = new TableScripts();
+		tableScripts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			
 			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				if(!arg0.getValueIsAdjusting()) {
-					currentSelectedScript = listScripts.getSelectedValue();
+			public void valueChanged(ListSelectionEvent e) {
+				if(!e.getValueIsAdjusting()) {
+					int selectionIndex = ((DefaultListSelectionModel)e.getSource()).getAnchorSelectionIndex();
+					currentSelectedScript = selectionIndex >= 0 ? scriptList.get(selectionIndex) : null;
 					updateCommandList();
 					updateColumnTable();
 				}
 			}
 		});
 		
+		//listScripts.setSize(new Dimension(500, 70));
+		
 		panelScripts = new JPanel();
 		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.Y_AXIS));
 		panelScripts.add(lblScriptName);
 		panelScripts.add(tfScriptName);
 		panelScripts.add(btnNewScript);
-		panelScripts.add(listScripts);
+		panelScripts.add(tableScripts);
 		
 		//Commands Panel
 		btnCreateTableCommand = new JButton("Create Table");
@@ -169,7 +167,9 @@ public class ProjectPanel extends JPanel {
 					CreateTableCommand command = MainWindow.createTableCommandDialog.getResultData();
 					if(command != null) {
 						currentSelectedScript.addCommand(command);
-						((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+						
+						//
+						tableCommands.updateUI();
 					}
 				}
 			}
@@ -184,7 +184,8 @@ public class ProjectPanel extends JPanel {
 					AddFieldCommand command = MainWindow.addFieldCommandDialog.getResultData();
 					currentSelectedScript.addCommand(command);
 					
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+					//
+					tableCommands.updateUI();
 				}
 			}
 		});
@@ -198,7 +199,9 @@ public class ProjectPanel extends JPanel {
 					ModifyFieldCommand command = MainWindow.modifyFieldCommandDialog.getResultData();
 					if(command != null) {
 						currentSelectedScript.addCommand(command);
-						((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+						
+						//
+						tableCommands.updateUI();
 					}
 				}
 			}
@@ -213,63 +216,62 @@ public class ProjectPanel extends JPanel {
 					DropFieldCommand command = MainWindow.dropFieldCommandDialog.getResultData();
 					if(command != null) {
 						currentSelectedScript.addCommand(command);
-						((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+						
+						//
+						tableCommands.updateUI();
 					}
 				}
 			}
 		});
 		
-		DefaultListModel<Command> listModelCommands = new DefaultListModel<>();
-		listCommands = new JList<>(listModelCommands);
-		//listCommands.setSize(new Dimension(500, 70));
-		listCommands.setCellRenderer(new DefaultListCellRenderer());
-		listCommands.addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent arg0) {
-				if(!arg0.getValueIsAdjusting()) {
-				}
-			}
-		});
+		tableCommands = new TableCommands();
+		//tableCommands.setSize(new Dimension(500, 70));
 		
-		listCommands.addMouseListener(new MouseAdapter() {
+		tableCommands.addMouseListener(new MouseAdapter() {
+			
+			@Override
 			public void mouseClicked(MouseEvent evt) {
-				JList<Command> list = (JList<Command>)evt.getSource();
-				if (evt.getClickCount() == 2) {
+				TableCommands table = (TableCommands)evt.getSource();
+				if(evt.getClickCount() == 2) {
 					// Double-click detected
-					int index = list.locationToIndex(evt.getPoint());
-					Command command = list.getModel().getElementAt(index);
+					int index = table.rowAtPoint(evt.getPoint());
+					Command command = table.getData().get(index);
+					
 					boolean result = false;
+					Dialog<?> dialog = null;
+					
 					if(command instanceof CreateTableCommand) {
 						MainWindow.createTableCommandDialog.edit((CreateTableCommand)command);
-						if(MainWindow.createTableCommandDialog.getResult()) {
-							CreateTableCommand resultCommand = MainWindow.createTableCommandDialog.getResultData();
-							currentSelectedScript.getCommands().set(index, resultCommand);
-						}
+						dialog = MainWindow.createTableCommandDialog;
 					}
 					else if(command instanceof AddFieldCommand) {
 						MainWindow.addFieldCommandDialog.edit((AddFieldCommand)command);
-						if(MainWindow.addFieldCommandDialog.getResult()) {
-							
-						}
+						dialog = MainWindow.addFieldCommandDialog;
 					}
 					else if(command instanceof ModifyFieldCommand) {
 						MainWindow.modifyFieldCommandDialog.edit((ModifyFieldCommand)command);
-						if(MainWindow.modifyFieldCommandDialog.getResult()) {
-							
-						}
+						dialog = MainWindow.modifyFieldCommandDialog;
 					}
 					else if(command instanceof DropFieldCommand) {
 						MainWindow.dropFieldCommandDialog.edit((DropFieldCommand)command);
-						if(MainWindow.dropFieldCommandDialog.getResult()) {
-							
-						}
+						dialog = MainWindow.dropFieldCommandDialog;
+					}
+					else {
+						return;
 					}
 					
+					result = dialog.getResult();
 					if(result) {
+						Command resultCommand = (Command)dialog.getResultData();
+						currentSelectedScript.getCommands().set(index, resultCommand);
+						
+						//update UI
+						tableCommands.updateUI();
 						updateColumnTable();
 					}
 				}
 			}
+
 		});
 
 		panelCommands = new JPanel();
@@ -278,7 +280,7 @@ public class ProjectPanel extends JPanel {
 		panelCommands.add(btnAddFieldCommand);
 		panelCommands.add(btnModifyFieldCommand);
 		panelCommands.add(btnDropFieldCommand);
-		panelCommands.add(listCommands);
+		panelCommands.add(tableCommands);
 		
 		//
 		JButton buttonGenerate = new JButton("Gerar scripts");
@@ -322,16 +324,14 @@ public class ProjectPanel extends JPanel {
 	
 	private void clearControls() {
 		lblProjectTitle.setText(null);
-		((DefaultListModel<Script>)listScripts.getModel()).clear();
-		((DefaultListModel<Command>)listCommands.getModel()).clear();
+		tableScripts.setData(null);
+		tableCommands.setData(null);
 	}
 	
 	private void updateControls() {
 		lblProjectTitle.setText(MainWindow.projectHandler.getProject().getName());
-		List<Script> scripts = MainWindow.projectHandler.getProject().getScripts();
-		for(Script script : scripts) {
-			((DefaultListModel<Script>)listScripts.getModel()).addElement(script);
-		}
+		tableScripts.setData(MainWindow.projectHandler.getProject().getScripts());
+		tableCommands.setData(currentSelectedScript != null ? currentSelectedScript.getCommands() : null);
 	}
 	
 	public void setProject(Project project) {
@@ -341,8 +341,6 @@ public class ProjectPanel extends JPanel {
 	
 	@Override
 	public void setVisible(boolean visible) {
-		clearControls();
-		
 		if(visible) {
 			updateControls();
 		}

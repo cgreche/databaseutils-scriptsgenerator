@@ -20,7 +20,7 @@ public class CreateTableCommand extends Command implements Cloneable {
 	
 	@Override
 	public String toString() {
-		return "Create Table";
+		return "Create Table (" + table.getName() + ")";
 	}
 	
 	@Override
