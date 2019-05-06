@@ -13,10 +13,10 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
 
-import structs.AlterTableCommand;
 import structs.Constraints;
 import structs.FieldType;
 import structs.GenericTypes;
+import structs.ModifyFieldCommand;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
@@ -24,7 +24,7 @@ import structs.TableField;
 //16-04-2019
 
 @SuppressWarnings("serial")
-public class MofidyFieldCommandDialog extends Dialog<AlterTableCommand> {
+public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	
 	private JComboBox<TableField> ddField;
 	private JComboBox<FieldType> ddFieldType;
@@ -34,12 +34,13 @@ public class MofidyFieldCommandDialog extends Dialog<AlterTableCommand> {
 	private JCheckBox cbNotNull;
 	private JTextField tfReferencedTable;
 	private JTextField tfRetferencedColumn;
-	private JButton buttonAdd;
+	private JButton buttonSave;
 	
 	boolean editMode;
 	
 	private Script parentScript;
-	private AlterTableCommand currentCommand;
+	private Table currentTable;
+	private ModifyFieldCommand currentCommand;
 	private TableField currentNewField;
 	
 	public MofidyFieldCommandDialog(JFrame parent) {
@@ -81,8 +82,8 @@ public class MofidyFieldCommandDialog extends Dialog<AlterTableCommand> {
 		tfReferencedTable = new JTextField();
 		tfRetferencedColumn = new JTextField();
 			
-		buttonAdd = new JButton("Adicionar");
-		buttonAdd.addActionListener(new ActionListener() {
+		buttonSave = new JButton("Salvar");
+		buttonSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
@@ -101,7 +102,8 @@ public class MofidyFieldCommandDialog extends Dialog<AlterTableCommand> {
 				currentNewField.setReferencedTable(tfReferencedTable.getText());
 				currentNewField.setReferencedColumn(tfRetferencedColumn.getText());
 				
-				currentCommand.modifyColumn(oldField, currentNewField);
+				currentCommand.setOldField(oldField);
+				currentCommand.setNewField(currentNewField);
 				MofidyFieldCommandDialog.this.setResult(true, currentCommand);
 				MofidyFieldCommandDialog.this.dispose();
 			}
@@ -115,14 +117,14 @@ public class MofidyFieldCommandDialog extends Dialog<AlterTableCommand> {
 		add(cbNotNull);
 		add(tfReferencedTable);
 		add(tfRetferencedColumn);
-		add(buttonAdd);
+		add(buttonSave);
 		
 		this.pack();
 	}
 		
-	public void update(Table table) {
+	public void updateControls() {
 		ddField.removeAllItems();
-		List<TableField> fields = table.getFields();
+		List<TableField> fields = currentTable.getFields();
 		for(TableField field : fields)
 			ddField.addItem(field);
 	}
@@ -131,17 +133,21 @@ public class MofidyFieldCommandDialog extends Dialog<AlterTableCommand> {
 		Table resultingTable = parentScript.getResultTable();
 		
 		this.parentScript = parentScript;
-		currentCommand = new AlterTableCommand(parentScript,resultingTable);
+		currentCommand = new ModifyFieldCommand(parentScript,resultingTable, null, null);
 		currentNewField = new TableField();
 		
-		this.update(resultingTable);
-		
 		editMode = false;
+		updateControls();
 		this.setVisible(true);
 	}
 	
-	public void edit(AlterTableCommand command) {
+	public void edit(ModifyFieldCommand command) {
+		parentScript = command.getScript();
+		currentCommand = command.clone();
+		currentTable = command.getRefTable();
+
 		editMode = true;
+		updateControls();
 		this.setVisible(true);
 	}
 	

@@ -28,23 +28,21 @@ public class Script {
 			if(command instanceof CreateTableCommand) {
 				resultingTable = ((CreateTableCommand) command).getTable().clone();
 			}
-			else if(command instanceof AlterTableCommand) {
-				TableField field = ((AlterTableCommand) command).getField();
-				AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
-				int fieldIndex = resultingTable.getFieldIndex(field);
-				if(fieldIndex != -1) {
-					if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
-						resultingTable.getFields().set(fieldIndex, field);
-					}
-					else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
-						resultingTable.getFields().remove(fieldIndex);
-					}
-				}
-				else {
-					if(subType == AlterTableCommand.SubType.ADD_FIELD) {
-						resultingTable.getFields().add(((AlterTableCommand) command).getField());
-					}
-				}
+			else if(command instanceof AddFieldCommand) {
+				AddFieldCommand afc = (AddFieldCommand)command;
+				resultingTable.getFields().add(afc.getField());
+			}
+			else if(command instanceof ModifyFieldCommand) {
+				ModifyFieldCommand mfc = (ModifyFieldCommand)command;
+				int fieldIndex = resultingTable.getFieldIndex(mfc.getOldField());
+				if(fieldIndex != -1)
+					resultingTable.getFields().set(fieldIndex, mfc.getNewField());
+			}
+			else if(command instanceof DropFieldCommand) {
+				DropFieldCommand dfc = (DropFieldCommand)command;
+				int fieldIndex = resultingTable.getFieldIndex(dfc.getField());
+				if(fieldIndex != -1)
+					resultingTable.getFields().remove(fieldIndex);
 			}
 		}
 		return resultingTable;

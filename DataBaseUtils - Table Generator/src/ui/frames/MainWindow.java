@@ -33,7 +33,7 @@ public class MainWindow extends JFrame {
 	
 	static CreateTableCommandDialog createTableCommandDialog;
 	static AddFieldCommandDialog addFieldCommandDialog;
-	static MofidyFieldCommandDialog editFieldCommandDialog;
+	static MofidyFieldCommandDialog modifyFieldCommandDialog;
 	static DropFieldCommandDialog dropFieldCommandDialog;
 	
 	ProjectPanel panelProject;
@@ -109,7 +109,7 @@ public class MainWindow extends JFrame {
 		//
 		createTableCommandDialog = new CreateTableCommandDialog(this);
 		addFieldCommandDialog = new AddFieldCommandDialog(this);
-		editFieldCommandDialog = new MofidyFieldCommandDialog(this);
+		modifyFieldCommandDialog = new MofidyFieldCommandDialog(this);
 		dropFieldCommandDialog = new DropFieldCommandDialog(this);
 		
 		panelProject = new ProjectPanel();

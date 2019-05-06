@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-import structs.AlterTableCommand;
+import structs.AddFieldCommand;
 import structs.Command;
 import structs.CreateTableCommand;
 import structs.Script;
@@ -37,8 +37,8 @@ public abstract class Generator {
 					resultContent = generateCreateTable((CreateTableCommand)command);
 					postCreateTableGeneration((CreateTableCommand)command);
 				}
-				else if(command instanceof AlterTableCommand) {
-					resultContent = generateAlterTable((AlterTableCommand)command);
+				else if(command instanceof AddFieldCommand) {
+					resultContent = generateAlterTable((AddFieldCommand)command);
 				}
 				fileWriter.write(resultContent);
 			}
@@ -61,7 +61,7 @@ public abstract class Generator {
 	public void postCreateTableGeneration(CreateTableCommand command) {
 	}
 	
-	public String generateAlterTable(AlterTableCommand command) {
+	public String generateAlterTable(Command command) {
 		return null;
 	}
 }

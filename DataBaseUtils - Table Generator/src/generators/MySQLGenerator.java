@@ -6,11 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import structs.AlterTableCommand;
+import structs.AddFieldCommand;
+import structs.Command;
 import structs.Constraints;
 import structs.CreateTableCommand;
+import structs.DropFieldCommand;
 import structs.FieldType;
 import structs.GenericTypes;
+import structs.ModifyFieldCommand;
 import structs.Table;
 import structs.TableField;
 
@@ -114,8 +117,34 @@ public class MySQLGenerator extends Generator {
 	}
 	
 	@Override
-	public String generateAlterTable(AlterTableCommand command) {
-		//todo
-		return "";
+	public String generateAlterTable(Command command) {
+
+		String result = "";
+		
+		if(command instanceof AddFieldCommand) {
+			AddFieldCommand afc = (AddFieldCommand)command;
+			Table refTable = afc.getRefTable();
+			TableField field = afc.getField();
+			result += "ALTER TABLE " + refTable.getName() + " ADD ";
+			result += generateField(field);
+		}
+		else if(command instanceof ModifyFieldCommand) {
+			ModifyFieldCommand mfc = (ModifyFieldCommand)command;
+			Table refTable = mfc.getRefTable();
+			TableField oldField = mfc.getOldField();
+			TableField newField = mfc.getNewField();
+			result += "ALTER TABLE " + refTable.getName() + " MODIFY ";
+			result += generateField(newField);
+		}
+		else if(command instanceof DropFieldCommand) {
+			DropFieldCommand dfc = (DropFieldCommand)command;
+			Table refTable = dfc.getRefTable();
+			TableField field = dfc.getField();
+			result += "ALTER TABLE " + refTable.getName() + " DROP ";
+			result += field.getName();
+		}
+		
+		result += "\n/\n";
+		return result;
 	}
 }

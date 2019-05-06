@@ -1,14 +1,18 @@
 package ui.frames;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
-import structs.AlterTableCommand;
+import structs.AddFieldCommand;
+import structs.DropFieldCommand;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
@@ -16,33 +20,17 @@ import structs.TableField;
 //16-04-2019
 
 @SuppressWarnings("serial")
-public class DropFieldCommandDialog extends Dialog<AlterTableCommand> {
+public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
+	private JComboBox<TableField> fieldList;
+	private JButton buttonSave;
 	
+	//
 	boolean editMode;
-	
-	public static class PanelDropColumn extends JPanel {
-		
-		public JComboBox<TableField> fieldList;
-		
-		public PanelDropColumn() {
-			fieldList = new JComboBox<TableField>();
-			add(fieldList);
-		}
-		
-		public void update(Table table) {
-			fieldList.removeAllItems();
-			List<TableField> fields = table.getFields();
-			for(TableField field : fields) {
-				fieldList.addItem(field);
-			}
-		}
-		
-	}
-	
-	private PanelDropColumn panelDropField;
-	
-	private Table parentTable;
+	private DropFieldCommand currentCommand;
 
+	private Script parentScript;
+	private Table currentTable;
+	
 	public DropFieldCommandDialog(JFrame parent) {
 		super(parent);
 		
@@ -54,25 +42,48 @@ public class DropFieldCommandDialog extends Dialog<AlterTableCommand> {
 			}
 		});
 		
-		panelDropField = new PanelDropColumn();
-		this.add(panelDropField);
+		
+		fieldList = new JComboBox<TableField>();
+		this.setLayout(new BoxLayout(this.getContentPane(),BoxLayout.Y_AXIS));
+		
+		buttonSave = new JButton("Salvar");
+		buttonSave.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				currentCommand.setField((TableField)fieldList.getSelectedItem());
+				DropFieldCommandDialog.this.setResult(true,currentCommand);
+				DropFieldCommandDialog.this.dispose();
+			}
+		});
+		add(fieldList);
+		add(buttonSave);
 		this.pack();
 	}
 	
+	public void updateControls() {
+		fieldList.removeAllItems();
+		List<TableField> fields = currentTable.getFields();
+		for(TableField field : fields) {
+			fieldList.addItem(field);
+		}
+	}
+	
 	public void insertNew(Script parentScript) {
-		
-		panelDropField.update(parentScript.getResultTable());
+		currentTable = parentScript.getResultTable();
+		currentCommand = new DropFieldCommand(parentScript, currentTable, null);
+		updateControls();
 		
 		editMode = false;
 		this.setVisible(true);
 	}
 	
-	public void edit(AlterTableCommand command) {
+	public void edit(DropFieldCommand command) {
 		if(command != null) {
-			parentTable = command.getScript().getResultTable();
-			panelDropField.update(parentTable);
+			currentCommand = command.clone();
+			currentTable = command.getScript().getResultTable();
 		}
 		
+		updateControls();
 		editMode = true;
 		this.setVisible(true);
 	}

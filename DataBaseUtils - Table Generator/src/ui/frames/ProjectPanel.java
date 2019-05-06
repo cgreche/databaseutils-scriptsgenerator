@@ -23,9 +23,11 @@ import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import structs.AlterTableCommand;
+import structs.AddFieldCommand;
 import structs.Command;
 import structs.CreateTableCommand;
+import structs.DropFieldCommand;
+import structs.ModifyFieldCommand;
 import structs.Project;
 import structs.ProjectHandler;
 import structs.Script;
@@ -44,20 +46,20 @@ public class ProjectPanel extends JPanel {
 	JButton btnNewScript;
 	JList<Script> listScripts;
 	
-	static JPanel panelCommands;
+	private JPanel panelCommands;
 		JButton btnCreateTableCommand;
 		JButton btnAddFieldCommand;
 		JButton btnModifyFieldCommand;
 		JButton btnDropFieldCommand;
 	
-	static JPanel panelHeader;
-	static JPanel panelData;
-	static JPanel panelResult;
+	private JPanel panelHeader;
+	private JPanel panelData;
+	private JPanel panelResult;
 		JCheckBox cbShowRemovedFields;
-	static JPanel panelFooter;
+	private JPanel panelFooter;
 	
 	JLabel lblProjectTitle = new JLabel();
-	static TableFieldTable tableResultingTable;
+	private TableFieldTable tableResultingTable;
 	
 	Project project;
 	List<Script> scriptList;
@@ -179,7 +181,7 @@ public class ProjectPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				MainWindow.addFieldCommandDialog.insertNew(currentSelectedScript);
 				if(MainWindow.addFieldCommandDialog.getResult()) {
-					AlterTableCommand command = MainWindow.addFieldCommandDialog.getResultData();
+					AddFieldCommand command = MainWindow.addFieldCommandDialog.getResultData();
 					currentSelectedScript.addCommand(command);
 					
 					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
@@ -191,11 +193,13 @@ public class ProjectPanel extends JPanel {
 		btnModifyFieldCommand.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				MainWindow.editFieldCommandDialog.insertNew(currentSelectedScript);
-				AlterTableCommand command = MainWindow.editFieldCommandDialog.getResultData();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				MainWindow.modifyFieldCommandDialog.insertNew(currentSelectedScript);
+				if(MainWindow.modifyFieldCommandDialog.getResult()) {
+					ModifyFieldCommand command = MainWindow.modifyFieldCommandDialog.getResultData();
+					if(command != null) {
+						currentSelectedScript.addCommand(command);
+						((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+					}
 				}
 			}
 		});
@@ -205,10 +209,12 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				MainWindow.dropFieldCommandDialog.insertNew(currentSelectedScript);
-				AlterTableCommand command = MainWindow.dropFieldCommandDialog.getResultData();
-				if(command != null) {
-					currentSelectedScript.addCommand(command);
-					((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+				if(MainWindow.dropFieldCommandDialog.getResult()) {
+					DropFieldCommand command = MainWindow.dropFieldCommandDialog.getResultData();
+					if(command != null) {
+						currentSelectedScript.addCommand(command);
+						((DefaultListModel<Command>)listCommands.getModel()).addElement(command);
+					}
 				}
 			}
 		});
@@ -240,18 +246,22 @@ public class ProjectPanel extends JPanel {
 							currentSelectedScript.getCommands().set(index, resultCommand);
 						}
 					}
-					else if(command instanceof AlterTableCommand) {
-						AlterTableCommand c = (AlterTableCommand)command;
-						AlterTableCommand.SubType subType = c.getSubType();
-						if(subType == AlterTableCommand.SubType.ADD_FIELD) {
-							MainWindow.addFieldCommandDialog.edit(c);
-							result = MainWindow.addFieldCommandDialog.getResult();
-						} else if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
-							MainWindow.editFieldCommandDialog.edit(c);
-							result = MainWindow.editFieldCommandDialog.getResult();
-						} else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
-							MainWindow.dropFieldCommandDialog.edit(c);
-							result = MainWindow.dropFieldCommandDialog.getResult();
+					else if(command instanceof AddFieldCommand) {
+						MainWindow.addFieldCommandDialog.edit((AddFieldCommand)command);
+						if(MainWindow.addFieldCommandDialog.getResult()) {
+							
+						}
+					}
+					else if(command instanceof ModifyFieldCommand) {
+						MainWindow.modifyFieldCommandDialog.edit((ModifyFieldCommand)command);
+						if(MainWindow.modifyFieldCommandDialog.getResult()) {
+							
+						}
+					}
+					else if(command instanceof DropFieldCommand) {
+						MainWindow.dropFieldCommandDialog.edit((DropFieldCommand)command);
+						if(MainWindow.dropFieldCommandDialog.getResult()) {
+							
 						}
 					}
 					

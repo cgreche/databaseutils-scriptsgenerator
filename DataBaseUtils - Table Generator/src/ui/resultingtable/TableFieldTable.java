@@ -13,11 +13,13 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
-import structs.AlterTableCommand;
+import structs.AddFieldCommand;
 import structs.Command;
 import structs.CreateTableCommand;
+import structs.DropFieldCommand;
 import structs.FieldType;
 import structs.GenericTypes;
+import structs.ModifyFieldCommand;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
@@ -109,19 +111,12 @@ public class TableFieldTable extends JTable {
 			if(command instanceof CreateTableCommand) {
 				Table originalTable = ((CreateTableCommand) command).getTable().clone();
 				this.setData(originalTable.getFields());
-			}
-			else if(command instanceof AlterTableCommand) {
-				TableField field = ((AlterTableCommand) command).getField();
-				AlterTableCommand.SubType subType = ((AlterTableCommand) command).getSubType();
-				if(subType == AlterTableCommand.SubType.MODIFY_FIELD) {
-					this.modifyField(field,((AlterTableCommand) command).getNewField());
-				}
-				else if(subType == AlterTableCommand.SubType.DROP_FIELD) {
-					this.dropField(((AlterTableCommand) command).getField());
-				}
-				else if(subType == AlterTableCommand.SubType.ADD_FIELD) {
-					this.addField(((AlterTableCommand) command).getField(),false);
-				}
+			} else if(command instanceof AddFieldCommand) {
+				this.addField(((AddFieldCommand) command).getField(),false);
+			} else if(command instanceof ModifyFieldCommand) {
+				this.modifyField(((ModifyFieldCommand) command).getOldField(),((ModifyFieldCommand) command).getNewField());
+			} else if(command instanceof DropFieldCommand) {
+				this.dropField(((DropFieldCommand) command).getField());
 			}
 		}
 	}

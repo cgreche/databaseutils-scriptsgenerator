@@ -16,10 +16,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import structs.AlterTableCommand;
+import structs.AddFieldCommand;
 import structs.Constraints;
 import structs.CreateTableCommand;
+import structs.DropFieldCommand;
 import structs.GenericTypes;
+import structs.ModifyFieldCommand;
 import structs.Project;
 import structs.Script;
 import structs.Table;
@@ -91,7 +93,7 @@ public class NewProjectDialog extends JDialog {
 		field3.setName("ERICLES");
 		field3.setConstraints(Constraints.PK);
 		field3.setType(GenericTypes.DATE);
-		script.addCommand(new AlterTableCommand(script,table1).addColumn(field3));
+		script.addCommand(new AddFieldCommand(script,table1,field3));
 		return script;
 	}
 	
@@ -105,15 +107,15 @@ public class NewProjectDialog extends JDialog {
 		field3.setName("GUILHERME");
 		field3.setConstraints(Constraints.PK);
 		field3.setType(GenericTypes.TIMESTAMP);
-		script.addCommand(new AlterTableCommand(script, table2).addColumn(field3));
-		script.addCommand(new AlterTableCommand(script,table2).dropColumn(field3));
+		script.addCommand(new AddFieldCommand(script,table2,field3));
+		script.addCommand(new DropFieldCommand(script,table2,field3));
 		
 		TableField fieldID2Old = table2.getFieldByName("ID2");
 		TableField fieldID2 = fieldID2Old.clone();
 		fieldID2.setType(GenericTypes.TEXT);
 		fieldID2.setName("ID2_MODIFICADO");
 		fieldID2.setArgs("100");
-		script.addCommand(new AlterTableCommand(script,table2).modifyColumn(fieldID2Old,fieldID2));
+		script.addCommand(new ModifyFieldCommand(script,table2,fieldID2Old,fieldID2));
 		return script;
 	}
 	
