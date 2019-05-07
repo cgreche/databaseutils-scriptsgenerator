@@ -43,8 +43,8 @@ public class OracleGenerator extends Generator {
 		if(mappedType == null)
 			mappedType = field.getType();
 		String result = field.getName() + " " + mappedType.getId();
-		if(mappedType.acceptArgs() && field.getArgs() != null)
-			result += "(" + field.getArgs() + ")";
+		if(mappedType.acceptArgs() && field.getSize() != null)
+			result += "(" + field.getSize() + ")";
 		int constraints = field.getConstraints();
 		if((constraints&Constraints.NOT_NULL) != 0) {
 			result += " NOT NULL";

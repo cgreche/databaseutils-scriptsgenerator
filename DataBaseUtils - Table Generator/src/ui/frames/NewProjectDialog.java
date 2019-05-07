@@ -51,19 +51,19 @@ public class NewProjectDialog extends JDialog {
 		TableField field1 = new TableField();
 		field1.setName("GUID");
 		field1.setConstraints(Constraints.PK);
-		field1.setArgs("255");
+		field1.setSize("255");
 		field1.setType(GenericTypes.TEXT);
 		
 		TableField field2 = new TableField();
 		field2.setName("IDEVENTO");
-		field2.setArgs("36");
+		field2.setSize("36");
 		field2.setType(GenericTypes.TEXT);
 		field2.setConstraints(Constraints.NOT_NULL|Constraints.FK);
 		field2.setReferencedTable("WOOOOW");
 		
 		TableField field3 = new TableField();
 		field3.setName("TENANTID");
-		field3.setArgs("10,0");
+		field3.setSize("10,0");
 		field3.setType(GenericTypes.NUMERIC);
 		
 		Table table = new Table();
@@ -82,7 +82,7 @@ public class NewProjectDialog extends JDialog {
 		field3.setName("ID2");
 		field3.setConstraints(Constraints.PK);
 		field3.setType(GenericTypes.NUMERIC);
-		field3.setArgs("99,2");
+		field3.setSize("99,2");
 		
 		TableField field2 = new TableField();
 		field2.setName("TENANTID");
@@ -124,7 +124,7 @@ public class NewProjectDialog extends JDialog {
 		TableField fieldID2 = fieldID2Old.clone();
 		fieldID2.setType(GenericTypes.TEXT);
 		fieldID2.setName("ID2_MODIFICADO");
-		fieldID2.setArgs("100");
+		fieldID2.setSize("100");
 		script.addCommand(new ModifyFieldCommand(script,table2,fieldID2Old,fieldID2));
 		return script;
 	}

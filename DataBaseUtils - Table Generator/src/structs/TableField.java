@@ -4,7 +4,7 @@ package structs;
 public class TableField implements Cloneable {
 	private String name;
 	private FieldType type;
-	private String args;
+	private String size;
 	private int constraints;
 	private String referencedTable;
 	private String referencedColumn;
@@ -29,12 +29,12 @@ public class TableField implements Cloneable {
 		this.type = type;
 	}
 	
-	public String getArgs() {
-		return args;
+	public String getSize() {
+		return size;
 	}
 	
-	public void setArgs(String args) {
-		this.args = args;
+	public void setSize(String size) {
+		this.size = size;
 	}
 	
 	public int getConstraints() {

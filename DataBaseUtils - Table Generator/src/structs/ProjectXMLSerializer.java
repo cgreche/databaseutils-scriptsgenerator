@@ -19,7 +19,42 @@ import org.w3c.dom.Element;
 
 //06/05/2019
 public class ProjectXMLSerializer implements ProjectSerializer {
-	
+
+	private Element tableFieldToElement(Document document, TableField field, String elementName) {
+		Element elemField = document.createElement(elementName);
+		Attr attrFieldName = document.createAttribute("name");
+		attrFieldName.setValue(field.getName());
+		elemField.setAttributeNode(attrFieldName);
+		
+		Element elem = document.createElement("type");
+		elem.setTextContent(field.getType().toString());
+		elemField.appendChild(elem);
+		
+		if(field.getSize() != null) {
+			elem = document.createElement("size");
+			elem.setTextContent(field.getSize());
+			elemField.appendChild(elem);
+		}
+		
+		if(field.getConstraints() != 0) {
+			elem = document.createElement("constraints");
+			elem.setTextContent(String.valueOf(field.getConstraints()));
+			elemField.appendChild(elem);
+			
+			if((field.getConstraints() & Constraints.FK) != 0) {
+				elem = document.createElement("refTable");
+				elem.setTextContent(String.valueOf(field.getReferencedTable()));
+				elemField.appendChild(elem);
+			
+				elem = document.createElement("refColumn");
+				elem.setTextContent(String.valueOf(field.getReferencedColumn()));
+				elemField.appendChild(elem);
+			}
+		}
+		
+		return elem;
+	}
+
 	@Override
 	public byte [] serialize(Project project) {
 		DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
@@ -60,32 +95,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				
 				List<TableField> fields = table.getFields();
 				for(TableField field : fields) {
-					Element elemField = document.createElement("field");
-					Attr attrFieldName = document.createAttribute("name");
-					attrFieldName.setValue(field.getName());
-					elemField.setAttributeNode(attrFieldName);
-					
-					Element elem = document.createElement("type");
-					elem.setTextContent(field.getType().toString());
-					elemField.appendChild(elem);
-					
-					elem = document.createElement("size");
-					elem.setTextContent(field.getArgs());
-					elemField.appendChild(elem);
-					
-					elem = document.createElement("constraints");
-					elem.setTextContent(String.valueOf(field.getConstraints()));
-					elemField.appendChild(elem);
-					
-					elem = document.createElement("referencedTable");
-					elem.setTextContent(String.valueOf(field.getReferencedTable()));
-					elemField.appendChild(elem);
-					
-					elem = document.createElement("referencedColumn");
-					elem.setTextContent(String.valueOf(field.getReferencedColumn()));
-					elemField.appendChild(elem);
-					
-					//
+					Element elemField = tableFieldToElement(document,field,"field");
 					elemFields.appendChild(elemField);
 				}
 				
@@ -100,25 +110,53 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				Element elemCommands = document.createElement("commands");
 				for(Command command : script.getCommands()) {
 					Element elemCommand = document.createElement("command");
+					Attr attrCommandType = document.createAttribute("type");
+					attrCommandType.setValue(command.getClass().getSimpleName());
+					elemCommand.setAttributeNode(attrCommandType);
+						
 					if(command instanceof CreateTableCommand) {
 						CreateTableCommand c = (CreateTableCommand)command;
+						Table table = c.getTable();
+						Element elem = document.createElement("table");
+						elem.setTextContent(table.getName());
+						elemCommand.appendChild(elem);
 					}
 					else if(command instanceof AddFieldCommand) {
 						AddFieldCommand c = (AddFieldCommand)command;
+						Element elem = document.createElement("refTable");
+						elemCommand.appendChild(elem);
+						
+						elem = tableFieldToElement(document, c.getField(), "field");
+						elemCommand.appendChild(elem);
 					}
 					else if(command instanceof ModifyFieldCommand) {
 						ModifyFieldCommand c = (ModifyFieldCommand)command;
+						Element elem = document.createElement("refTable");
+						elem.setTextContent(c.getRefTable().getName());
+						elemCommand.appendChild(elem);
+						
+						elem = document.createElement("oldField");
+						elem.setTextContent(c.getOldField().getName());
+						elemCommand.appendChild(elem);
+						
+						elem = tableFieldToElement(document,c.getNewField(),"newField");
+						elemCommand.appendChild(elem);
 					}
 					else if(command instanceof DropFieldCommand) {
 						DropFieldCommand c = (DropFieldCommand)command;
+						Element elem = document.createElement("refTable");
+						elem.setTextContent(c.getRefTable().getName());
+						elemCommand.appendChild(elem);
+						
+						elem = document.createElement("field");
+						elem.setTextContent(c.getField().getName());
+						elemCommand.appendChild(elem);
 					}
 					
 					elemCommands.appendChild(elemCommand);
 				}
 				
-				Attr attrScriptType = document.createAttribute("type");
-				attr.setValue(script.toString());
-					elemScript.setAttributeNode(attrScriptType);
+
 				elemScript.appendChild(elemCommands);
 				elemScripts.appendChild(elemScript);
 			}

@@ -63,7 +63,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 				TableField field = new TableField();
 				field.setName(tfName.getText());
 				field.setType((FieldType)ddFieldType.getSelectedItem());
-				field.setArgs(tfSize.getText());
+				field.setSize(tfSize.getText());
 				int constraints = 0;
 				if(cbPk.isSelected())
 					constraints |= Constraints.PK;

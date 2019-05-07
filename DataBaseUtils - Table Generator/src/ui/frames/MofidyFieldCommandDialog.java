@@ -58,7 +58,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 			public void actionPerformed(ActionEvent e) {
 				TableField item = (TableField)ddField.getSelectedItem();
 				ddFieldType.setSelectedItem(item.getType());
-				tfSize.setText(item.getArgs());
+				tfSize.setText(item.getSize());
 				cbPk.setSelected(item.isPK());
 				cbFk.setSelected(item.isFK());
 				cbNotNull.setSelected(item.isNotNull());
@@ -90,7 +90,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 				TableField oldField = (TableField)ddField.getSelectedItem();
 				
 				currentNewField.setType((FieldType)ddFieldType.getSelectedItem());
-				currentNewField.setArgs(tfSize.getText());
+				currentNewField.setSize(tfSize.getText());
 				int constraints = 0;
 				if(cbPk.isSelected())
 					constraints |= Constraints.PK;

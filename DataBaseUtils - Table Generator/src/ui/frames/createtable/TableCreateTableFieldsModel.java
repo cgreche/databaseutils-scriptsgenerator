@@ -23,7 +23,7 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 		TableField field = data.get(row);
 		if(col == 0) return field.getName();
 		if(col == 1) return field.getType() != null ? field.getType().getName() : null;
-		if(col == 2) return field.getArgs();
+		if(col == 2) return field.getSize();
 		if(col == 3) return field.isPK();
 		if(col == 4) return field.isFK();
 		if(col == 5) return field.isNotNull();
@@ -37,7 +37,7 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 		TableField field = data.get(row);
 		if(col == 0) field.setName((String)value);
 		if(col == 1) field.setType((FieldType)value);
-		if(col == 2) field.setArgs((String)value);
+		if(col == 2) field.setSize((String)value);
 		if(col == 3) {
 			if((Boolean)value)
 				field.setConstraints(field.getConstraints()|Constraints.PK);
