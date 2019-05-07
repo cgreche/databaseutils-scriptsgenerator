@@ -48,8 +48,21 @@ public class ProjectHandler {
 		return true;
 	}
 	
-	public void load() {
+	public boolean load() {
+		if(currentSavePath == null)
+			return false;
 		
+		byte[] fileData;
+		try {
+			fileData = Files.readAllBytes(Paths.get(currentSavePath));
+			Project project = serializer.deserialize(fileData);
+			this.project = project;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+		return this.project != null;
 	}
 	
 	public void generateScripts() {

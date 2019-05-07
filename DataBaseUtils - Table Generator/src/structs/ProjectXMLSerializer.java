@@ -1,5 +1,6 @@
 package structs;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			}
 		}
 		
-		return elem;
+		return elemField;
 	}
 
 	@Override
@@ -124,6 +125,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 					else if(command instanceof AddFieldCommand) {
 						AddFieldCommand c = (AddFieldCommand)command;
 						Element elem = document.createElement("refTable");
+						elem.setTextContent(c.getRefTable().getName());
 						elemCommand.appendChild(elem);
 						
 						elem = tableFieldToElement(document, c.getField(), "field");
@@ -186,7 +188,19 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 	
 	@Override
 	public Project deserialize(byte [] data) {
-		return new Project();
+		DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder documentBuilder;
+		try {
+			documentBuilder = documentFactory.newDocumentBuilder();
+			Document doc = documentBuilder.parse(new ByteArrayInputStream(data));
+			return new Project();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch(Exception e) {
+			//todo: error message?
+		}
+		return null;
 	}
 	
 }

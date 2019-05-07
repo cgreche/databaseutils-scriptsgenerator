@@ -65,4 +65,9 @@ public class FieldType {
 		this.generic = generic;
 	}
 	
+	@Override
+	public String toString() {
+		return getName();
+	}
+	
 }

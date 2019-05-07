@@ -69,6 +69,22 @@ public class MainWindow extends JFrame {
 			
 		menuProject.add(itemProjectOpen);
 			itemProjectOpen.setText("Abrir");
+			itemProjectOpen.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final JFileChooser fc = new JFileChooser();
+					int returnVal = fc.showOpenDialog(MainWindow.this);
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						File file = fc.getSelectedFile();
+						projectHandler = new ProjectHandler(null);
+						projectHandler.setSavePath(file.getAbsolutePath());
+						projectHandler.load();
+					} else {
+						return;
+					}
+					
+				}
+			});
 		menuProject.add(itemProjectSave);
 			itemProjectSave.setText("Salvar");
 			itemProjectSave.addActionListener(new ActionListener() {
