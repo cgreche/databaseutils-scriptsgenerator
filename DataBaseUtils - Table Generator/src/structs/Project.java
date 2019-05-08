@@ -9,9 +9,9 @@ public class Project {
 	private String scriptsGenerationBasePath;
 	
 	private List<Table> tableList;
-	private List<TableField> extraFieldList;
 	
 	public Project() {
+		tableList = new ArrayList<>();
 		scripts = new ArrayList<>();
 	}
 	
@@ -25,6 +25,14 @@ public class Project {
 
 	public void setScripts(List<Script> scripts) {
 		this.scripts = scripts;
+	}
+	
+	public List<Table> getTables() {
+		return tableList;
+	}
+	
+	public void addTable(Table table) {
+		tableList.add(table);
 	}
 	
 	public List<Script> getScripts() {

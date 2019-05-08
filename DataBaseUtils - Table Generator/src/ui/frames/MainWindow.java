@@ -79,6 +79,8 @@ public class MainWindow extends JFrame {
 						projectHandler = new ProjectHandler(null);
 						projectHandler.setSavePath(file.getAbsolutePath());
 						projectHandler.load();
+						panelProject.setProject(projectHandler.getProject());
+						panelProject.setVisible(true);
 					} else {
 						return;
 					}

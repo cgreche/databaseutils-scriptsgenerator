@@ -17,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 //06/05/2019
 public class ProjectXMLSerializer implements ProjectSerializer {
@@ -28,7 +29,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 		elemField.setAttributeNode(attrFieldName);
 		
 		Element elem = document.createElement("type");
-		elem.setTextContent(field.getType().toString());
+		elem.setTextContent(field.getType().getId());
 		elemField.appendChild(elem);
 		
 		if(field.getSize() != null) {
@@ -76,7 +77,6 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				}
 			}
 			
-			
 			documentBuilder = documentFactory.newDocumentBuilder();
 			Document document = documentBuilder.newDocument();
 			// root element
@@ -108,6 +108,10 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			Element elemScripts = document.createElement("scripts");
 			for(Script script : scripts) {
 				Element elemScript = document.createElement("script");
+				Attr attrScriptName = document.createAttribute("name");
+				attrScriptName.setValue(script.getObjectName());
+				elemScript.setAttributeNode(attrScriptName);
+				
 				Element elemCommands = document.createElement("commands");
 				for(Command command : script.getCommands()) {
 					Element elemCommand = document.createElement("command");
@@ -186,6 +190,196 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 		return null;
 	}
 	
+	private Element getChildElement(Node node) {
+		Node child = node.getFirstChild();
+		while(child != null && child.getNodeType() != Node.ELEMENT_NODE) {
+			child = child.getNextSibling();
+		} 
+		return (Element)child;
+	}
+	
+	private Element getNextElement(Node node) {
+		do {
+			node = node.getNextSibling();
+		} while(node != null && node.getNodeType() != Node.ELEMENT_NODE);
+		return (Element)node;
+	}
+	
+	void parseCreateTableCommand(Element elem, Project project) {
+		elem = getChildElement(elem);
+		while(elem != null) {
+			String strValue = elem.getTextContent();
+			if("table".equals(elem.getNodeName())) {
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+
+	void parseAddFieldCommand(Element elem, Project project) {
+		elem = getChildElement(elem);
+		while(elem != null) {
+			String strValue = elem.getTextContent();
+			if("refTable".equals(elem.getNodeName())) {
+				//TODO
+			}
+			else if("field".equals(elem.getNodeName())) {
+				parseTableField(elem,project);
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+	
+	void parseModifyFieldCommand(Element elem, Project project) {
+		elem = getChildElement(elem);
+		while(elem != null) {
+			String strValue = elem.getTextContent();
+			if("refTable".equals(elem.getNodeName())) {
+				//TODO
+			}
+			else if("oldField".equals(elem.getNodeName())) {
+				//TODO
+			}
+			else if("newField".equals(elem.getNodeName())) {
+				parseTableField(elem,project);
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+
+	void parseDropFieldCommand(Element elem, Project project) {
+		elem = getChildElement(elem);
+		while(elem != null) {
+			String strValue = elem.getTextContent();
+			if("refTable".equals(elem.getNodeName())) {
+				//TODO
+			}
+			else if("field".equals(elem.getNodeName())) {
+				//TODO
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+
+	void parseCommand(Element elem, Project project) {
+		String typeStr = elem.getAttribute("type");
+		if("CreateTableCommand".contentEquals(typeStr))
+			parseCreateTableCommand(elem,project);
+		else if("AddFieldCommand".contentEquals(typeStr))
+			parseAddFieldCommand(elem,project);
+		else if("ModifyFieldCommand".contentEquals(typeStr))
+			parseModifyFieldCommand(elem,project);
+		else if("DropFieldCommand".contentEquals(typeStr))
+			parseDropFieldCommand(elem,project);
+	}
+
+	void parseTableField(Element elem, Project project) {
+		TableField field = new TableField();
+		
+		String fieldName = elem.getAttribute("name");
+		field.setName(fieldName);
+		
+		elem = getChildElement(elem);
+		while(elem != null) {
+			String strValue = elem.getTextContent();
+			if("type".equals(elem.getNodeName())) {
+				//TODO
+			}
+			else if("size".equals(elem.getNodeName())) {
+				field.setSize(strValue);
+			}
+			else if("constraints".equals(elem.getNodeName())) {
+				int constraints = Integer.parseUnsignedInt(strValue);
+				field.setConstraints(constraints);
+			}
+			else if("refTable".equals(elem.getNodeName())) {
+				field.setReferencedTable(strValue);
+			}
+			else if("refColumn".equals(elem.getNodeName())) {
+				field.setReferencedColumn(strValue);
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+
+	void parseTable(Element elem, Project project) {
+		Table table = new Table();
+		String tableName = elem.getAttribute("name");
+		table.setName(tableName);
+		
+		elem = getChildElement(elem);
+		while(elem != null) {
+			if("fields".equals(elem.getNodeName())) {
+				elem = getChildElement(elem);
+				while(elem != null) {
+					if("field".contentEquals(elem.getNodeName())) {
+						parseTableField(elem,project);
+					}
+					elem = getNextElement(elem);
+				}
+				break;
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+	
+	void parseScript(Element elem, Project project) {
+		Script script = new Script();
+		String scriptName = elem.getAttribute("name");
+		script.setObjectName(scriptName);
+		
+		elem = getChildElement(elem);
+		while(elem != null) {
+			if("commands".equals(elem.getNodeName())) {
+				elem = getChildElement(elem);
+				while(elem != null) {
+					if("commands".contentEquals(elem.getNodeName())) {
+						parseCommand(elem,project);
+					}
+					elem = getNextElement(elem);
+				}
+				break;
+			}
+			
+			elem = getNextElement(elem);
+		}
+	}
+	
+	private Project parseProject(Node rootNode) {
+		Project project;
+		if(!"project".contentEquals(rootNode.getNodeName())) {
+			return null;
+		}
+		
+
+		project = new Project();
+		String projectName = rootNode.getAttributes().getNamedItem("name").getTextContent();
+		project.setName(projectName);
+		
+		Element elem = getChildElement(rootNode);
+		while(elem != null) {
+			String elemName = elem.getNodeName();
+			if("tables".contentEquals(elemName)) {
+				Element elemTable = getChildElement(elem);
+				while(elemTable != null) {
+					if("table".contentEquals(elemTable.getNodeName()))
+						parseTable(elemTable,project);
+					elemTable = getNextElement(elemTable);
+				}
+			} else if("scripts".contentEquals(elemName)) {
+				
+			}
+			elem = getNextElement(elem);
+		}
+		
+		return project;
+	}
+	
 	@Override
 	public Project deserialize(byte [] data) {
 		DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
@@ -193,7 +387,9 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 		try {
 			documentBuilder = documentFactory.newDocumentBuilder();
 			Document doc = documentBuilder.parse(new ByteArrayInputStream(data));
-			return new Project();
+			Node node = doc.getFirstChild();
+			Project project = parseProject(node);
+			return project;
 		} catch (ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
