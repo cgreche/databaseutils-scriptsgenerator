@@ -205,7 +205,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 		return (Element)node;
 	}
 	
-	void parseCreateTableCommand(Element elem, Project project) {
+	private CreateTableCommand parseCreateTableCommand(Element elem, Script parentScript) {
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String strValue = elem.getTextContent();
@@ -214,9 +214,13 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			
 			elem = getNextElement(elem);
 		}
+		return null; //TODO
 	}
 
-	void parseAddFieldCommand(Element elem, Project project) {
+	private AddFieldCommand parseAddFieldCommand(Element elem, Script parentScript) {
+		
+		Table refTable = null; //TODO
+		TableField field = new TableField();
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String strValue = elem.getTextContent();
@@ -224,14 +228,16 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				//TODO
 			}
 			else if("field".equals(elem.getNodeName())) {
-				parseTableField(elem,project);
+				field = parseTableField(elem);
 			}
 			
 			elem = getNextElement(elem);
 		}
+		
+		return new AddFieldCommand(parentScript,refTable,field);
 	}
 	
-	void parseModifyFieldCommand(Element elem, Project project) {
+	private ModifyFieldCommand parseModifyFieldCommand(Element elem, Script parentScript) {
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String strValue = elem.getTextContent();
@@ -242,14 +248,16 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				//TODO
 			}
 			else if("newField".equals(elem.getNodeName())) {
-				parseTableField(elem,project);
+				parseTableField(elem);
 			}
 			
 			elem = getNextElement(elem);
 		}
+		
+		return null; //TODO
 	}
 
-	void parseDropFieldCommand(Element elem, Project project) {
+	private DropFieldCommand parseDropFieldCommand(Element elem, Script parentScript) {
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String strValue = elem.getTextContent();
@@ -262,21 +270,27 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			
 			elem = getNextElement(elem);
 		}
+		
+		return null; //TODO
 	}
 
-	void parseCommand(Element elem, Project project) {
+	private Command parseCommand(Element elem, Script parentScript) {
+		Command command;
 		String typeStr = elem.getAttribute("type");
 		if("CreateTableCommand".contentEquals(typeStr))
-			parseCreateTableCommand(elem,project);
+			command = parseCreateTableCommand(elem,parentScript);
 		else if("AddFieldCommand".contentEquals(typeStr))
-			parseAddFieldCommand(elem,project);
+			command = parseAddFieldCommand(elem,parentScript);
 		else if("ModifyFieldCommand".contentEquals(typeStr))
-			parseModifyFieldCommand(elem,project);
+			command = parseModifyFieldCommand(elem,parentScript);
 		else if("DropFieldCommand".contentEquals(typeStr))
-			parseDropFieldCommand(elem,project);
+			command = parseDropFieldCommand(elem,parentScript);
+		else
+			command = null; //TODO
+		return command;
 	}
 
-	void parseTableField(Element elem, Project project) {
+	private TableField parseTableField(Element elem) {
 		TableField field = new TableField();
 		
 		String fieldName = elem.getAttribute("name");
@@ -304,6 +318,8 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			
 			elem = getNextElement(elem);
 		}
+		
+		return field;
 	}
 
 	void parseTable(Element elem, Project project) {
@@ -317,7 +333,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				elem = getChildElement(elem);
 				while(elem != null) {
 					if("field".contentEquals(elem.getNodeName())) {
-						parseTableField(elem,project);
+						table.getFields().add(parseTableField(elem));
 					}
 					elem = getNextElement(elem);
 				}
@@ -328,7 +344,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 		}
 	}
 	
-	void parseScript(Element elem, Project project) {
+	private Script parseScript(Element elem, Project project) {
 		Script script = new Script();
 		String scriptName = elem.getAttribute("name");
 		script.setObjectName(scriptName);
@@ -339,7 +355,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 				elem = getChildElement(elem);
 				while(elem != null) {
 					if("commands".contentEquals(elem.getNodeName())) {
-						parseCommand(elem,project);
+						Command command = parseCommand(elem,script);
 					}
 					elem = getNextElement(elem);
 				}
@@ -348,6 +364,8 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			
 			elem = getNextElement(elem);
 		}
+		
+		return script;
 	}
 	
 	private Project parseProject(Node rootNode) {
