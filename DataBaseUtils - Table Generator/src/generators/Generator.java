@@ -15,7 +15,7 @@ import structs.Table;
 //10/04/2019
 public abstract class Generator {
 	public void generate(Script script) {
-		String objectName = script.getObjectName();
+		String objectName = script.getName();
 		List<Command> commands = script.getCommands();
 		if(commands == null)
 			return;

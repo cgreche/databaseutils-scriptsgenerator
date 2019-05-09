@@ -20,7 +20,6 @@ public class ScriptListRenderer extends JLabel implements ListCellRenderer<Scrip
 	public Component getListCellRendererComponent(JList<? extends Script> list, Script value, int index,
 			boolean isSelected, boolean cellHasFocus) {
 		if(value == null) {
-			setText("wow");
 			return this;
 		}
         if (isSelected) {
@@ -30,7 +29,7 @@ public class ScriptListRenderer extends JLabel implements ListCellRenderer<Scrip
             setBackground(list.getBackground());
             setForeground(list.getForeground());
         }
-		setText(value.getObjectName());
+		setText(value.getName());
 		return this;
 	}
 	

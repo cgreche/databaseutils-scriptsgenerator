@@ -125,7 +125,7 @@ public class ProjectPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Script script = new Script();
-				script.setObjectName(tfScriptName.getText());
+				script.setName(tfScriptName.getText());
 				scriptList.add(script);
 				
 				//

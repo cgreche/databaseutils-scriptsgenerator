@@ -3,27 +3,6 @@ package structs;
 //10/04/2019
 
 public class FieldType {
-	public enum GenericType {
-		TEXTO,
-		NUMERICO,
-		DATA,
-		TIMESTAMP,
-		BLOB,
-		TEXTO_LONGO("TEXTO LONGO");
-
-		private String name;
-		private GenericType() {
-			name = GenericType.values()[this.ordinal()].name();
-		}
-		
-		private GenericType(String nameOverwrap) {
-			name = nameOverwrap;
-		}
-		
-		public String getName() {
-			return name;
-		}
-	};
 	
 	private String id;
 	private String name;

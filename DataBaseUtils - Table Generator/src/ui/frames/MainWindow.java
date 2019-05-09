@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 
 import structs.Project;
 import structs.ProjectHandler;
@@ -25,6 +26,7 @@ public class MainWindow extends JFrame {
 		public JMenuItem itemProjectOpen;
 		public JMenuItem itemProjectSave;
 		public JMenuItem itemProjectSaveAs;
+		public JMenuItem itemProperties;
 		public JMenuItem itemProjectClose;
 	public JMenuItem itemAuthor;
 	
@@ -42,20 +44,19 @@ public class MainWindow extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		menuBar = new JMenuBar();
-		menuProject = new JMenu();
-			itemProjectNew = new JMenuItem();
-			itemProjectOpen = new JMenuItem();
-			itemProjectSave = new JMenuItem();
-			itemProjectSaveAs = new JMenuItem();
-			itemProjectClose = new JMenuItem();
+		menuProject = new JMenu("Projeto");
+			itemProjectNew = new JMenuItem("Novo");
+			itemProjectOpen = new JMenuItem("Abrir");
+			itemProjectSave = new JMenuItem("Salvar");
+			itemProjectSaveAs = new JMenuItem("Salvar como...");
+			itemProperties = new JMenuItem("Propriedades");
+			itemProjectClose = new JMenuItem("Sair");
 			
-		itemAuthor = new JMenuItem();
+		itemAuthor = new JMenuItem("Autor");
 		
 		newProjectDialog = new NewProjectDialog(this);
 		
-		menuProject.setText("Projeto");
 		menuProject.add(itemProjectNew);
-			itemProjectNew.setText("Novo");
 			itemProjectNew.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ev) {
@@ -68,7 +69,6 @@ public class MainWindow extends JFrame {
 			});
 			
 		menuProject.add(itemProjectOpen);
-			itemProjectOpen.setText("Abrir");
 			itemProjectOpen.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -88,7 +88,6 @@ public class MainWindow extends JFrame {
 				}
 			});
 		menuProject.add(itemProjectSave);
-			itemProjectSave.setText("Salvar");
 			itemProjectSave.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -112,12 +111,11 @@ public class MainWindow extends JFrame {
 			});
 			
 		menuProject.add(itemProjectSaveAs);
-			itemProjectSaveAs.setText("Salvar como...");
+		menuProject.add(new JSeparator());
+		menuProject.add(itemProperties);
+		menuProject.add(new JSeparator());
 		menuProject.add(itemProjectClose);
-			itemProjectClose.setText("Fechar");
 			
-		itemAuthor.setText("Author");
-		
 		menuBar.add(menuProject);
 		menuBar.add(itemAuthor);
 		setJMenuBar(menuBar);

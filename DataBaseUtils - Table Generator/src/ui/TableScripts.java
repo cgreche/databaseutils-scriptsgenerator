@@ -37,7 +37,7 @@ public class TableScripts extends JTable {
 			if(data == null)
 				return null;
 			Script script = data.get(row);
-			if(col == 0) return script.getObjectName();
+			if(col == 0) return script.getName();
 			return null;
 		}
 		

@@ -97,7 +97,7 @@ public class NewProjectDialog extends JDialog {
 	private static Script createScript1() {
 		Table table1 = createTable1();
 		Script script = new Script();
-		script.setObjectName(table1.getName());
+		script.setName(table1.getName());
 		script.addCommand(new CreateTableCommand(script, table1));
 		TableField field3 = new TableField();
 		field3.setName("ERICLES");
@@ -110,7 +110,7 @@ public class NewProjectDialog extends JDialog {
 	private static Script createScript2() {
 		Table table2 = createTable2();
 		Script script = new Script();
-		script.setObjectName(table2.getName());
+		script.setName(table2.getName());
 		script.addCommand(new CreateTableCommand(script, table2));
 		
 		TableField field3 = new TableField();

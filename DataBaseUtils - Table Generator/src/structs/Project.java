@@ -27,6 +27,15 @@ public class Project {
 		this.scripts = scripts;
 	}
 	
+	public Table getTable(String tableName) {
+		for(Table table : tableList) {
+			if(table.getName().contentEquals(tableName)) {
+				return table;
+			}
+		}
+		return null;
+	}
+	
 	public List<Table> getTables() {
 		return tableList;
 	}

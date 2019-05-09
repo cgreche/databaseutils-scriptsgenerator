@@ -6,13 +6,17 @@ import java.util.List;
 
 //10/04/2019
 public class Script {
-	private String objectName;
+	private String name;
 	private Date creationDate;
-	private Date modifyDate;
+	private Date lastModifiedDate;
 	private List<Command> commands;
 	private String basePath;
 	
 	private String headerMessage;
+	
+	public Script() {
+		this.lastModifiedDate = this.creationDate = new Date();
+	}
 	
 	public void addCommand(Command command) {
 		if(commands == null)
@@ -48,12 +52,12 @@ public class Script {
 		return resultingTable;
 	}
 	
-	public String getObjectName() {
-		return objectName;
+	public String getName() {
+		return name;
 	}
 
-	public void setObjectName(String objectName) {
-		this.objectName = objectName;
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	public Date getCreationDate() {
@@ -64,12 +68,12 @@ public class Script {
 		this.creationDate = creationDate;
 	}
 
-	public Date getModifyDate() {
-		return modifyDate;
+	public Date getLastModifiedDate() {
+		return lastModifiedDate;
 	}
 
-	public void setModifyDate(Date modifyDate) {
-		this.modifyDate = modifyDate;
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
 	}
 
 	public List<Command> getCommands() {
@@ -96,4 +100,7 @@ public class Script {
 		this.basePath = basePath;
 	}
 	
+	public TableField getField(String fieldName) {
+		return getResultTable().getFieldByName(fieldName);
+	}
 }
