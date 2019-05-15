@@ -37,7 +37,8 @@ import ui.resultingtable.TableFieldTable;
 public class ProjectPanel extends JPanel {
 	
 	private JPanel panelScripts;
-	private JPanel panelScriptNameField;
+	private JTextField tfScriptHeader;
+	private JPanel panelScriptName;
 		private JLabel lblScriptName;
 		private JTextField tfScriptName;
 	private JButton btnNewScript;
@@ -115,7 +116,7 @@ public class ProjectPanel extends JPanel {
 			}
 		});
 		
-		
+		tfScriptHeader = new JTextField();
 		lblScriptName = new JLabel("Nome ", JLabel.LEFT);
 		lblScriptName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
 		tfScriptName = new JTextField();
@@ -152,10 +153,11 @@ public class ProjectPanel extends JPanel {
 		
 		panelScripts = new JPanel();
 		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.Y_AXIS));
+		panelScripts.add(tfScriptHeader);
 		panelScripts.add(lblScriptName);
 		panelScripts.add(tfScriptName);
 		panelScripts.add(btnNewScript);
-		panelScripts.add(tableScripts);
+		panelScripts.add(new JScrollPane(tableScripts));
 		
 		//Commands Panel
 		btnCreateTableCommand = new JButton("Create Table");
@@ -320,12 +322,6 @@ public class ProjectPanel extends JPanel {
 		add(panelData);
 		add(panelResult);
 		add(panelFooter);
-	}
-	
-	private void clearControls() {
-		lblProjectTitle.setText(null);
-		tableScripts.setData(null);
-		tableCommands.setData(null);
 	}
 	
 	private void updateControls() {
