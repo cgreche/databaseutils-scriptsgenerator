@@ -2,6 +2,8 @@ package structs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,12 +25,27 @@ import org.w3c.dom.Node;
 //06/05/2019
 public class ProjectXMLSerializer implements ProjectSerializer {
 	
+	String isoDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+	DateFormat isoDateFormatter;
+	
 	private String date2String(Date date) {
-		return null;
+		try {
+			return isoDateFormatter.format(date);
+		} catch(Exception e) {
+			return null;
+		}
 	}
 
 	private Date string2Date(String str) {
-		return null;
+		try {
+			return isoDateFormatter.parse(str);
+		} catch(Exception e) {
+			return null;
+		}
+	}
+
+	ProjectXMLSerializer() {
+		isoDateFormatter = new SimpleDateFormat(isoDateFormat);
 	}
 
 	private Element tableFieldToElement(Document document, TableField field, String elementName) {
@@ -92,109 +109,116 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			attr.setValue(project.getName());
 			root.setAttributeNode(attr);
 			
-			Element elemTables = document.createElement("tables");
-			for(Table table : tables) {
-				Element elemTable = document.createElement("table");
-					Attr attrTableName = document.createAttribute("name");
-					attrTableName.setValue(table.getName());
-						elemTable.setAttributeNode(attrTableName);
-				
-				Element elemFields = document.createElement("fields");
-				
-				List<TableField> fields = table.getFields();
-				for(TableField field : fields) {
-					Element elemField = tableFieldToElement(document,field,"field");
-					elemFields.appendChild(elemField);
-				}
-				
-				elemTable.appendChild(elemFields);
-				elemTables.appendChild(elemTable);
-			}
-			
-			
-			Element elemScripts = document.createElement("scripts");
-			for(Script script : scripts) {
-				Element elemScript = document.createElement("script");
-				Attr attrScriptName = document.createAttribute("name");
-				attrScriptName.setValue(script.getName());
-				elemScript.setAttributeNode(attrScriptName);
-				
-				Element elem = document.createElement("creationDate");
-				elem.setTextContent(this.date2String(script.getCreationDate()));
-				elemScript.appendChild(elem);
-				
-				elem = document.createElement("lastModifiedDate");
-				elem.setTextContent(this.date2String(script.getLastModifiedDate()));
-				elemScript.appendChild(elem);
-				
-				if(script.getBasePath() != null) {
-					elem = document.createElement("basePath");
-					elem.setTextContent(script.getBasePath());
-					elemScript.appendChild(elem);
-				}
-				
-				if(script.getHeaderMessage() != null) {
-					elem = document.createElement("headerMessage");
-					elem.setTextContent(script.getHeaderMessage());
-					elemScript.appendChild(elem);
-				}
-
-				Element elemCommands = document.createElement("commands");
-				for(Command command : script.getCommands()) {
-					Element elemCommand = document.createElement("command");
-					Attr attrCommandType = document.createAttribute("type");
-					attrCommandType.setValue(command.getClass().getSimpleName());
-					elemCommand.setAttributeNode(attrCommandType);
-						
-					if(command instanceof CreateTableCommand) {
-						CreateTableCommand c = (CreateTableCommand)command;
-						Table table = c.getTable();
-						elem = document.createElement("table");
-						elem.setTextContent(table.getName());
-						elemCommand.appendChild(elem);
-					}
-					else if(command instanceof AddFieldCommand) {
-						AddFieldCommand c = (AddFieldCommand)command;
-						elem = document.createElement("refTable");
-						elem.setTextContent(c.getRefTable().getName());
-						elemCommand.appendChild(elem);
-						
-						elem = tableFieldToElement(document, c.getField(), "field");
-						elemCommand.appendChild(elem);
-					}
-					else if(command instanceof ModifyFieldCommand) {
-						ModifyFieldCommand c = (ModifyFieldCommand)command;
-						elem = document.createElement("refTable");
-						elem.setTextContent(c.getRefTable().getName());
-						elemCommand.appendChild(elem);
-						
-						elem = document.createElement("oldField");
-						elem.setTextContent(c.getOldField().getName());
-						elemCommand.appendChild(elem);
-						
-						elem = tableFieldToElement(document,c.getNewField(),"newField");
-						elemCommand.appendChild(elem);
-					}
-					else if(command instanceof DropFieldCommand) {
-						DropFieldCommand c = (DropFieldCommand)command;
-						elem = document.createElement("refTable");
-						elem.setTextContent(c.getRefTable().getName());
-						elemCommand.appendChild(elem);
-						
-						elem = document.createElement("field");
-						elem.setTextContent(c.getField().getName());
-						elemCommand.appendChild(elem);
+			if(tables != null && !tables.isEmpty()) {
+				Element elemTables = document.createElement("tables");
+				for(Table table : tables) {
+					Element elemTable = document.createElement("table");
+						Attr attrTableName = document.createAttribute("name");
+						attrTableName.setValue(table.getName());
+							elemTable.setAttributeNode(attrTableName);
+					
+					Element elemFields = document.createElement("fields");
+					
+					List<TableField> fields = table.getFields();
+					for(TableField field : fields) {
+						Element elemField = tableFieldToElement(document,field,"field");
+						elemFields.appendChild(elemField);
 					}
 					
-					elemCommands.appendChild(elemCommand);
+					elemTable.appendChild(elemFields);
+					elemTables.appendChild(elemTable);
 				}
-				elemScript.appendChild(elemCommands);
 				
-				elemScripts.appendChild(elemScript);
+				root.appendChild(elemTables);
 			}
 			
-			root.appendChild(elemTables);
-			root.appendChild(elemScripts);
+			if(scripts != null && !scripts.isEmpty()) {
+				Element elemScripts = document.createElement("scripts");
+				for(Script script : scripts) {
+					Element elemScript = document.createElement("script");
+					Attr attrScriptName = document.createAttribute("name");
+					attrScriptName.setValue(script.getName());
+					elemScript.setAttributeNode(attrScriptName);
+					
+					Element elem = document.createElement("creationDate");
+					elem.setTextContent(this.date2String(script.getCreationDate()));
+					elemScript.appendChild(elem);
+					
+					elem = document.createElement("lastModifiedDate");
+					elem.setTextContent(this.date2String(script.getLastModifiedDate()));
+					elemScript.appendChild(elem);
+					
+					if(script.getBasePath() != null) {
+						elem = document.createElement("basePath");
+						elem.setTextContent(script.getBasePath());
+						elemScript.appendChild(elem);
+					}
+					
+					if(script.getHeaderMessage() != null) {
+						elem = document.createElement("headerMessage");
+						elem.setTextContent(script.getHeaderMessage());
+						elemScript.appendChild(elem);
+					}
+					
+					if(script.getCommands() != null && !script.getCommands().isEmpty()) {
+						Element elemCommands = document.createElement("commands");
+						for(Command command : script.getCommands()) {
+							Element elemCommand = document.createElement("command");
+							Attr attrCommandType = document.createAttribute("type");
+							attrCommandType.setValue(command.getClass().getSimpleName());
+							elemCommand.setAttributeNode(attrCommandType);
+								
+							if(command instanceof CreateTableCommand) {
+								CreateTableCommand c = (CreateTableCommand)command;
+								Table table = c.getTable();
+								elem = document.createElement("table");
+								elem.setTextContent(table.getName());
+								elemCommand.appendChild(elem);
+							}
+							else if(command instanceof AddFieldCommand) {
+								AddFieldCommand c = (AddFieldCommand)command;
+								elem = document.createElement("refTable");
+								elem.setTextContent(c.getRefTable().getName());
+								elemCommand.appendChild(elem);
+								
+								elem = tableFieldToElement(document, c.getField(), "field");
+								elemCommand.appendChild(elem);
+							}
+							else if(command instanceof ModifyFieldCommand) {
+								ModifyFieldCommand c = (ModifyFieldCommand)command;
+								elem = document.createElement("refTable");
+								elem.setTextContent(c.getRefTable().getName());
+								elemCommand.appendChild(elem);
+								
+								elem = document.createElement("oldField");
+								elem.setTextContent(c.getOldField().getName());
+								elemCommand.appendChild(elem);
+								
+								elem = tableFieldToElement(document,c.getNewField(),"newField");
+								elemCommand.appendChild(elem);
+							}
+							else if(command instanceof DropFieldCommand) {
+								DropFieldCommand c = (DropFieldCommand)command;
+								elem = document.createElement("refTable");
+								elem.setTextContent(c.getRefTable().getName());
+								elemCommand.appendChild(elem);
+								
+								elem = document.createElement("field");
+								elem.setTextContent(c.getField().getName());
+								elemCommand.appendChild(elem);
+							}
+							
+							elemCommands.appendChild(elemCommand);
+						}
+						elemScript.appendChild(elemCommands);
+					}
+					
+					elemScripts.appendChild(elemScript);
+				}
+				
+				root.appendChild(elemScripts);
+			}
+			
 			document.appendChild(root);
  
  

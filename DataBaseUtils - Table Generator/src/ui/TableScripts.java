@@ -13,7 +13,11 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+import structs.Constraints;
+import structs.FieldType;
 import structs.Script;
+import structs.TableField;
+import ui.resultingtable.TableFieldTableItem;
 
 //06/05/2019
 
@@ -31,6 +35,15 @@ public class TableScripts extends JTable {
 		
 		String[] columnNames = {"Nome", "Remover"};
 		private List<Script> data;
+		
+		@Override
+		public void setValueAt(Object value, int row, int col) {
+			if(data == null)
+				return;
+			Script script = data.get(row);
+			if(col == 0)
+				script.setName((String)value);
+		}
 		
 		@Override
 		public Object getValueAt(int row, int col) {
@@ -106,7 +119,7 @@ public class TableScripts extends JTable {
 		}
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			deleteButton.setText("aaa");
+			deleteButton.setText("Remover");
 			deleteButton.setIcon(null);
 			return deleteButton;
 		}

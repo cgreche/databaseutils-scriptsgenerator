@@ -9,7 +9,6 @@ import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,7 +28,7 @@ import structs.Table;
 import structs.TableField;
 
 @SuppressWarnings("serial")
-public class NewProjectDialog extends JDialog {
+public class ProjectSettingsDialog extends Dialog<Project> {
 	
 	private JPanel panelProjectName; //todo: use
 		private JLabel lblProjectName;
@@ -44,6 +43,7 @@ public class NewProjectDialog extends JDialog {
 	private JButton btnCreateProject;
 
 	//
+	boolean editMode;
 	private boolean result;
 	private Project project;
 	
@@ -130,8 +130,8 @@ public class NewProjectDialog extends JDialog {
 	}
 	
 	
-	public NewProjectDialog(JFrame parent) {
-		super(parent, true);
+	public ProjectSettingsDialog(JFrame parent) {
+		super(parent);
 		
 		lblProjectName = new JLabel("Nome do projeto");
 		tfProjectName = new JTextField();
@@ -150,7 +150,7 @@ public class NewProjectDialog extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				final JFileChooser fc = new JFileChooser();
 				fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-				int returnVal = fc.showOpenDialog(NewProjectDialog.this);
+				int returnVal = fc.showOpenDialog(ProjectSettingsDialog.this);
 		        if (returnVal == JFileChooser.APPROVE_OPTION) {
 		            File file = fc.getSelectedFile();
 		            tfGenerationTargetPath.setText(file.getAbsolutePath());
@@ -173,21 +173,12 @@ public class NewProjectDialog extends JDialog {
 				String projectName = tfProjectName.getText();
 				String generationTargetPath = tfGenerationTargetPath.getText();
 				
-				
-				project = new Project();
 				project.setName(projectName);
 				project.setScriptsGenerationBasePath(generationTargetPath);
 				
-				//
-				Script script1 = createScript1();
-				Script script2 = createScript2();			
-				project.addScript(script1);
-				project.addScript(script2);
-				//
-				
 				if(checkFieldsIntegrity()) {
-					result = true;
-					NewProjectDialog.this.dispose();
+					ProjectSettingsDialog.this.setResult(true, project);
+					ProjectSettingsDialog.this.dispose();
 				}
 			}
 			
@@ -202,9 +193,26 @@ public class NewProjectDialog extends JDialog {
 		this.pack();
 	}
 	
-	@Override
-	public void setVisible(boolean visible) {
-		super.setVisible(visible);
+	public void insertNew() {
+		editMode = false;
+		this.project = new Project();
+		//
+		Script script1 = createScript1();
+		Script script2 = createScript2();
+		project.addScript(script1);
+		project.addScript(script2);
+		
+		this.setVisible(true);
+	}
+	
+	public void edit(Project project) {
+		editMode = true;
+		this.project = project.clone();
+		this.setVisible(true);
+	}
+	
+	public boolean isEditMode() {
+		return editMode;
 	}
 	
 	public boolean getResult() {

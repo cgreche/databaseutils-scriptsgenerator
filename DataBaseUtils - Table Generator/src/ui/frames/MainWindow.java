@@ -30,7 +30,7 @@ public class MainWindow extends JFrame {
 		public JMenuItem itemProjectClose;
 	public JMenuItem itemAuthor;
 	
-	public NewProjectDialog newProjectDialog;
+	public ProjectSettingsDialog newProjectDialog;
 	
 	static CreateTableCommandDialog createTableCommandDialog;
 	static AddFieldCommandDialog addFieldCommandDialog;
@@ -46,21 +46,10 @@ public class MainWindow extends JFrame {
 		menuBar = new JMenuBar();
 		menuProject = new JMenu("Projeto");
 			itemProjectNew = new JMenuItem("Novo");
-			itemProjectOpen = new JMenuItem("Abrir");
-			itemProjectSave = new JMenuItem("Salvar");
-			itemProjectSaveAs = new JMenuItem("Salvar como...");
-			itemProperties = new JMenuItem("Propriedades");
-			itemProjectClose = new JMenuItem("Sair");
-			
-		itemAuthor = new JMenuItem("Autor");
-		
-		newProjectDialog = new NewProjectDialog(this);
-		
-		menuProject.add(itemProjectNew);
 			itemProjectNew.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent ev) {
-					newProjectDialog.setVisible(true);
+					newProjectDialog.insertNew();
 					Project project = newProjectDialog.getResultData();
 					if(project != null) {
 						loadProject(project);
@@ -68,7 +57,7 @@ public class MainWindow extends JFrame {
 				}
 			});
 			
-		menuProject.add(itemProjectOpen);
+			itemProjectOpen = new JMenuItem("Abrir");
 			itemProjectOpen.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -77,8 +66,7 @@ public class MainWindow extends JFrame {
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						File file = fc.getSelectedFile();
 						projectHandler = new ProjectHandler(null);
-						projectHandler.setSavePath(file.getAbsolutePath());
-						projectHandler.load();
+						projectHandler = ProjectHandler.loadProject(file.getAbsolutePath());
 						panelProject.setProject(projectHandler.getProject());
 						panelProject.setVisible(true);
 					} else {
@@ -87,7 +75,8 @@ public class MainWindow extends JFrame {
 					
 				}
 			});
-		menuProject.add(itemProjectSave);
+			
+			itemProjectSave = new JMenuItem("Salvar");
 			itemProjectSave.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -110,6 +99,52 @@ public class MainWindow extends JFrame {
 				}
 			});
 			
+			itemProjectSaveAs = new JMenuItem("Salvar como...");
+			itemProjectSaveAs.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Project project = projectHandler.getProject();
+					if(project == null)
+						return;
+					
+					final JFileChooser fc = new JFileChooser();
+					int returnVal = fc.showSaveDialog(MainWindow.this);
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						File file = fc.getSelectedFile();
+						projectHandler.save(file.getPath());
+					} else {
+						return;
+					}
+					
+				}
+			});
+			
+			itemProperties = new JMenuItem("Propriedades");
+			itemProperties.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Project project = projectHandler.getProject();
+					if(project == null) {
+						//TODO: mensagem de nenhum projeto aberto
+						return;
+					}
+					
+					newProjectDialog.edit(project);
+					Project editedProject = newProjectDialog.getResultData();
+					if(editedProject != null) {
+						loadProject(editedProject);
+					}
+				}
+			});
+			
+			itemProjectClose = new JMenuItem("Sair");
+			
+		itemAuthor = new JMenuItem("Autor");
+		
+		newProjectDialog = new ProjectSettingsDialog(this);
+		menuProject.add(itemProjectNew);
+		menuProject.add(itemProjectOpen);
+		menuProject.add(itemProjectSave);
 		menuProject.add(itemProjectSaveAs);
 		menuProject.add(new JSeparator());
 		menuProject.add(itemProperties);

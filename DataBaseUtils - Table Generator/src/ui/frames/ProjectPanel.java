@@ -36,21 +36,20 @@ import ui.resultingtable.TableFieldTable;
 @SuppressWarnings("serial")
 public class ProjectPanel extends JPanel {
 	
-	private JPanel panelScripts;
-	private JTextField tfScriptHeader;
-	private JPanel panelScriptName;
-		private JLabel lblScriptName;
-		private JTextField tfScriptName;
-	private JButton btnNewScript;
-	private TableScripts tableScripts;
-	
-	private JPanel panelCommands;
+	private JPanel panelScriptActions;
+		private JButton btnNewScript;
+		//
 		private JButton btnCreateTableCommand;
 		private JButton btnAddFieldCommand;
 		private JButton btnModifyFieldCommand;
 		private JButton btnDropFieldCommand;
-		private TableCommands tableCommands;
 
+	private JTextField tfScriptHeader;
+	private JPanel panelScripts;
+	private TableScripts tableScripts;
+	private TableCommands tableCommands;
+	
+	private JPanel panelCommands;
 	
 	private JPanel panelHeader;
 	private JPanel panelData;
@@ -117,18 +116,12 @@ public class ProjectPanel extends JPanel {
 		});
 		
 		tfScriptHeader = new JTextField();
-		lblScriptName = new JLabel("Nome ", JLabel.LEFT);
-		lblScriptName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
-		tfScriptName = new JTextField();
-		tfScriptName.setMaximumSize(new Dimension(tfScriptName.getMaximumSize().width,tfScriptName.getPreferredSize().height));
 		btnNewScript = new JButton("Novo script");
 		btnNewScript.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Script script = new Script();
-				script.setName(tfScriptName.getText());
 				scriptList.add(script);
-				
 				//
 				tableScripts.updateUI();
 			}
@@ -148,16 +141,6 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
-		
-		//listScripts.setSize(new Dimension(500, 70));
-		
-		panelScripts = new JPanel();
-		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.Y_AXIS));
-		panelScripts.add(tfScriptHeader);
-		panelScripts.add(lblScriptName);
-		panelScripts.add(tfScriptName);
-		panelScripts.add(btnNewScript);
-		panelScripts.add(new JScrollPane(tableScripts));
 		
 		//Commands Panel
 		btnCreateTableCommand = new JButton("Create Table");
@@ -227,8 +210,6 @@ public class ProjectPanel extends JPanel {
 		});
 		
 		tableCommands = new TableCommands();
-		//tableCommands.setSize(new Dimension(500, 70));
-		
 		tableCommands.addMouseListener(new MouseAdapter() {
 			
 			@Override
@@ -282,7 +263,6 @@ public class ProjectPanel extends JPanel {
 		panelCommands.add(btnAddFieldCommand);
 		panelCommands.add(btnModifyFieldCommand);
 		panelCommands.add(btnDropFieldCommand);
-		panelCommands.add(tableCommands);
 		
 		//
 		JButton buttonGenerate = new JButton("Gerar scripts");
@@ -305,10 +285,14 @@ public class ProjectPanel extends JPanel {
 		panelHeader = new JPanel();
 		panelHeader.add(lblProjectTitle);
 		
+		panelScripts = new JPanel();
+		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.X_AXIS));
+		panelScripts.add(new JScrollPane(tableScripts));
+		panelScripts.add(new JScrollPane(tableCommands));
+		
 		panelData = new JPanel();
-		panelData.setLayout(new BoxLayout(panelData, BoxLayout.X_AXIS));
+		panelData.setLayout(new BoxLayout(panelData, BoxLayout.Y_AXIS));
 		panelData.add(panelScripts);
-		panelData.add(panelCommands);
 		
 		panelResult = new JPanel();
 		panelResult.setLayout(new BoxLayout(panelResult, BoxLayout.Y_AXIS));

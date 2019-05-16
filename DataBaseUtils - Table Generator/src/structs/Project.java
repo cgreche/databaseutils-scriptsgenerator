@@ -3,7 +3,7 @@ package structs;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Project {
+public class Project implements Cloneable {
 	private String name;
 	private List<Script> scripts;
 	private String scriptsGenerationBasePath;
@@ -60,4 +60,12 @@ public class Project {
 		this.scriptsGenerationBasePath = scriptsGenerationBasePath;
 	}
 	
+	@Override
+	public Project clone() {
+		try {
+			return (Project)super.clone();
+		} catch(Exception e) {
+			return null;
+		}
+	}
 }

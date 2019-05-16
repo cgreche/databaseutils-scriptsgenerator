@@ -93,7 +93,7 @@ public class TableFieldsTableModel extends AbstractTableModel {
 	
 	@Override
 	public boolean isCellEditable(int row, int col) {
-		return true;
+		return false;
 	}
 	
 	public void addRow(TableFieldTableItem field) {

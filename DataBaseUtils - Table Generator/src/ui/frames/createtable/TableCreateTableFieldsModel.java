@@ -1,9 +1,18 @@
 package ui.frames.createtable;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.AbstractCellEditor;
+import javax.swing.JButton;
+import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 import structs.Constraints;
 import structs.FieldType;
@@ -12,11 +21,11 @@ import structs.TableField;
 //11/04/2019
 
 public class TableCreateTableFieldsModel extends AbstractTableModel {
-		
+	
 	private static final long serialVersionUID = -1L;
 	
-	List<TableField> data;
-	String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Coluna refenciada"};
+	private List<TableField> data;
+	private String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Coluna refenciada", "Remover"};
 	
 	@Override
 	public Object getValueAt(int row, int col) {
@@ -71,6 +80,7 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 		if(col == 5) return Boolean.class;
 		if(col == 6) return String.class;
 		if(col == 7) return String.class;
+		if(col == 8) return JButton.class;
 		return super.getColumnClass(col);
 	}
 
@@ -105,6 +115,7 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 	
 	public void setData(List<TableField> data) {
 		this.data = data;
+		this.fireTableDataChanged();
 	}
 	
 	public List<TableField> getData() {
@@ -121,4 +132,5 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 			fireTableRowsDeleted(0, deleteRowsCount-1);
 		}
 	}
+	
 }

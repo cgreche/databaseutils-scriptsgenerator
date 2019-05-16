@@ -16,17 +16,14 @@ public class Script {
 	
 	public Script() {
 		this.lastModifiedDate = this.creationDate = new Date();
+		commands = new ArrayList<>();
 	}
 	
 	public void addCommand(Command command) {
-		if(commands == null)
-			commands = new ArrayList<>();
 		commands.add(command);
 	}
 	
 	public Table getResultTable() {
-		if(commands == null)
-			return null;
 		Table resultingTable = new Table();
 		for(Command command : commands) {
 			if(command instanceof CreateTableCommand) {
@@ -102,5 +99,9 @@ public class Script {
 	
 	public TableField getField(String fieldName) {
 		return getResultTable().getFieldByName(fieldName);
+	}
+	
+	public void notifyScriptChanged() {
+		lastModifiedDate = new Date();
 	}
 }

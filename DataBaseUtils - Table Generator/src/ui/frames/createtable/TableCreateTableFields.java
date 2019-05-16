@@ -2,13 +2,20 @@ package ui.frames.createtable;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 
 import structs.FieldType;
 import structs.GenericTypes;
@@ -20,8 +27,56 @@ import ui.resultingtable.FieldTypeComboBoxRenderer;
 @SuppressWarnings("serial")
 public class TableCreateTableFields extends JTable {
 	
+	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
+		private JTable table;
+		private int mnemonic;
+		
+		private JButton deleteButton;
+		private Object editorValue;
+		public DeleteButton(JTable table, int column) {
+			this.table = table;
+			
+			deleteButton = new JButton();
+			deleteButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//System.out.println("WOW");
+					
+				}
+			});
+			TableColumnModel columnModel = table.getColumnModel();
+			columnModel.getColumn(column).setCellRenderer(this);
+			columnModel.getColumn(column).setCellEditor(this);
+		}
+		
+		@Override
+		public Object getCellEditorValue() {
+			return editorValue;
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			deleteButton.setText("Remover");
+			deleteButton.setIcon(null);
+			return deleteButton;
+		}
+		
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			JButton button = new JButton("Remover");
+			button.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					model.getData().remove(row);
+					model.fireTableDataChanged();
+				}
+			});
+			return button;
+		}
+	}
+	
 	private TableCreateTableFieldsModel model;
-	DefaultTableCellRenderer tableCellRenderer;
+	private DefaultTableCellRenderer tableCellRenderer;
 	
 	public TableCreateTableFields() {
 		model = new TableCreateTableFieldsModel();
@@ -58,6 +113,8 @@ public class TableCreateTableFields extends JTable {
 
 		TableColumn fieldTypeColumn = this.getColumnModel().getColumn(1);
 		fieldTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
+		
+		new DeleteButton(this,8);
 	}
 	
 	public void setData(List<TableField> data) {

@@ -17,17 +17,11 @@ public class ProjectHandler {
 	private Project project;
 	private String currentSavePath;
 	
-	private ProjectSerializer serializer;
-	
 	public ProjectHandler(Project project) {
 		this.project = project;
-		serializer = new ProjectXMLSerializer();
 	}
 	
-	public boolean save() {
-		if(currentSavePath == null)
-			return false;
-		
+	public boolean save(String savePath) {
 		File file = new File(currentSavePath);
 		Path path = Paths.get(file.getParent());
 		try {
@@ -37,6 +31,7 @@ public class ProjectHandler {
 			e.printStackTrace();
 		}
 		
+		ProjectSerializer serializer = new ProjectXMLSerializer();
 		byte [] fileData = serializer.serialize(project);
 		try(FileOutputStream fout = new FileOutputStream(file)) {
 			fout.write(fileData);
@@ -46,23 +41,32 @@ public class ProjectHandler {
 		}
 		
 		return true;
+		
 	}
 	
-	public boolean load() {
+	public boolean save() {
 		if(currentSavePath == null)
 			return false;
+		return save(currentSavePath);
+	}
+	
+	public static ProjectHandler loadProject(String path) {
+		if(path == null)
+			return null;
 		
 		byte[] fileData;
 		try {
-			fileData = Files.readAllBytes(Paths.get(currentSavePath));
+			fileData = Files.readAllBytes(Paths.get(path));
+			ProjectSerializer serializer = new ProjectXMLSerializer();
 			Project project = serializer.deserialize(fileData);
-			this.project = project;
+			ProjectHandler projectHandler = new ProjectHandler(project);
+			projectHandler.setSavePath(path);
+			return projectHandler;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			return false;
 		}
-		return this.project != null;
+		return null;
 	}
 	
 	public void generateScripts() {
@@ -92,4 +96,5 @@ public class ProjectHandler {
 	public Project getProject() {
 		return project;
 	}
+	
 }
