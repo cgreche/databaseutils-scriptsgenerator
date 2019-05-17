@@ -49,6 +49,35 @@ public class Script {
 		return resultingTable;
 	}
 	
+	public Table getResultingTableUntil(Command commandToStop) {
+		Table resultingTable = new Table();
+		for(Command command : commands) {
+			if(command == commandToStop)
+				return resultingTable;
+			
+			if(command instanceof CreateTableCommand) {
+				resultingTable = ((CreateTableCommand) command).getTable().clone();
+			}
+			else if(command instanceof AddFieldCommand) {
+				AddFieldCommand afc = (AddFieldCommand)command;
+				resultingTable.getFields().add(afc.getField());
+			}
+			else if(command instanceof ModifyFieldCommand) {
+				ModifyFieldCommand mfc = (ModifyFieldCommand)command;
+				int fieldIndex = resultingTable.getFieldIndex(mfc.getOldField());
+				if(fieldIndex != -1)
+					resultingTable.getFields().set(fieldIndex, mfc.getNewField());
+			}
+			else if(command instanceof DropFieldCommand) {
+				DropFieldCommand dfc = (DropFieldCommand)command;
+				int fieldIndex = resultingTable.getFieldIndex(dfc.getField());
+				if(fieldIndex != -1)
+					resultingTable.getFields().remove(fieldIndex);
+			}
+		}
+		return resultingTable;
+	}
+	
 	public String getName() {
 		return name;
 	}

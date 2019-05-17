@@ -1,5 +1,6 @@
 package ui.frames;
 
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -15,6 +16,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import structs.Project;
 import structs.ProjectHandler;
+import ui.StatusBar;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -22,6 +24,7 @@ public class MainWindow extends JFrame {
 	public static ProjectHandler projectHandler;
 	
 	public JMenuBar menuBar;
+	public StatusBar statusBar;
 	
 	public JMenu menuProject;
 		public JMenuItem itemProjectNew;
@@ -39,7 +42,7 @@ public class MainWindow extends JFrame {
 	static MofidyFieldCommandDialog modifyFieldCommandDialog;
 	static DropFieldCommandDialog dropFieldCommandDialog;
 	
-	ProjectPanel panelProject;
+	private ProjectPanel panelProject;
 	
 	public MainWindow() {
 		super("eSocial Techne Database Utils - Scripts generator");
@@ -197,6 +200,8 @@ public class MainWindow extends JFrame {
 		menuBar.add(itemAuthor);
 		setJMenuBar(menuBar);
 		
+		statusBar = new StatusBar();
+		
 		//
 		createTableCommandDialog = new CreateTableCommandDialog(this);
 		addFieldCommandDialog = new AddFieldCommandDialog(this);
@@ -204,16 +209,17 @@ public class MainWindow extends JFrame {
 		dropFieldCommandDialog = new DropFieldCommandDialog(this);
 		
 		panelProject = new ProjectPanel();
-		this.add(panelProject);
+		this.add(panelProject,BorderLayout.CENTER);
+		this.add(statusBar,BorderLayout.PAGE_END);
 		this.pack();
 		
 		panelProject.setVisible(false);
 	}
-	
 	
 	public void loadProject(Project project) {
 		projectHandler = new ProjectHandler(project);
 		panelProject.setProject(project);
 		panelProject.setVisible(true);
 	}
+	
 }

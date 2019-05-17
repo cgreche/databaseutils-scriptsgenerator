@@ -1,5 +1,7 @@
 package ui;
 
+import java.awt.Color;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -9,7 +11,8 @@ public class StatusBar extends JPanel {
 	private JLabel lblText;
 	
 	public StatusBar() {
-		lblText = new JLabel();
+		this.setBackground(new Color(0xC3C3C3));
+		lblText = new JLabel("fdsdsdsfsd");
 		this.add(lblText);
 	}
 	
