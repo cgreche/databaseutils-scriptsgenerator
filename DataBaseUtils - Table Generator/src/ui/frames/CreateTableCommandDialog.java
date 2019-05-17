@@ -4,12 +4,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -83,9 +86,11 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 				
 				//currentCommand references currentTable
 				currentTable.setName(tableName);
-				
-				setResult(true,currentCommand);
-				CreateTableCommandDialog.this.dispose();
+
+				if(validateFields()) {
+					setResult(true,currentCommand);
+					CreateTableCommandDialog.this.dispose();
+				}
 			}
 			
 		});
@@ -99,6 +104,36 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 		panelMain.add(buttonSave);
 		this.add(panelMain);
 		this.pack();
+	}
+	
+	private boolean validateFields() {
+		if(currentTable.getName() == null || "".contentEquals(currentTable.getName())) {
+			JOptionPane.showMessageDialog(this, "Nome da tabela não informado.");
+			return false;
+		}
+		
+		Set<String> fieldNames = new HashSet<String>();
+		List<TableField> fields = currentTable.getFields();
+		for(TableField field : fields) {
+			if(field.getName() == null || "".contentEquals(field.getName())) {
+				JOptionPane.showMessageDialog(this, "Há campos da tabela com nome não informado.");
+				return false;
+			}
+			
+			if(field.getType() == null) {
+				JOptionPane.showMessageDialog(this, "Há campos da tabela com tipo não informado.");
+				return false;
+			}
+			
+			if(fieldNames.contains(field.getName())) {
+				JOptionPane.showMessageDialog(this, "Não pode haver campos com nome repetidos na tabela.");
+				return false;
+			}
+			
+			fieldNames.add(field.getName());
+		}
+		
+		return true;
 	}
 	
 	private void updateControls() {

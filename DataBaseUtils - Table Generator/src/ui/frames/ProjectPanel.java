@@ -1,6 +1,8 @@
 package ui.frames;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -15,6 +17,7 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -35,21 +38,19 @@ import ui.resultingtable.TableFieldTable;
 
 @SuppressWarnings("serial")
 public class ProjectPanel extends JPanel {
-	
-	private JPanel panelScriptActions;
-		private JButton btnNewScript;
 		//
+
+	private JTextField tfScriptHeader;
+	private JPanel panelScripts;
+	private JButton btnNewScript;
+	private TableScripts tableScripts;
+	
+	private JPanel panelCommandActionButtons;
 		private JButton btnCreateTableCommand;
 		private JButton btnAddFieldCommand;
 		private JButton btnModifyFieldCommand;
 		private JButton btnDropFieldCommand;
-
-	private JTextField tfScriptHeader;
-	private JPanel panelScripts;
-	private TableScripts tableScripts;
 	private TableCommands tableCommands;
-	
-	private JPanel panelCommands;
 	
 	private JPanel panelHeader;
 	private JPanel panelData;
@@ -57,7 +58,8 @@ public class ProjectPanel extends JPanel {
 		JCheckBox cbShowRemovedFields;
 	private JPanel panelFooter;
 	
-	JLabel lblProjectTitle = new JLabel();
+	private JLabel lblProjectTitle = new JLabel();
+	private JLabel lblResultingTable;
 	private TableFieldTable tableResultingTable;
 	
 	Project project;
@@ -91,6 +93,8 @@ public class ProjectPanel extends JPanel {
 		        tableResultingTable.showRemoved(cbShowRemoved.isSelected());
 		    }
 		});
+		
+		lblResultingTable = new JLabel("Tabela resultante");
 		
 		tableResultingTable = new TableFieldTable();
 		tableResultingTable.setAlignmentX(RIGHT_ALIGNMENT);
@@ -257,12 +261,12 @@ public class ProjectPanel extends JPanel {
 
 		});
 
-		panelCommands = new JPanel();
-		panelCommands.setLayout(new BoxLayout(panelCommands, BoxLayout.Y_AXIS));
-		panelCommands.add(btnCreateTableCommand);
-		panelCommands.add(btnAddFieldCommand);
-		panelCommands.add(btnModifyFieldCommand);
-		panelCommands.add(btnDropFieldCommand);
+		panelCommandActionButtons = new JPanel();
+		panelCommandActionButtons.setLayout(new BoxLayout(panelCommandActionButtons, BoxLayout.X_AXIS));
+		panelCommandActionButtons.add(btnCreateTableCommand);
+		panelCommandActionButtons.add(btnAddFieldCommand);
+		panelCommandActionButtons.add(btnModifyFieldCommand);
+		panelCommandActionButtons.add(btnDropFieldCommand);
 		
 		//
 		JButton buttonGenerate = new JButton("Gerar scripts");
@@ -278,7 +282,18 @@ public class ProjectPanel extends JPanel {
 				}
 				
 				ProjectHandler handler = new ProjectHandler(project);
-				handler.generateScripts();
+				long errors = handler.validate();
+				if(errors == 0) {
+					handler.generateScripts();
+				}
+				else {
+					String message = "Os scripts não puderam ser gerados:\n";
+					if((errors & Project.ERROR_UNNAMED_SCRIPT) != 0) {
+						message += "-Há scripts sem nome.";
+					}
+					
+					JOptionPane.showMessageDialog(null,message);
+				}
 			}
 		});
 		
@@ -286,9 +301,40 @@ public class ProjectPanel extends JPanel {
 		panelHeader.add(lblProjectTitle);
 		
 		panelScripts = new JPanel();
-		panelScripts.setLayout(new BoxLayout(panelScripts, BoxLayout.X_AXIS));
-		panelScripts.add(new JScrollPane(tableScripts));
-		panelScripts.add(new JScrollPane(tableCommands));
+		panelScripts.setLayout(new GridBagLayout());
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.fill = GridBagConstraints.NONE;
+		panelScripts.add(btnNewScript,gbc);
+
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		//gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.NONE;
+		panelScripts.add(panelCommandActionButtons,gbc);
+
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		//gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		panelScripts.add(new JScrollPane(tableScripts),gbc);
+		
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 1;
+		//gbc.anchor = GridBagConstraints.CENTER;
+		gbc.fill = GridBagConstraints.BOTH;
+		panelScripts.add(new JScrollPane(tableCommands),gbc);
 		
 		panelData = new JPanel();
 		panelData.setLayout(new BoxLayout(panelData, BoxLayout.Y_AXIS));
@@ -297,14 +343,15 @@ public class ProjectPanel extends JPanel {
 		panelResult = new JPanel();
 		panelResult.setLayout(new BoxLayout(panelResult, BoxLayout.Y_AXIS));
 		panelResult.add(cbShowRemovedFields);
+		panelResult.add(lblResultingTable);
 		panelResult.add(new JScrollPane(tableResultingTable));
+		panelData.add(panelResult);
 		
 		panelFooter = new JPanel();
 		panelFooter.add(buttonGenerate);
 		
 		add(panelHeader);
 		add(panelData);
-		add(panelResult);
 		add(panelFooter);
 	}
 	

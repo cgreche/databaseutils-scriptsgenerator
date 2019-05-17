@@ -13,17 +13,16 @@ public class AddFieldCommand extends Command {
 		this.field = field;
 	}
 	
-	public AddFieldCommand addColumn(TableField field) {
-		this.field = field;
-		return this;
-	}
-
 	public Table getRefTable() {
 		return refTable;
 	}
 	
 	public TableField getField() {
 		return field;
+	}
+	
+	public void setField(TableField field) {
+		this.field = field;
 	}
 	
 	@Override

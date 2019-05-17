@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -23,6 +24,7 @@ import structs.DropFieldCommand;
 import structs.GenericTypes;
 import structs.ModifyFieldCommand;
 import structs.Project;
+import structs.ProjectHandler;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
@@ -33,18 +35,22 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 	private JPanel panelProjectName; //todo: use
 		private JLabel lblProjectName;
 		private JTextField tfProjectName;
+		private JLabel lblDefaultHeaderMessage;
+		private JTextField tfDefaultHeaderMessage;
 	
 	private JPanel panelGenerationTargetPath;
 	private JLabel labelGenerationTargetPath;
 	private JPanel panelSearchTargetPath;
 		private JTextField tfGenerationTargetPath;
 		private JButton buttonSearchGenTargetPath;
+	private JLabel lblGenerationProfiles;
+		private JCheckBox cbProfileOracle;
+		private JCheckBox cbProfileMySQL;
 
 	private JButton btnCreateProject;
 
 	//
 	boolean editMode;
-	private boolean result;
 	private Project project;
 	
 	private static Table createTable1() {
@@ -136,6 +142,9 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		lblProjectName = new JLabel("Nome do projeto");
 		tfProjectName = new JTextField();
 		
+		lblDefaultHeaderMessage = new JLabel("Mensagem de header padrão para scripts");
+		tfDefaultHeaderMessage = new JTextField();
+		
 		panelGenerationTargetPath = new JPanel();
 		panelGenerationTargetPath.setLayout(new BoxLayout(panelGenerationTargetPath,BoxLayout.Y_AXIS));
 		labelGenerationTargetPath = new JLabel("Caminho para salvar os scripts gerados");
@@ -144,6 +153,7 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		panelSearchTargetPath.setLayout(new BoxLayout(panelSearchTargetPath,BoxLayout.X_AXIS));
 		tfGenerationTargetPath = new JTextField();
 		buttonSearchGenTargetPath = new JButton("Buscar");
+		
 		buttonSearchGenTargetPath.addActionListener(new ActionListener() {
 			
 			@Override
@@ -164,6 +174,10 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		panelGenerationTargetPath.add(labelGenerationTargetPath);
 		panelGenerationTargetPath.add(panelSearchTargetPath);
 		
+		lblGenerationProfiles = new JLabel("Perfis de Geração");
+		cbProfileOracle = new JCheckBox("Oracle DB");
+		cbProfileMySQL = new JCheckBox("MySQL");
+		
 		btnCreateProject = new JButton("Criar");
 		btnCreateProject.addActionListener(new ActionListener() {
 
@@ -172,9 +186,17 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 				
 				String projectName = tfProjectName.getText();
 				String generationTargetPath = tfGenerationTargetPath.getText();
+				String defaultHeaderMessage = tfDefaultHeaderMessage.getText();
+				long generationProfiles = 0;
+				if(cbProfileOracle.isSelected())
+					generationProfiles |= Project.PROFILE_ORACLE_DB;
+				if(cbProfileMySQL.isSelected())
+					generationProfiles |= Project.PROFILE_MYSQL;
 				
 				project.setName(projectName);
 				project.setScriptsGenerationBasePath(generationTargetPath);
+				project.setDefaultScriptsHeaderMessage(defaultHeaderMessage);
+				project.setGenerationProfiles(generationProfiles);
 				
 				if(checkFieldsIntegrity()) {
 					ProjectSettingsDialog.this.setResult(true, project);
@@ -189,6 +211,11 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		pane.add(lblProjectName);
 		pane.add(tfProjectName);
 		pane.add(panelGenerationTargetPath);
+		pane.add(lblDefaultHeaderMessage);
+		pane.add(tfDefaultHeaderMessage);
+		pane.add(lblGenerationProfiles);
+		pane.add(cbProfileOracle);
+		pane.add(cbProfileMySQL);
 		pane.add(btnCreateProject);
 		this.pack();
 	}
@@ -202,25 +229,19 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		project.addScript(script1);
 		project.addScript(script2);
 		
+		this.setResult(false, null);
 		this.setVisible(true);
 	}
 	
 	public void edit(Project project) {
 		editMode = true;
 		this.project = project.clone();
+		this.setResult(false, null);
 		this.setVisible(true);
 	}
 	
 	public boolean isEditMode() {
 		return editMode;
-	}
-	
-	public boolean getResult() {
-		return result;
-	}
-	
-	public Project getResultData() {
-		return project;
 	}
 	
 	public boolean checkFieldsIntegrity() {
@@ -231,6 +252,12 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		
 		if(tfGenerationTargetPath.getText() == null || "".equals(tfGenerationTargetPath.getText().trim())) {
 			JOptionPane.showMessageDialog(this, "O caminho de geração dos scripts não foi informado.");
+			return false;
+		}
+		
+		//TODO: normalizar controle ou field da classe?
+		if(project.getGenerationProfiles() == 0) {
+			JOptionPane.showMessageDialog(this, "Nenhum perfil de geração selecionado.");
 			return false;
 		}
 		

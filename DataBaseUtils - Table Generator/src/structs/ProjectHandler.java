@@ -14,7 +14,15 @@ import generators.OracleGenerator;
 //26/04/2019
 public class ProjectHandler {
 	
+	public static enum ProjectState {
+		NEW,
+		LOADED_UNMODIFIED,
+		LOADED_MODIFIED,
+		MODIFIED_SAVED
+	}
+	
 	private Project project;
+	private ProjectState projectState;
 	private String currentSavePath;
 	
 	public ProjectHandler(Project project) {
@@ -22,7 +30,7 @@ public class ProjectHandler {
 	}
 	
 	public boolean save(String savePath) {
-		File file = new File(currentSavePath);
+		File file = new File(savePath);
 		Path path = Paths.get(file.getParent());
 		try {
 			Files.createDirectories(path);
@@ -47,6 +55,8 @@ public class ProjectHandler {
 	public boolean save() {
 		if(currentSavePath == null)
 			return false;
+		if(projectState == ProjectState.LOADED_MODIFIED)
+			setProjectState(ProjectState.MODIFIED_SAVED);
 		return save(currentSavePath);
 	}
 	
@@ -60,6 +70,7 @@ public class ProjectHandler {
 			ProjectSerializer serializer = new ProjectXMLSerializer();
 			Project project = serializer.deserialize(fileData);
 			ProjectHandler projectHandler = new ProjectHandler(project);
+			projectHandler.setProjectState(ProjectState.LOADED_UNMODIFIED);
 			projectHandler.setSavePath(path);
 			return projectHandler;
 		} catch (IOException e) {
@@ -69,20 +80,34 @@ public class ProjectHandler {
 		return null;
 	}
 	
+	public void notifyProjectChanged() {
+		if(projectState != ProjectState.NEW)
+			projectState = ProjectState.LOADED_UNMODIFIED;
+	}
+	
 	public void generateScripts() {
 		String basePath = project.getScriptsGenerationBasePath();
 		
 		List<Script> scriptList = project.getScripts();
-		for(Script script : scriptList) {
-			script.setBasePath(basePath + "/OracleDB");
-			script.setHeaderMessage("test");
-			Generator generator = new OracleGenerator();
-			generator.generate(script);
-			
-			script.setBasePath(basePath + "/MySQL");
-			generator = new MySQLGenerator();
-			generator.generate(script);
+		
+		long genProfiles = project.getGenerationProfiles();
+		Generator generator;
+		if((genProfiles & Project.PROFILE_ORACLE_DB) != 0) {
+			generator = new OracleGenerator();
+			for(Script script : scriptList) {
+				script.setBasePath(basePath + "/OracleDB");
+				generator.generate(script);
+			}
 		}
+		
+		if((genProfiles & Project.PROFILE_MYSQL) != 0) {
+			for(Script script : scriptList) {
+				script.setBasePath(basePath + "/MySQL");
+				generator = new MySQLGenerator();
+				generator.generate(script);
+			}
+		}
+		
 	}
 	
 	public void setSavePath(String savePath) {
@@ -93,8 +118,20 @@ public class ProjectHandler {
 		return this.currentSavePath;
 	}
 	
+	public void setProjectState(ProjectState state) {
+		this.projectState = state;
+	}
+	
+	public ProjectState getProjectState() {
+		return projectState;
+	}
+	
 	public Project getProject() {
 		return project;
+	}
+	
+	public long validate() {
+		return project.validate();
 	}
 	
 }

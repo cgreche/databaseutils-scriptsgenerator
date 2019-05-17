@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import structs.Constraints;
@@ -26,14 +27,33 @@ import structs.TableField;
 @SuppressWarnings("serial")
 public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	
+	private JLabel lblField;
 	private JComboBox<TableField> ddField;
-	private JComboBox<FieldType> ddFieldType;
+	
+	private JLabel lblName;
+	private JTextField tfName;
+	
+	private JLabel lblType;
+	private JComboBox<FieldType> ddType;
+
+	private JLabel lblSize;
 	private JTextField tfSize;
+
+	private JLabel lblPk;
 	private JCheckBox cbPk;
+	
+	private JLabel lblFk;
 	private JCheckBox cbFk;
+
+	private JLabel lblNotNull;
 	private JCheckBox cbNotNull;
+
+	private JLabel lblReferencedTable;
 	private JTextField tfReferencedTable;
+
+	private JLabel lblReferencedColumn;
 	private JTextField tfRetferencedColumn;
+
 	private JButton buttonSave;
 	
 	boolean editMode;
@@ -52,12 +72,14 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 			}
 		});
 		
+		
+		lblField = new JLabel("Campo");
 		ddField = new JComboBox<TableField>();
 		ddField.addActionListener(new ActionListener () {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				TableField item = (TableField)ddField.getSelectedItem();
-				ddFieldType.setSelectedItem(item.getType());
+				ddType.setSelectedItem(item.getType());
 				tfSize.setText(item.getSize());
 				cbPk.setSelected(item.isPK());
 				cbFk.setSelected(item.isFK());
@@ -66,20 +88,36 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 				tfRetferencedColumn.setText(item.getReferencedColumn());
 			}
 		});
-			
-		ddFieldType = new JComboBox<FieldType>();
-		ddFieldType.addItem(GenericTypes.TEXT);
-		ddFieldType.addItem(GenericTypes.NUMERIC);
-		ddFieldType.addItem(GenericTypes.DATE);
-		ddFieldType.addItem(GenericTypes.TIMESTAMP);
-		ddFieldType.addItem(GenericTypes.BLOB);
-		ddFieldType.addItem(GenericTypes.LONGTEXT);
-			
+		
+		
+		lblName = new JLabel("Nome");
+		tfName = new JTextField();
+
+		lblType = new JLabel("Tipo");
+		ddType = new JComboBox<FieldType>();
+		ddType.addItem(GenericTypes.TEXT);
+		ddType.addItem(GenericTypes.NUMERIC);
+		ddType.addItem(GenericTypes.DATE);
+		ddType.addItem(GenericTypes.TIMESTAMP);
+		ddType.addItem(GenericTypes.BLOB);
+		ddType.addItem(GenericTypes.LONGTEXT);
+		
+		lblSize = new JLabel("Tamanho");
 		tfSize = new JTextField();
+		
+		lblPk = new JLabel("PK");
 		cbPk = new JCheckBox();
+		
+		lblFk = new JLabel("FK");
 		cbFk = new JCheckBox();
+		
+		lblNotNull = new JLabel("Not Null");
 		cbNotNull = new JCheckBox();
+		
+		lblReferencedTable = new JLabel("Tabela referenciada");
 		tfReferencedTable = new JTextField();
+		
+		lblReferencedColumn = new JLabel("Campo referenciado");
 		tfRetferencedColumn = new JTextField();
 			
 		buttonSave = new JButton("Salvar");
@@ -89,7 +127,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 				
 				TableField oldField = (TableField)ddField.getSelectedItem();
 				
-				currentNewField.setType((FieldType)ddFieldType.getSelectedItem());
+				currentNewField.setType((FieldType)ddType.getSelectedItem());
 				currentNewField.setSize(tfSize.getText());
 				int constraints = 0;
 				if(cbPk.isSelected())
@@ -110,12 +148,21 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		});
 		
 		this.setLayout(new BoxLayout(this.getContentPane(),BoxLayout.Y_AXIS));
+		add(lblName);
+		add(tfName);
+		add(lblField);
 		add(ddField);
-		add(ddFieldType);
+		add(lblType);
+		add(ddType);
+		add(lblPk);
 		add(cbPk);
+		add(lblFk);
 		add(cbFk);
+		add(lblNotNull);
 		add(cbNotNull);
+		add(lblReferencedTable);
 		add(tfReferencedTable);
+		add(lblReferencedColumn);
 		add(tfRetferencedColumn);
 		add(buttonSave);
 		
@@ -133,6 +180,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		Table resultingTable = parentScript.getResultTable();
 		
 		this.parentScript = parentScript;
+		currentTable = resultingTable;
 		currentCommand = new ModifyFieldCommand(parentScript,resultingTable, null, null);
 		currentNewField = new TableField();
 		

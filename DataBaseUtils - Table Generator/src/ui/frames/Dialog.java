@@ -32,4 +32,10 @@ public class Dialog<T> extends JDialog {
 		this.result = result;
 		this.resultData = resultData;
 	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		setLocationRelativeTo(getParent());
+		super.setVisible(visible);
+	}
 }

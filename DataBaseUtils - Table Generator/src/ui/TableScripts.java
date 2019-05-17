@@ -13,21 +13,12 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import structs.Constraints;
-import structs.FieldType;
 import structs.Script;
-import structs.TableField;
-import ui.resultingtable.TableFieldTableItem;
 
 //06/05/2019
 
 @SuppressWarnings("serial")
 public class TableScripts extends JTable {
-	
-	public static class InternalData {
-		Script script;
-		JButton removeButton;
-	}
 	
 	public static class TableScriptsModel extends AbstractTableModel {
 		
@@ -38,7 +29,7 @@ public class TableScripts extends JTable {
 		
 		@Override
 		public void setValueAt(Object value, int row, int col) {
-			if(data == null)
+			if(data == null || row >= data.size())
 				return;
 			Script script = data.get(row);
 			if(col == 0)
@@ -47,7 +38,7 @@ public class TableScripts extends JTable {
 		
 		@Override
 		public Object getValueAt(int row, int col) {
-			if(data == null)
+			if(data == null || row >= data.size())
 				return null;
 			Script script = data.get(row);
 			if(col == 0) return script.getName();
@@ -92,7 +83,6 @@ public class TableScripts extends JTable {
 	
 	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
 		private JTable table;
-		private int mnemonic;
 		
 		private JButton deleteButton;
 		private Object editorValue;
@@ -152,7 +142,6 @@ public class TableScripts extends JTable {
 	public void setData(List<Script> scriptList) {
 		this.data = scriptList;
 		model.setData(data);
-		
 		model.fireTableDataChanged();
 	}
 	
@@ -162,6 +151,5 @@ public class TableScripts extends JTable {
 	
 	public void refresh() {
 		model.fireTableDataChanged();
-		updateUI();
 	}
 }

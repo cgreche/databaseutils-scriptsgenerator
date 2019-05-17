@@ -14,8 +14,19 @@ import structs.Table;
 
 //10/04/2019
 public abstract class Generator {
+	
+	private String defaultHeaderMessage;
+	
+	public void setDefaultHeaderMessage(String defaultHeaderMessage) {
+		this.defaultHeaderMessage = defaultHeaderMessage;
+	}
+	
+	public String getDefaultHeaderMessage() {
+		return defaultHeaderMessage;
+	}
+	
 	public void generate(Script script) {
-		String objectName = script.getName();
+		String scriptName = script.getName();
 		List<Command> commands = script.getCommands();
 		if(commands == null)
 			return;
@@ -27,10 +38,19 @@ public abstract class Generator {
 			e1.printStackTrace();
 		}
 		
-		String outputFileNameTab = script.getBasePath() + "/" + objectName + ".tab";
+		String headerMessage = script.getHeaderMessage();
+		if(headerMessage == null)
+			headerMessage = defaultHeaderMessage;
+		if(headerMessage != null) {
+			headerMessage.replace("%scriptName%", scriptName);
+		}
+		
+		String outputFileNameTab = script.getBasePath() + "/" + scriptName + ".tab";
 		FileWriter fileWriter;
 		try {
 			fileWriter = new FileWriter(outputFileNameTab);
+			if(headerMessage != null)
+				fileWriter.write(headerMessage);
 			for(Command command : commands) {
 				String resultContent = "";
 				if(command instanceof CreateTableCommand) {

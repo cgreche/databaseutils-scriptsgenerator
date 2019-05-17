@@ -25,7 +25,7 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 	private static final long serialVersionUID = -1L;
 	
 	private List<TableField> data;
-	private String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Coluna refenciada", "Remover"};
+	private String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Campo refenciado", "Remover"};
 	
 	@Override
 	public Object getValueAt(int row, int col) {

@@ -4,9 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Project implements Cloneable {
+	
+	public static final int PROFILE_ORACLE_DB = 1;
+	public static final int PROFILE_MYSQL = 2;
+	
+	public static final long ERROR_NONE = 0;
+	public static final long ERROR_UNNAMED_SCRIPT = 1;
+	
 	private String name;
 	private List<Script> scripts;
 	private String scriptsGenerationBasePath;
+	private String defaultScriptsHeaderMessage;
+	private long generationProfiles;
 	
 	private List<Table> tableList;
 	
@@ -58,6 +67,34 @@ public class Project implements Cloneable {
 
 	public void setScriptsGenerationBasePath(String scriptsGenerationBasePath) {
 		this.scriptsGenerationBasePath = scriptsGenerationBasePath;
+	}
+
+	public String getDefaultScriptsHeaderMessage() {
+		return defaultScriptsHeaderMessage;
+	}
+
+	public void setDefaultScriptsHeaderMessage(String defaultScriptsHeaderMessage) {
+		this.defaultScriptsHeaderMessage = defaultScriptsHeaderMessage;
+	}
+	
+	public long validate() {
+		long errors = 0;
+		if(scripts != null) {
+			for(Script script : scripts) {
+				if(script.getName() == null || "".equals(script.getName())) {
+					errors |= ERROR_UNNAMED_SCRIPT;
+				}
+			}
+		}
+		return errors;
+	}
+	
+	public void setGenerationProfiles(long generationProfiles) {
+		this.generationProfiles = generationProfiles;
+	}
+	
+	public long getGenerationProfiles() {
+		return generationProfiles;
 	}
 	
 	@Override

@@ -1,10 +1,17 @@
 package ui;
 
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 import structs.Command;
 
@@ -22,6 +29,8 @@ public class TableCommands extends JTable {
 		
 		@Override
 		public Object getValueAt(int row, int col) {
+			if(data == null || row >= data.size())
+				return null;
 			Command commands = data.get(row);
 			if(col == 0) return commands.toString();
 			return null;
@@ -50,7 +59,7 @@ public class TableCommands extends JTable {
 		
 		@Override
 		public boolean isCellEditable(int row, int col) {
-			return false;
+			return col == 1;
 		}
 		
 		public void setData(List<Command> data) {
@@ -63,6 +72,54 @@ public class TableCommands extends JTable {
 		
 	}
 	
+	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
+		private JTable table;
+		private int mnemonic;
+		
+		private JButton deleteButton;
+		private Object editorValue;
+		public DeleteButton(JTable table, int column) {
+			this.table = table;
+			
+			deleteButton = new JButton();
+			deleteButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//System.out.println("WOW");
+					
+				}
+			});
+			TableColumnModel columnModel = table.getColumnModel();
+			columnModel.getColumn(column).setCellRenderer(this);
+			columnModel.getColumn(column).setCellEditor(this);
+		}
+		
+		@Override
+		public Object getCellEditorValue() {
+			return editorValue;
+		}
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			deleteButton.setText("Remover");
+			deleteButton.setIcon(null);
+			return deleteButton;
+		}
+		
+		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+			JButton button = new JButton("Remover");
+			button.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					data.remove(row);
+					refresh();
+				}
+			});
+			return button;
+		}
+	}
+	
 	private TableCommandsModel model;
 	private List<Command> data;
 	
@@ -70,6 +127,8 @@ public class TableCommands extends JTable {
 		super();
 		model = new TableCommandsModel();
 		this.setModel(model);
+		
+		new DeleteButton(this,1);
 	}
 	
 	public void setData(List<Command> commandList) {

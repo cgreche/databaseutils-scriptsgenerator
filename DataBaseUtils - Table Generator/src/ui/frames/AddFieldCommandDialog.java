@@ -8,6 +8,8 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import structs.AddFieldCommand;
@@ -22,14 +24,30 @@ import structs.TableField;
 @SuppressWarnings("serial")
 public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	
+	private JLabel lblName;
 	private JTextField tfName;
-	private JComboBox<FieldType> ddFieldType;
+
+	private JLabel lblType;
+	private JComboBox<FieldType> ddType;
+	
+	private JLabel lblSize;
 	private JTextField tfSize;
+	
+	private JLabel lblPk;
 	private JCheckBox cbPk;
+
+	private JLabel lblFk;
 	private JCheckBox cbFk;
+	
+	private JLabel lblNotNull;
 	private JCheckBox cbNotNull;
+	
+	private JLabel lblReferencedTable;
 	private JTextField tfReferencedTable;
-	private JTextField tfRetferencedColumn;
+	
+	private JLabel lblReferencedColumn;
+	private JTextField tfReferencedColumn;
+	
 	private JButton buttonSave;
 	
 	private boolean editMode;
@@ -41,28 +59,44 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		super(parent);
 		this.setLayout(new BoxLayout(this.getContentPane(),BoxLayout.Y_AXIS));
 		
+		lblName = new JLabel("Nome");
 		tfName = new JTextField();
-		ddFieldType = new JComboBox<FieldType>();
-		ddFieldType.addItem(GenericTypes.TEXT);
-		ddFieldType.addItem(GenericTypes.NUMERIC);
-		ddFieldType.addItem(GenericTypes.DATE);
-		ddFieldType.addItem(GenericTypes.TIMESTAMP);
-		ddFieldType.addItem(GenericTypes.BLOB);
-		ddFieldType.addItem(GenericTypes.LONGTEXT);
+
+		lblType = new JLabel("Tipo");
+		ddType = new JComboBox<FieldType>();
+		ddType.addItem(GenericTypes.TEXT);
+		ddType.addItem(GenericTypes.NUMERIC);
+		ddType.addItem(GenericTypes.DATE);
+		ddType.addItem(GenericTypes.TIMESTAMP);
+		ddType.addItem(GenericTypes.BLOB);
+		ddType.addItem(GenericTypes.LONGTEXT);
 		
+		lblSize = new JLabel("Tamanho");
 		tfSize = new JTextField();
+
+		lblPk = new JLabel("PK");
 		cbPk = new JCheckBox();
+
+		lblFk= new JLabel("FK");
 		cbFk = new JCheckBox();
+
+		lblNotNull = new JLabel("Not Null");
 		cbNotNull = new JCheckBox();
+
+		lblReferencedTable = new JLabel("Tabela referenciada");
 		tfReferencedTable = new JTextField();
-		tfRetferencedColumn = new JTextField();
+
+		lblReferencedColumn = new JLabel("Campo referenciado");
+		tfReferencedColumn = new JTextField();
+		
 		buttonSave = new JButton("Salvar");
 		buttonSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				TableField field = new TableField();
 				field.setName(tfName.getText());
-				field.setType((FieldType)ddFieldType.getSelectedItem());
+				field.setType((FieldType)ddType.getSelectedItem());
 				field.setSize(tfSize.getText());
 				int constraints = 0;
 				if(cbPk.isSelected())
@@ -73,29 +107,73 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 					constraints |= Constraints.NOT_NULL;
 				field.setConstraints(constraints);
 				field.setReferencedTable(tfReferencedTable.getText());
-				field.setReferencedColumn(tfRetferencedColumn.getText());
-				currentCommand.addColumn(field);
+				field.setReferencedColumn(tfReferencedColumn.getText());
+				currentCommand.setField(field);
+				
+				if(!validateFields())
+					return;
+
 				AddFieldCommandDialog.this.setResult(true,currentCommand);
 				AddFieldCommandDialog.this.dispose();
 			}
 			
 		});
 		
+		add(lblName);
 		add(tfName);
-		add(ddFieldType);
+		add(lblType);
+		add(ddType);
+		add(lblSize);
 		add(tfSize);
+		add(lblPk);
 		add(cbPk);
+		add(lblFk);
 		add(cbFk);
+		add(lblNotNull);
 		add(cbNotNull);
+		add(lblReferencedTable);
 		add(tfReferencedTable);
-		add(tfRetferencedColumn);
+		add(lblReferencedColumn);
+		add(tfReferencedColumn);
 		add(buttonSave);
 		
 		this.pack();
 	}
 	
-	public void updateControls() {
+	private boolean validateFields() {
+		Table table = resultingTable;
+		TableField field = currentCommand.getField();
+
+		if(field.getName() == null || "".contentEquals(field.getName())) {
+			JOptionPane.showMessageDialog(this, "Há campos da tabela com nome não informado.");
+			return false;
+		}
 		
+		if(field.getType() == null) {
+			JOptionPane.showMessageDialog(this, "Há campos da tabela com tipo não informado.");
+			return false;
+		}
+		
+		for(TableField f : table.getFields()) {
+			if(f.getName().equals(field.getName())) {
+				JOptionPane.showMessageDialog(this, "O nome escolhido já existe na tabela destino.");
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	public void updateControls() {
+		TableField field = currentCommand.getField();
+		tfName.setText(field.getName());
+		ddType.setSelectedItem(field.getType());
+		tfSize.setText(field.getSize());
+		cbPk.setSelected((field.getConstraints() & Constraints.PK) != 0);
+		cbFk.setSelected((field.getConstraints() & Constraints.FK) != 0);
+		cbNotNull.setSelected((field.getConstraints() & Constraints.NOT_NULL) != 0);
+		tfReferencedTable.setText(field.getReferencedTable());
+		tfReferencedColumn.setText(field.getReferencedColumn());
 	}
 	
 	public void insertNew(Script parentScript) {

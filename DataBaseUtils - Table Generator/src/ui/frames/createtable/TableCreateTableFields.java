@@ -29,7 +29,6 @@ public class TableCreateTableFields extends JTable {
 	
 	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
 		private JTable table;
-		private int mnemonic;
 		
 		private JButton deleteButton;
 		private Object editorValue;

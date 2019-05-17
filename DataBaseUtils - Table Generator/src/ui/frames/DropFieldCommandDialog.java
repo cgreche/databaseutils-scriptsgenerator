@@ -10,8 +10,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
-import structs.AddFieldCommand;
 import structs.DropFieldCommand;
 import structs.Script;
 import structs.Table;
@@ -21,7 +21,8 @@ import structs.TableField;
 
 @SuppressWarnings("serial")
 public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
-	private JComboBox<TableField> fieldList;
+	private JLabel lblField;
+	private JComboBox<TableField> ddField;
 	private JButton buttonSave;
 	
 	//
@@ -42,29 +43,31 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 			}
 		});
 		
-		
-		fieldList = new JComboBox<TableField>();
+		lblField = new JLabel("Campo");
+		ddField = new JComboBox<TableField>();
 		this.setLayout(new BoxLayout(this.getContentPane(),BoxLayout.Y_AXIS));
 		
 		buttonSave = new JButton("Salvar");
 		buttonSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentCommand.setField((TableField)fieldList.getSelectedItem());
+				currentCommand.setField((TableField)ddField.getSelectedItem());
 				DropFieldCommandDialog.this.setResult(true,currentCommand);
 				DropFieldCommandDialog.this.dispose();
 			}
 		});
-		add(fieldList);
+		
+		add(lblField);
+		add(ddField);
 		add(buttonSave);
 		this.pack();
 	}
 	
 	public void updateControls() {
-		fieldList.removeAllItems();
+		ddField.removeAllItems();
 		List<TableField> fields = currentTable.getFields();
 		for(TableField field : fields) {
-			fieldList.addItem(field);
+			ddField.addItem(field);
 		}
 	}
 	
