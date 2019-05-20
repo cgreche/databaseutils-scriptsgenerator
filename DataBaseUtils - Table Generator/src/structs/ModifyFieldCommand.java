@@ -39,7 +39,7 @@ public class ModifyFieldCommand extends Command {
 
 	@Override
 	public String toString() {
-		return "Modify Field (" + oldField.getName() + " --> " + newField.getName() + ")";
+		return "Modify Field (" + newField.getName() + ")";
 	}
 	
 	@Override

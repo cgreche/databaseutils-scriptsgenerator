@@ -44,57 +44,117 @@ public class MainWindow extends JFrame {
 	
 	private ProjectPanel panelProject;
 	
-	public MainWindow() {
-		super("eSocial Techne Database Utils - Scripts generator");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		menuBar = new JMenuBar();
-		menuProject = new JMenu("Projeto");
-			itemProjectNew = new JMenuItem("Novo");
-			itemProjectNew.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent ev) {
-					projectSettingsDialog.insertNew();
-					if(projectSettingsDialog.getResult()) {
-						Project project = projectSettingsDialog.getResultData();
-						if(project != null) {
-							loadProject(project);
-							projectHandler.setProjectState(ProjectHandler.ProjectState.NEW); //TODO: melhorar
-						}
-					}
-				}
-			});
+	private ActionListener actionOpenProject = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			final JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
+			fc.setFileFilter(fileFilter);
+			fc.setAcceptAllFileFilterUsed(true);
+			int returnVal = fc.showOpenDialog(MainWindow.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				projectHandler = ProjectHandler.loadProject(file.getAbsolutePath());
+				panelProject.setProject(projectHandler.getProject());
+				panelProject.setVisible(true);
+				viewProject(projectHandler.getProject());
+			} else {
+				return;
+			}
 			
-			itemProjectOpen = new JMenuItem("Abrir");
-			itemProjectOpen.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					final JFileChooser fc = new JFileChooser();
-					FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
-					fc.setFileFilter(fileFilter);
-					fc.setAcceptAllFileFilterUsed(true);
-					int returnVal = fc.showOpenDialog(MainWindow.this);
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						File file = fc.getSelectedFile();
-						projectHandler = new ProjectHandler(null);
-						projectHandler = ProjectHandler.loadProject(file.getAbsolutePath());
-						panelProject.setProject(projectHandler.getProject());
-						panelProject.setVisible(true);
-					} else {
-						return;
-					}
-					
+		}
+	};
+	
+	private ActionListener actionNewProject = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent ev) {
+			projectSettingsDialog.insertNew();
+			if(projectSettingsDialog.getResult()) {
+				Project project = projectSettingsDialog.getResultData();
+				if(project != null) {
+					projectHandler = new ProjectHandler(project);
+					viewProject(project);
 				}
-			});
+			}
+		}
+	};
+	
+	private ActionListener actionSaveProject = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(projectHandler == null)
+				return;
 			
-			itemProjectSave = new JMenuItem("Salvar");
-			itemProjectSave.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(projectHandler == null)
-						return;
-					
-					if(projectHandler.getSavePath() == null) {
+			if(projectHandler.getSavePath() == null) {
+				final JFileChooser fc = new JFileChooser();
+				FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
+				fc.setFileFilter(fileFilter);
+				fc.setAcceptAllFileFilterUsed(true);
+				int returnVal = fc.showSaveDialog(MainWindow.this);
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = fc.getSelectedFile();
+					projectHandler.setSavePath(file.getPath());
+				} else {
+					return;
+				}
+			}
+			
+			if(projectHandler.save()) {
+				setStatuText("Projeto salvo com sucesso.");
+			}
+		}
+	};
+	
+	private ActionListener actionSaveProjectAs = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(projectHandler == null)
+				return;
+			
+			final JFileChooser fc = new JFileChooser();
+			FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
+			fc.setFileFilter(fileFilter);
+			fc.setAcceptAllFileFilterUsed(true);
+			int returnVal = fc.showSaveDialog(MainWindow.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				projectHandler.save(file.getPath());
+			} else {
+				return;
+			}
+		}
+	};
+	
+	private ActionListener actionProjectProperties = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(projectHandler == null)
+				return;
+			
+			Project project = projectHandler.getProject();
+			if(project == null) {
+				JOptionPane.showMessageDialog(MainWindow.this, "Não há projeto aberto");
+				return;
+			}
+			
+			projectSettingsDialog.edit(project);
+			if(projectSettingsDialog.getResult()) {
+				Project editedProject = projectSettingsDialog.getResultData();
+				projectHandler.setProject(editedProject);
+				projectHandler.notifyProjectChanged();
+				viewProject(editedProject);
+			}
+		}
+	};
+	
+	private ActionListener actionExit = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(projectHandler != null) {
+				if(projectHandler.getProjectState() != ProjectHandler.ProjectState.MODIFIED_SAVED) {
+					String message = "As últimas alterações do projeto não foram salvas.\nDeseja salvar o projeto antes de sair?";
+					int result = JOptionPane.showConfirmDialog(MainWindow.this, message, null, JOptionPane.YES_NO_OPTION);
+					if(result == JOptionPane.YES_OPTION){
 						final JFileChooser fc = new JFileChooser();
 						FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
 						fc.setFileFilter(fileFilter);
@@ -102,87 +162,41 @@ public class MainWindow extends JFrame {
 						int returnVal = fc.showSaveDialog(MainWindow.this);
 						if (returnVal == JFileChooser.APPROVE_OPTION) {
 							File file = fc.getSelectedFile();
-							projectHandler.setSavePath(file.getPath());
+							projectHandler.save(file.getPath());
 						} else {
 							return;
 						}
 					}
-					
-					projectHandler.save();
 				}
-			});
+			}
+			
+			System.exit(0);
+		}
+	};
+	
+	public MainWindow() {
+		super("eSocial Techne Database Utils - Scripts generator");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		menuBar = new JMenuBar();
+		menuProject = new JMenu("Projeto");
+			itemProjectNew = new JMenuItem("Novo");
+			itemProjectNew.addActionListener(actionNewProject);
+			
+			itemProjectOpen = new JMenuItem("Abrir");
+			itemProjectOpen.addActionListener(actionOpenProject);
+			
+			itemProjectSave = new JMenuItem("Salvar");
+			itemProjectSave.addActionListener(actionSaveProject);
 			
 			itemProjectSaveAs = new JMenuItem("Salvar como...");
-			itemProjectSaveAs.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(projectHandler == null)
-						return;
-					
-					final JFileChooser fc = new JFileChooser();
-					FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
-					fc.setFileFilter(fileFilter);
-					fc.setAcceptAllFileFilterUsed(true);
-					int returnVal = fc.showSaveDialog(MainWindow.this);
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						File file = fc.getSelectedFile();
-						projectHandler.save(file.getPath());
-					} else {
-						return;
-					}
-					
-				}
-			});
+			itemProjectSaveAs.addActionListener(actionSaveProjectAs);
 			
 			itemProperties = new JMenuItem("Propriedades");
-			itemProperties.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(projectHandler == null)
-						return;
-					
-					Project project = projectHandler.getProject();
-					if(project == null) {
-						//TODO: mensagem de nenhum projeto aberto
-						return;
-					}
-					
-					projectSettingsDialog.edit(project);
-					Project editedProject = projectSettingsDialog.getResultData();
-					if(editedProject != null) {
-						loadProject(editedProject);
-					}
-				}
-			});
+			itemProperties.addActionListener(actionProjectProperties);
 			
 			itemProjectClose = new JMenuItem("Sair");
-			itemProjectClose.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if(projectHandler != null) {
-						if(projectHandler.getProjectState() != ProjectHandler.ProjectState.MODIFIED_SAVED) {
-							String message = "As últimas alterações do projeto não foram salvas.\nDeseja salvar o projeto antes de sair?";
-							int result = JOptionPane.showConfirmDialog(MainWindow.this, message, null, JOptionPane.YES_NO_OPTION);
-							if(result == JOptionPane.YES_OPTION){
-								final JFileChooser fc = new JFileChooser();
-								FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("Project Files", "dbup");
-								fc.setFileFilter(fileFilter);
-								fc.setAcceptAllFileFilterUsed(true);
-								int returnVal = fc.showSaveDialog(MainWindow.this);
-								if (returnVal == JFileChooser.APPROVE_OPTION) {
-									File file = fc.getSelectedFile();
-									projectHandler.save(file.getPath());
-								} else {
-									return;
-								}
-							}
-						}
-					}
-					
-					System.exit(0);
-				}
-			});
+			itemProjectClose.addActionListener(actionExit);
 			
 		itemAuthor = new JMenuItem("Autor");
 		
@@ -201,7 +215,6 @@ public class MainWindow extends JFrame {
 		setJMenuBar(menuBar);
 		
 		statusBar = new StatusBar();
-		
 		//
 		createTableCommandDialog = new CreateTableCommandDialog(this);
 		addFieldCommandDialog = new AddFieldCommandDialog(this);
@@ -211,15 +224,18 @@ public class MainWindow extends JFrame {
 		panelProject = new ProjectPanel();
 		this.add(panelProject,BorderLayout.CENTER);
 		this.add(statusBar,BorderLayout.PAGE_END);
-		this.pack();
+		this.setSize(1024, 768);
 		
 		panelProject.setVisible(false);
 	}
 	
-	public void loadProject(Project project) {
-		projectHandler = new ProjectHandler(project);
+	public void viewProject(Project project) {
 		panelProject.setProject(project);
 		panelProject.setVisible(true);
+		setStatuText("Projeto carregado." + " Número de scripts: " + project.getScripts().size());
 	}
 	
+	void setStatuText(String text) {
+		statusBar.setText(text);
+	}
 }

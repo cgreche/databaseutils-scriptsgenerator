@@ -72,10 +72,10 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 	}
 	
 	public void insertNew(Script parentScript) {
-		currentTable = parentScript.getResultTable();
+		currentTable = parentScript.getResultingTable();
 		currentCommand = new DropFieldCommand(parentScript, currentTable, null);
+
 		updateControls();
-		
 		editMode = false;
 		this.setVisible(true);
 	}
@@ -83,7 +83,7 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 	public void edit(DropFieldCommand command) {
 		if(command != null) {
 			currentCommand = command.clone();
-			currentTable = command.getScript().getResultTable();
+			currentTable = command.getRefTable();
 		}
 		
 		updateControls();

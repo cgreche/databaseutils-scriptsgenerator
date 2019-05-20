@@ -23,7 +23,7 @@ public class Script {
 		commands.add(command);
 	}
 	
-	public Table getResultTable() {
+	public Table getResultingTable() {
 		Table resultingTable = new Table();
 		for(Command command : commands) {
 			if(command instanceof CreateTableCommand) {
@@ -78,6 +78,45 @@ public class Script {
 		return resultingTable;
 	}
 	
+	public boolean validate() {
+		Table resultingTable = null;
+		for(Command command : commands) {
+			if(command instanceof CreateTableCommand) {
+				resultingTable = ((CreateTableCommand) command).getTable().clone();
+			}
+			else if(command instanceof AddFieldCommand) {
+				AddFieldCommand afc = (AddFieldCommand)command;
+				if(resultingTable.getFieldByName(afc.getField().getName()) != null) {
+					//Field already exists
+					return false;
+				}
+				resultingTable.getFields().add(afc.getField());
+			}
+			else if(command instanceof ModifyFieldCommand) {
+				ModifyFieldCommand mfc = (ModifyFieldCommand)command;
+				int fieldIndex = resultingTable.getFieldIndex(mfc.getOldField());
+				if(fieldIndex == -1) {
+					//Field doesn't exist
+					return false;
+				}
+				if(fieldIndex != -1)
+					resultingTable.getFields().set(fieldIndex, mfc.getNewField());
+			}
+			else if(command instanceof DropFieldCommand) {
+				DropFieldCommand dfc = (DropFieldCommand)command;
+				int fieldIndex = resultingTable.getFieldIndex(dfc.getField());
+				if(fieldIndex == -1) {
+					//Field doesn't exist
+					return false;
+				}
+				if(fieldIndex != -1)
+					resultingTable.getFields().remove(fieldIndex);
+			}
+		}
+		return true;
+	}
+
+	
 	public String getName() {
 		return name;
 	}
@@ -127,10 +166,11 @@ public class Script {
 	}
 	
 	public TableField getField(String fieldName) {
-		return getResultTable().getFieldByName(fieldName);
+		return getResultingTable().getFieldByName(fieldName);
 	}
 	
 	public void notifyScriptChanged() {
 		lastModifiedDate = new Date();
 	}
+	
 }

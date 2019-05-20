@@ -129,7 +129,6 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		TableField fieldID2Old = table2.getFieldByName("ID2");
 		TableField fieldID2 = fieldID2Old.clone();
 		fieldID2.setType(GenericTypes.TEXT);
-		fieldID2.setName("ID2_MODIFICADO");
 		fieldID2.setSize("100");
 		script.addCommand(new ModifyFieldCommand(script,table2,fieldID2Old,fieldID2));
 		return script;

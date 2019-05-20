@@ -53,7 +53,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	private boolean editMode;
 	private AddFieldCommand currentCommand;
 	private Script parentScript;
-	private Table resultingTable;
+	private Table currentTable;
 	
 	public AddFieldCommandDialog(JFrame parent) {
 		super(parent);
@@ -141,7 +141,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	}
 	
 	private boolean validateFields() {
-		Table table = resultingTable;
+		Table table = currentTable;
 		TableField field = currentCommand.getField();
 
 		if(field.getName() == null || "".contentEquals(field.getName())) {
@@ -178,9 +178,9 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	
 	public void insertNew(Script parentScript) {
 		this.parentScript = parentScript;
-		resultingTable = parentScript.getResultTable();
+		currentTable = parentScript.getResultingTable();
 		editMode = false;
-		currentCommand = new AddFieldCommand(parentScript,resultingTable, null);
+		currentCommand = new AddFieldCommand(parentScript, currentTable, null);
 		updateControls();
 		this.setVisible(true);
 	}
@@ -190,7 +190,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 			parentScript = command.getScript();
 			resultData = (AddFieldCommand) command.clone();
 			currentCommand = command.clone();
-			resultingTable = parentScript.getResultTable();
+			currentTable = command.getRefTable();
 		}
 		
 		editMode = true;

@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import structs.AddFieldCommand;
-import structs.Command;
 import structs.Constraints;
 import structs.CreateTableCommand;
 import structs.DropFieldCommand;
 import structs.FieldType;
 import structs.GenericTypes;
 import structs.ModifyFieldCommand;
+import structs.Project;
 import structs.Table;
 import structs.TableField;
 
@@ -39,6 +39,10 @@ public class MySQLGenerator extends Generator {
 		typeMapper.put(GenericTypes.LONGTEXT,longtext);
 	}
 	
+	public MySQLGenerator(Project project) {
+		super(project);
+	}
+	
 	private String generateField(TableField field) {
 		FieldType mappedType = typeMapper.get(field.getType());
 		if(mappedType == null)
@@ -54,7 +58,7 @@ public class MySQLGenerator extends Generator {
 	}
 	
 	@Override
-	public String generateCreateTable(CreateTableCommand command) {
+	public String generateCreateTableCommand(CreateTableCommand command) {
 		Table table = command.getTable();
 		String result = "CREATE TABLE ";
 		result += table.getName();
@@ -93,7 +97,7 @@ public class MySQLGenerator extends Generator {
 	}
 	
 	@Override
-	public void postCreateTableGeneration(CreateTableCommand command) {
+	public void postCreateTableCommand(CreateTableCommand command) {
 		Table table = command.getTable();
 		
 		String resultContent = "";
@@ -117,33 +121,38 @@ public class MySQLGenerator extends Generator {
 	}
 	
 	@Override
-	public String generateAlterTable(Command command) {
-
+	protected String generateAddFieldCommand(AddFieldCommand command) {
 		String result = "";
-		
-		if(command instanceof AddFieldCommand) {
-			AddFieldCommand afc = (AddFieldCommand)command;
-			Table refTable = afc.getRefTable();
-			TableField field = afc.getField();
-			result += "ALTER TABLE " + refTable.getName() + " ADD ";
-			result += generateField(field);
-		}
-		else if(command instanceof ModifyFieldCommand) {
-			ModifyFieldCommand mfc = (ModifyFieldCommand)command;
-			Table refTable = mfc.getRefTable();
-			TableField oldField = mfc.getOldField();
-			TableField newField = mfc.getNewField();
-			result += "ALTER TABLE " + refTable.getName() + " MODIFY ";
-			result += generateField(newField);
-		}
-		else if(command instanceof DropFieldCommand) {
-			DropFieldCommand dfc = (DropFieldCommand)command;
-			Table refTable = dfc.getRefTable();
-			TableField field = dfc.getField();
-			result += "ALTER TABLE " + refTable.getName() + " DROP ";
-			result += field.getName();
-		}
-		
+		AddFieldCommand afc = (AddFieldCommand)command;
+		Table refTable = afc.getRefTable();
+		TableField field = afc.getField();
+		result += "ALTER TABLE " + refTable.getName() + " ADD ";
+		result += generateField(field);
+		result += "\n/\n";
+		return result;
+	}
+	
+	@Override
+	protected String generateModifyFieldCommand(ModifyFieldCommand command) {
+		String result = "";
+		ModifyFieldCommand mfc = (ModifyFieldCommand)command;
+		Table refTable = mfc.getRefTable();
+		TableField oldField = mfc.getOldField();
+		TableField newField = mfc.getNewField();
+		result += "ALTER TABLE " + refTable.getName() + " MODIFY ";
+		result += generateField(newField);
+		result += "\n/\n";
+		return result;
+	}
+	
+	@Override
+	protected String generateDropFieldCommand(DropFieldCommand command) {
+		String result = "";
+		DropFieldCommand dfc = (DropFieldCommand)command;
+		Table refTable = dfc.getRefTable();
+		TableField field = dfc.getField();
+		result += "ALTER TABLE " + refTable.getName() + " DROP ";
+		result += field.getName();
 		result += "\n/\n";
 		return result;
 	}

@@ -44,7 +44,7 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 		}
 	}
 
-	ProjectXMLSerializer() {
+	public ProjectXMLSerializer() {
 		isoDateFormatter = new SimpleDateFormat(isoDateFormat);
 	}
 
@@ -177,19 +177,11 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 							}
 							else if(command instanceof AddFieldCommand) {
 								AddFieldCommand c = (AddFieldCommand)command;
-								elem = document.createElement("refTable");
-								elem.setTextContent(c.getRefTable().getName());
-								elemCommand.appendChild(elem);
-								
 								elem = tableFieldToElement(document, c.getField(), "field");
 								elemCommand.appendChild(elem);
 							}
 							else if(command instanceof ModifyFieldCommand) {
 								ModifyFieldCommand c = (ModifyFieldCommand)command;
-								elem = document.createElement("refTable");
-								elem.setTextContent(c.getRefTable().getName());
-								elemCommand.appendChild(elem);
-								
 								elem = document.createElement("oldField");
 								elem.setTextContent(c.getOldField().getName());
 								elemCommand.appendChild(elem);
@@ -199,10 +191,6 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 							}
 							else if(command instanceof DropFieldCommand) {
 								DropFieldCommand c = (DropFieldCommand)command;
-								elem = document.createElement("refTable");
-								elem.setTextContent(c.getRefTable().getName());
-								elemCommand.appendChild(elem);
-								
 								elem = document.createElement("field");
 								elem.setTextContent(c.getField().getName());
 								elemCommand.appendChild(elem);
@@ -272,38 +260,29 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 
 	private AddFieldCommand parseAddFieldCommand(Element elem, Script parentScript, Project project) {
 		
-		Table refTable = null;
 		TableField field = null;
 		
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String nodeName = elem.getNodeName();
-			String strValue = elem.getTextContent();
-			if("refTable".equals(nodeName)) {
-				refTable = project.getTable(strValue);
-			}
-			else if("field".equals(nodeName)) {
+			if("field".equals(nodeName)) {
 				field = parseTableField(elem);
 			}
 			
 			elem = getNextElement(elem);
 		}
 		
-		return new AddFieldCommand(parentScript,refTable,field);
+		return new AddFieldCommand(parentScript,parentScript.getResultingTable(),field);
 	}
 	
 	private ModifyFieldCommand parseModifyFieldCommand(Element elem, Script parentScript, Project project) {
-		Table refTable = null;
 		TableField oldField = null;
 		TableField newField = null;
 		
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String strValue = elem.getTextContent();
-			if("refTable".equals(elem.getNodeName())) {
-				refTable = project.getTable(strValue);
-			}
-			else if("oldField".equals(elem.getNodeName())) {
+			if("oldField".equals(elem.getNodeName())) {
 				oldField = parentScript.getField(strValue);
 			}
 			else if("newField".equals(elem.getNodeName())) {
@@ -313,27 +292,22 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			elem = getNextElement(elem);
 		}
 		
-		return new ModifyFieldCommand(parentScript,refTable,oldField,newField);
+		return new ModifyFieldCommand(parentScript,parentScript.getResultingTable(),oldField,newField);
 	}
 
 	private DropFieldCommand parseDropFieldCommand(Element elem, Script parentScript, Project project) {
-		Table refTable = null;
 		TableField field = null;
 		
 		elem = getChildElement(elem);
 		while(elem != null) {
 			String strValue = elem.getTextContent();
-			if("refTable".equals(elem.getNodeName())) {
-				refTable = project.getTable(strValue);
-			}
-			else if("field".equals(elem.getNodeName())) {
+			if("field".equals(elem.getNodeName())) {
 				field = parentScript.getField(strValue);
 			}
 			
 			elem = getNextElement(elem);
 		}
-		
-		return new DropFieldCommand(parentScript,refTable,field);
+		return new DropFieldCommand(parentScript,parentScript.getResultingTable(),field);
 	}
 
 	private Command parseCommand(Element elem, Script parentScript, Project project) {

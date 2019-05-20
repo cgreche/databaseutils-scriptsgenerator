@@ -84,6 +84,8 @@ public class TableScripts extends JTable {
 	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
 		private JTable table;
 		
+		private ActionListener action;
+		
 		private JButton deleteButton;
 		private Object editorValue;
 		public DeleteButton(JTable table, int column) {
@@ -120,23 +122,28 @@ public class TableScripts extends JTable {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					data.remove(row);
-					refresh();
+					action.actionPerformed(e);
 				}
 			});
 			return button;
+		}
+		
+		public void setDeleteAction(ActionListener action) {
+			this.action = action;
 		}
 	}
 	
 	private TableScriptsModel model;
 	private List<Script> data;
 	
+	private DeleteButton deleteButton;
+	
 	public TableScripts() {
 		super();
 		model = new TableScriptsModel();
 		this.setModel(model);
 		
-		new DeleteButton(this,1);
+		deleteButton = new DeleteButton(this,1);
 	}
 	
 	public void setData(List<Script> scriptList) {
@@ -151,5 +158,9 @@ public class TableScripts extends JTable {
 	
 	public void refresh() {
 		model.fireTableDataChanged();
+	}
+	
+	public void setDeleteAction(ActionListener action) {
+		deleteButton.setDeleteAction(action);
 	}
 }

@@ -4,7 +4,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import ui.frames.MainWindow;
 
-public class Main {
+public class Application {
+	
+	public static MainWindow mainWindow;
 	
 	public static void main(String [] args) {
 		String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
@@ -16,7 +18,7 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		MainWindow mainWindow = new MainWindow();
+		mainWindow = new MainWindow();
 		mainWindow.setVisible(true);
 	}
 	

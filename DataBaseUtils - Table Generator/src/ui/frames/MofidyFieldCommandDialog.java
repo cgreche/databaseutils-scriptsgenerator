@@ -30,9 +30,6 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	private JLabel lblField;
 	private JComboBox<TableField> ddField;
 	
-	private JLabel lblName;
-	private JTextField tfName;
-	
 	private JLabel lblType;
 	private JComboBox<FieldType> ddType;
 
@@ -90,9 +87,6 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		});
 		
 		
-		lblName = new JLabel("Nome");
-		tfName = new JTextField();
-
 		lblType = new JLabel("Tipo");
 		ddType = new JComboBox<FieldType>();
 		ddType.addItem(GenericTypes.TEXT);
@@ -148,8 +142,6 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		});
 		
 		this.setLayout(new BoxLayout(this.getContentPane(),BoxLayout.Y_AXIS));
-		add(lblName);
-		add(tfName);
 		add(lblField);
 		add(ddField);
 		add(lblType);
@@ -177,7 +169,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	}
 	
 	public void insertNew(Script parentScript) {
-		Table resultingTable = parentScript.getResultTable();
+		Table resultingTable = parentScript.getResultingTable();
 		
 		this.parentScript = parentScript;
 		currentTable = resultingTable;

@@ -27,6 +27,7 @@ public class ProjectHandler {
 	
 	public ProjectHandler(Project project) {
 		this.project = project;
+		projectState = ProjectState.NEW;
 	}
 	
 	public boolean save(String savePath) {
@@ -82,30 +83,23 @@ public class ProjectHandler {
 	
 	public void notifyProjectChanged() {
 		if(projectState != ProjectState.NEW)
-			projectState = ProjectState.LOADED_UNMODIFIED;
+			projectState = ProjectState.LOADED_MODIFIED;
 	}
 	
 	public void generateScripts() {
 		String basePath = project.getScriptsGenerationBasePath();
 		
-		List<Script> scriptList = project.getScripts();
-		
 		long genProfiles = project.getGenerationProfiles();
 		Generator generator;
 		if((genProfiles & Project.PROFILE_ORACLE_DB) != 0) {
-			generator = new OracleGenerator();
-			for(Script script : scriptList) {
-				script.setBasePath(basePath + "/OracleDB");
-				generator.generate(script);
-			}
+			generator = new OracleGenerator(project);
+			generator.generate(basePath + "/OracleDB");
 		}
 		
 		if((genProfiles & Project.PROFILE_MYSQL) != 0) {
-			for(Script script : scriptList) {
-				script.setBasePath(basePath + "/MySQL");
-				generator = new MySQLGenerator();
-				generator.generate(script);
-			}
+			generator = new MySQLGenerator(project);
+			generator.generate(basePath + "/MySQL");
+
 		}
 		
 	}
@@ -124,6 +118,10 @@ public class ProjectHandler {
 	
 	public ProjectState getProjectState() {
 		return projectState;
+	}
+	
+	public void setProject(Project project) {
+		this.project = project;
 	}
 	
 	public Project getProject() {

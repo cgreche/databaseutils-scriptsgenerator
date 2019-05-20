@@ -9,13 +9,17 @@ import java.util.List;
 import structs.AddFieldCommand;
 import structs.Command;
 import structs.CreateTableCommand;
+import structs.DropFieldCommand;
+import structs.ModifyFieldCommand;
+import structs.Project;
 import structs.Script;
-import structs.Table;
 
 //10/04/2019
 public abstract class Generator {
 	
-	private String defaultHeaderMessage;
+	protected Project project;
+	protected String defaultHeaderMessage;
+	protected String basePath;
 	
 	public void setDefaultHeaderMessage(String defaultHeaderMessage) {
 		this.defaultHeaderMessage = defaultHeaderMessage;
@@ -25,27 +29,51 @@ public abstract class Generator {
 		return defaultHeaderMessage;
 	}
 	
-	public void generate(Script script) {
-		String scriptName = script.getName();
-		List<Command> commands = script.getCommands();
-		if(commands == null)
+	public Generator(Project project) {
+		this.project = project;
+	}
+	
+	public void generate(String basePath) {
+		this.basePath = basePath;
+		
+		List<Script> scriptList = project.getScripts();
+		if(scriptList.isEmpty())
 			return;
 		
+		for(Script script : scriptList) {
+			generateScript(script);
+		}
+	}
+	
+	private void generateScript(Script script) {
+		List<Command> commands = script.getCommands();
+		if(commands == null || commands.isEmpty())
+			return;
+		
+		String scriptBasePath = basePath;
+		if(script.getBasePath() != null)
+			scriptBasePath += "/" + script.getBasePath();
+		
 		try {
-			Files.createDirectories(Paths.get(script.getBasePath()));
+			Files.createDirectories(Paths.get(scriptBasePath));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
+		
+		String scriptName = script.getName();
+		String projectName = project.getName();
+
 		String headerMessage = script.getHeaderMessage();
 		if(headerMessage == null)
 			headerMessage = defaultHeaderMessage;
 		if(headerMessage != null) {
+			headerMessage.replace("%projectName%", projectName);
 			headerMessage.replace("%scriptName%", scriptName);
 		}
 		
-		String outputFileNameTab = script.getBasePath() + "/" + scriptName + ".tab";
+		String outputFileNameTab = scriptBasePath + "/" + scriptName + ".tab";
 		FileWriter fileWriter;
 		try {
 			fileWriter = new FileWriter(outputFileNameTab);
@@ -54,11 +82,24 @@ public abstract class Generator {
 			for(Command command : commands) {
 				String resultContent = "";
 				if(command instanceof CreateTableCommand) {
-					resultContent = generateCreateTable((CreateTableCommand)command);
-					postCreateTableGeneration((CreateTableCommand)command);
+					preCreateTableCommand((CreateTableCommand)command);
+					resultContent = generateCreateTableCommand((CreateTableCommand)command);
+					postCreateTableCommand((CreateTableCommand)command);
 				}
 				else if(command instanceof AddFieldCommand) {
-					resultContent = generateAlterTable((AddFieldCommand)command);
+					preAddFieldCommand((AddFieldCommand)command);
+					resultContent = generateAddFieldCommand((AddFieldCommand)command);
+					postAddFieldCommand((AddFieldCommand)command);
+				}
+				else if(command instanceof ModifyFieldCommand) {
+					preModifyFieldCommand((ModifyFieldCommand)command);
+					resultContent = generateModifyFieldCommand((ModifyFieldCommand)command);
+					postModifyFieldCommand((ModifyFieldCommand)command);
+				}
+				else if(command instanceof DropFieldCommand) {
+					preDropFieldCommand((DropFieldCommand)command);
+					resultContent = generateDropFieldCommand((DropFieldCommand)command);
+					postDropFieldCommand((DropFieldCommand)command);
 				}
 				fileWriter.write(resultContent);
 			}
@@ -69,19 +110,20 @@ public abstract class Generator {
 		}
 	}
 	
-	public void preCreateTableGeneration() {
-		
-	}
+	protected void preCreateTableCommand(CreateTableCommand command) { }
+	protected abstract String generateCreateTableCommand(CreateTableCommand command);
+	protected void postCreateTableCommand(CreateTableCommand command) { }
 	
-	public String generateCreateTable(CreateTableCommand command) {
-		Table table = command.getTable();
-		return null;
-	}
+	protected void preAddFieldCommand(AddFieldCommand command) { }
+	protected abstract String generateAddFieldCommand(AddFieldCommand command);
+	protected void postAddFieldCommand(AddFieldCommand command) { }
 	
-	public void postCreateTableGeneration(CreateTableCommand command) {
-	}
+	protected void preModifyFieldCommand(ModifyFieldCommand command) { }
+	protected abstract String generateModifyFieldCommand(ModifyFieldCommand command);
+	protected void postModifyFieldCommand(ModifyFieldCommand command) { }
 	
-	public String generateAlterTable(Command command) {
-		return null;
-	}
+	protected void preDropFieldCommand(DropFieldCommand command) { }
+	protected abstract String generateDropFieldCommand(DropFieldCommand command);
+	protected void postDropFieldCommand(DropFieldCommand command) { }
+	
 }

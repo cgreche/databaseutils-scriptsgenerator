@@ -38,7 +38,6 @@ import ui.resultingtable.TableFieldTable;
 
 @SuppressWarnings("serial")
 public class ProjectPanel extends JPanel {
-		//
 
 	private JTextField tfScriptHeader;
 	private JPanel panelScripts;
@@ -55,17 +54,120 @@ public class ProjectPanel extends JPanel {
 	private JPanel panelHeader;
 	private JPanel panelData;
 	private JPanel panelResult;
-		JCheckBox cbShowRemovedFields;
+		private JCheckBox cbShowRemovedFields;
 	private JPanel panelFooter;
 	
 	private JLabel lblProjectTitle = new JLabel();
 	private JLabel lblResultingTable;
 	private TableFieldTable tableResultingTable;
 	
-	Project project;
-	List<Script> scriptList;
-	Script currentSelectedScript = null;
-
+	private ActionListener actionSetShowRemovedFields = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			JCheckBox cbShowRemoved = (JCheckBox) e.getSource();
+			tableResultingTable.showRemoved(cbShowRemoved.isSelected());
+		}
+	};
+	
+	private ActionListener actionNewScript = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Script script = new Script();
+			scriptList.add(script);
+			//
+			tableScripts.updateUI();
+		}
+	};
+	
+	private ActionListener actionCreateTableCommand = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			MainWindow.createTableCommandDialog.insertNew(currentSelectedScript);
+			if(MainWindow.createTableCommandDialog.getResult()) {
+				CreateTableCommand command = MainWindow.createTableCommandDialog.getResultData();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					//
+					tableCommands.updateUI();
+				}
+			}
+		}
+	};
+	
+	private ActionListener actionAddFieldCommand = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			MainWindow.addFieldCommandDialog.insertNew(currentSelectedScript);
+			if(MainWindow.addFieldCommandDialog.getResult()) {
+				AddFieldCommand command = MainWindow.addFieldCommandDialog.getResultData();
+				currentSelectedScript.addCommand(command);
+				//
+				tableCommands.updateUI();
+			}
+		}
+	};
+	
+	private ActionListener actionModifyFieldCommand = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			MainWindow.modifyFieldCommandDialog.insertNew(currentSelectedScript);
+			if(MainWindow.modifyFieldCommandDialog.getResult()) {
+				ModifyFieldCommand command = MainWindow.modifyFieldCommandDialog.getResultData();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					//
+					tableCommands.updateUI();
+				}
+			}
+		}
+	};
+	
+	private ActionListener actionRemoveFieldCommand = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			MainWindow.dropFieldCommandDialog.insertNew(currentSelectedScript);
+			if(MainWindow.dropFieldCommandDialog.getResult()) {
+				DropFieldCommand command = MainWindow.dropFieldCommandDialog.getResultData();
+				if(command != null) {
+					currentSelectedScript.addCommand(command);
+					//
+					tableCommands.updateUI();
+				}
+			}
+		}
+	};
+	
+	private ActionListener actionGenerateScripts = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			
+			Project project = MainWindow.projectHandler.getProject();
+			
+			if(project.getScriptsGenerationBasePath() == null) {
+				JOptionPane.showMessageDialog(ProjectPanel.this, "O caminho para geração de scripts não foi definido.\nAbra as propriedades do projeto e defina um caminho.");
+				return;
+			}
+			
+			ProjectHandler handler = new ProjectHandler(project);
+			long errors = handler.validate();
+			if(errors == 0) {
+				handler.generateScripts();
+			}
+			else {
+				String message = "Os scripts não puderam ser gerados:\n";
+				if((errors & Project.ERROR_UNNAMED_SCRIPT) != 0) {
+					message += "-Há scripts sem nome.";
+				}
+				
+				JOptionPane.showMessageDialog(null,message);
+			}
+		}
+	};
+	
+	private Project project;
+	private List<Script> scriptList;
+	private Script currentSelectedScript = null;
+	
 	private void updateCommandList() {
 		if(currentSelectedScript == null)
 			return;
@@ -86,13 +188,7 @@ public class ProjectPanel extends JPanel {
 		
 		cbShowRemovedFields = new JCheckBox("Show removed");
 		cbShowRemovedFields.setAlignmentX(RIGHT_ALIGNMENT);
-		cbShowRemovedFields.addActionListener(new ActionListener() {
-		    @Override
-		    public void actionPerformed(ActionEvent e) {
-		        JCheckBox cbShowRemoved = (JCheckBox) e.getSource();
-		        tableResultingTable.showRemoved(cbShowRemoved.isSelected());
-		    }
-		});
+		cbShowRemovedFields.addActionListener(actionSetShowRemovedFields);
 		
 		lblResultingTable = new JLabel("Tabela resultante");
 		
@@ -104,8 +200,6 @@ public class ProjectPanel extends JPanel {
 			public void focusGained(FocusEvent e) {
 			}
 			
-			// this function successfully provides cell editing stop
-			// on cell losts focus (but another cell doesn't gain focus)
 			public void focusLost(FocusEvent e) {
 				CellEditor cellEditor = tableResultingTable.getCellEditor();
 				if (cellEditor != null) {
@@ -121,20 +215,10 @@ public class ProjectPanel extends JPanel {
 		
 		tfScriptHeader = new JTextField();
 		btnNewScript = new JButton("Novo script");
-		btnNewScript.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Script script = new Script();
-				scriptList.add(script);
-				//
-				tableScripts.updateUI();
-			}
-		});
-		
+		btnNewScript.addActionListener(actionNewScript);
 		
 		tableScripts = new TableScripts();
 		tableScripts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if(!e.getValueIsAdjusting()) {
@@ -145,73 +229,30 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
+		tableScripts.setDeleteAction(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int index = tableScripts.getSelectedRow();
+				System.out.println("" + index);
+				if(index >= 0 && index < scriptList.size()) {
+					scriptList.remove(index);
+					tableScripts.refresh();
+				}
+			}
+		});
 		
 		//Commands Panel
 		btnCreateTableCommand = new JButton("Create Table");
-		btnCreateTableCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				MainWindow.createTableCommandDialog.insertNew(currentSelectedScript);
-				if(MainWindow.createTableCommandDialog.getResult()) {
-					CreateTableCommand command = MainWindow.createTableCommandDialog.getResultData();
-					if(command != null) {
-						currentSelectedScript.addCommand(command);
-						
-						//
-						tableCommands.updateUI();
-					}
-				}
-			}
-		});
+		btnCreateTableCommand.addActionListener(actionCreateTableCommand);
 		
 		btnAddFieldCommand = new JButton("Add field");
-		btnAddFieldCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				MainWindow.addFieldCommandDialog.insertNew(currentSelectedScript);
-				if(MainWindow.addFieldCommandDialog.getResult()) {
-					AddFieldCommand command = MainWindow.addFieldCommandDialog.getResultData();
-					currentSelectedScript.addCommand(command);
-					
-					//
-					tableCommands.updateUI();
-				}
-			}
-		});
+		btnAddFieldCommand.addActionListener(actionAddFieldCommand);
 		
 		btnModifyFieldCommand = new JButton("Modify field");
-		btnModifyFieldCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				MainWindow.modifyFieldCommandDialog.insertNew(currentSelectedScript);
-				if(MainWindow.modifyFieldCommandDialog.getResult()) {
-					ModifyFieldCommand command = MainWindow.modifyFieldCommandDialog.getResultData();
-					if(command != null) {
-						currentSelectedScript.addCommand(command);
-						
-						//
-						tableCommands.updateUI();
-					}
-				}
-			}
-		});
+		btnModifyFieldCommand.addActionListener(actionModifyFieldCommand);
 		
 		btnDropFieldCommand = new JButton("Remove field");
-		btnDropFieldCommand.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				MainWindow.dropFieldCommandDialog.insertNew(currentSelectedScript);
-				if(MainWindow.dropFieldCommandDialog.getResult()) {
-					DropFieldCommand command = MainWindow.dropFieldCommandDialog.getResultData();
-					if(command != null) {
-						currentSelectedScript.addCommand(command);
-						
-						//
-						tableCommands.updateUI();
-					}
-				}
-			}
-		});
+		btnDropFieldCommand.addActionListener(actionRemoveFieldCommand);
 		
 		tableCommands = new TableCommands();
 		tableCommands.addMouseListener(new MouseAdapter() {
@@ -226,36 +267,45 @@ public class ProjectPanel extends JPanel {
 					
 					boolean result = false;
 					Dialog<?> dialog = null;
-					
-					if(command instanceof CreateTableCommand) {
-						MainWindow.createTableCommandDialog.edit((CreateTableCommand)command);
-						dialog = MainWindow.createTableCommandDialog;
-					}
-					else if(command instanceof AddFieldCommand) {
-						MainWindow.addFieldCommandDialog.edit((AddFieldCommand)command);
-						dialog = MainWindow.addFieldCommandDialog;
-					}
-					else if(command instanceof ModifyFieldCommand) {
-						MainWindow.modifyFieldCommandDialog.edit((ModifyFieldCommand)command);
-						dialog = MainWindow.modifyFieldCommandDialog;
-					}
-					else if(command instanceof DropFieldCommand) {
-						MainWindow.dropFieldCommandDialog.edit((DropFieldCommand)command);
-						dialog = MainWindow.dropFieldCommandDialog;
-					}
-					else {
-						return;
-					}
-					
-					result = dialog.getResult();
-					if(result) {
-						Command resultCommand = (Command)dialog.getResultData();
-						currentSelectedScript.getCommands().set(index, resultCommand);
+					boolean validCommand;
+					do {
+						if(command instanceof CreateTableCommand) {
+							MainWindow.createTableCommandDialog.edit((CreateTableCommand)command);
+							dialog = MainWindow.createTableCommandDialog;
+						}
+						else if(command instanceof AddFieldCommand) {
+							MainWindow.addFieldCommandDialog.edit((AddFieldCommand)command);
+							dialog = MainWindow.addFieldCommandDialog;
+						}
+						else if(command instanceof ModifyFieldCommand) {
+							MainWindow.modifyFieldCommandDialog.edit((ModifyFieldCommand)command);
+							dialog = MainWindow.modifyFieldCommandDialog;
+						}
+						else if(command instanceof DropFieldCommand) {
+							MainWindow.dropFieldCommandDialog.edit((DropFieldCommand)command);
+							dialog = MainWindow.dropFieldCommandDialog;
+						}
+						else {
+							return;
+						}
 						
-						//update UI
-						tableCommands.updateUI();
-						updateColumnTable();
-					}
+						validCommand = true;
+						result = dialog.getResult();
+						if(result) {
+							Command resultCommand = (Command)dialog.getResultData();
+							currentSelectedScript.getCommands().set(index, resultCommand);
+							validCommand = currentSelectedScript.validate();
+							if(validCommand) {
+								tableCommands.updateUI();
+								updateColumnTable();
+							}
+							else {
+								JOptionPane.showMessageDialog(ProjectPanel.this, "O comando não pode ser modificado, pois há comandos posteriores dependentes do mesmo.\nVerifique o conteúdo do comando atual ou altere os comandos dependentes para execução deste procedimento.");
+							}
+							//update UI
+
+						}
+					} while(!validCommand);
 				}
 			}
 
@@ -270,32 +320,7 @@ public class ProjectPanel extends JPanel {
 		
 		//
 		JButton buttonGenerate = new JButton("Gerar scripts");
-		buttonGenerate.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				Project project = MainWindow.projectHandler.getProject();
-				
-				if(project.getScriptsGenerationBasePath() == null) {
-					//todo(cesar.reche): error message
-					return;
-				}
-				
-				ProjectHandler handler = new ProjectHandler(project);
-				long errors = handler.validate();
-				if(errors == 0) {
-					handler.generateScripts();
-				}
-				else {
-					String message = "Os scripts não puderam ser gerados:\n";
-					if((errors & Project.ERROR_UNNAMED_SCRIPT) != 0) {
-						message += "-Há scripts sem nome.";
-					}
-					
-					JOptionPane.showMessageDialog(null,message);
-				}
-			}
-		});
+		buttonGenerate.addActionListener(actionGenerateScripts);
 		
 		panelHeader = new JPanel();
 		panelHeader.add(lblProjectTitle);
