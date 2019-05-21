@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.CellEditor;
 import javax.swing.DefaultListSelectionModel;
@@ -20,6 +21,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -181,19 +183,19 @@ public class ProjectPanel extends JPanel {
 		tableResultingTable.setData(currentSelectedScript);
 	}
 	
-
-	
 	public ProjectPanel() {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-		cbShowRemovedFields = new JCheckBox("Show removed");
-		cbShowRemovedFields.setAlignmentX(RIGHT_ALIGNMENT);
-		cbShowRemovedFields.addActionListener(actionSetShowRemovedFields);
-		
 		lblResultingTable = new JLabel("Tabela resultante");
-		
+		cbShowRemovedFields = new JCheckBox("Show removed");
+		cbShowRemovedFields.addActionListener(actionSetShowRemovedFields);
+
+		Box resultingTableTitleBox = Box.createHorizontalBox();
+		resultingTableTitleBox.add(lblResultingTable);
+		resultingTableTitleBox.add(Box.createHorizontalGlue());
+		resultingTableTitleBox.add(cbShowRemovedFields);
+
 		tableResultingTable = new TableFieldTable();
-		tableResultingTable.setAlignmentX(RIGHT_ALIGNMENT);
 		tableResultingTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		tableResultingTable.setFillsViewportHeight(true);
 		tableResultingTable.addFocusListener(new FocusListener() {
@@ -348,7 +350,7 @@ public class ProjectPanel extends JPanel {
 		gbc.gridx = 0;
 		gbc.gridy = 1;
 		gbc.weightx = 1;
-		gbc.weighty = 1;
+		gbc.weighty = 0;
 		//gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		panelScripts.add(new JScrollPane(tableScripts),gbc);
@@ -356,27 +358,43 @@ public class ProjectPanel extends JPanel {
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		gbc.weightx = 1;
-		gbc.weighty = 1;
+		gbc.weighty = 0;
 		//gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
 		panelScripts.add(new JScrollPane(tableCommands),gbc);
-		
-		panelData = new JPanel();
-		panelData.setLayout(new BoxLayout(panelData, BoxLayout.Y_AXIS));
-		panelData.add(panelScripts);
-		
+
 		panelResult = new JPanel();
 		panelResult.setLayout(new BoxLayout(panelResult, BoxLayout.Y_AXIS));
-		panelResult.add(cbShowRemovedFields);
-		panelResult.add(lblResultingTable);
+		panelResult.add(resultingTableTitleBox);
 		panelResult.add(new JScrollPane(tableResultingTable));
-		panelData.add(panelResult);
+/*
+		panelData = new JPanel();
+		panelData.setLayout(new GridBagLayout());
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1;
+		gbc.weighty = 0.5;
+		gbc.fill = GridBagConstraints.BOTH;
+		panelData.add(panelScripts, gbc);
+*/
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.gridwidth = 2;
+		gbc.gridheight = 1;
+		gbc.weightx = 1;
+		gbc.weighty = 0;
+		gbc.fill = GridBagConstraints.BOTH;
+		panelScripts.add(panelResult, gbc);
 		
 		panelFooter = new JPanel();
 		panelFooter.add(buttonGenerate);
 		
 		add(panelHeader);
-		add(panelData);
+		add(new JSeparator());
+		Box testBox = Box.createVerticalBox();
+		testBox.add(panelScripts);
+		add(testBox);
+		add(new JSeparator());
 		add(panelFooter);
 	}
 	

@@ -12,6 +12,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
+import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import structs.Project;
@@ -226,6 +227,7 @@ public class MainWindow extends JFrame {
 		this.add(statusBar,BorderLayout.PAGE_END);
 		this.setSize(1024, 768);
 		
+		panelProject.setBorder(new EmptyBorder(10, 10, 10, 10));
 		panelProject.setVisible(false);
 	}
 	
