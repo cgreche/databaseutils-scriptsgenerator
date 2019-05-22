@@ -1,19 +1,18 @@
 package ui.frames;
-
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.CellEditor;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -22,7 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -38,31 +37,23 @@ import ui.TableCommands;
 import ui.TableScripts;
 import ui.resultingtable.TableFieldTable;
 
-@SuppressWarnings("serial")
+/**
+ * Painel de construção/edição do projeto
+ * @author cesar.reche
+ *
+ */
 public class ProjectPanel extends JPanel {
-
-	private JTextField tfScriptHeader;
-	private JPanel panelScripts;
-	private JButton btnNewScript;
+	private JLabel lblProjectName;
 	private TableScripts tableScripts;
-	
-	private JPanel panelCommandActionButtons;
-		private JButton btnCreateTableCommand;
-		private JButton btnAddFieldCommand;
-		private JButton btnModifyFieldCommand;
-		private JButton btnDropFieldCommand;
 	private TableCommands tableCommands;
-	
-	private JPanel panelHeader;
-	private JPanel panelData;
-	private JPanel panelResult;
-		private JCheckBox cbShowRemovedFields;
-	private JPanel panelFooter;
-	
-	private JLabel lblProjectTitle = new JLabel();
-	private JLabel lblResultingTable;
 	private TableFieldTable tableResultingTable;
 	
+	private Font defaultTitleFont;
+
+	private Project project;
+	private List<Script> scriptList;
+	private Script currentSelectedScript = null;
+
 	private ActionListener actionSetShowRemovedFields = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -124,7 +115,7 @@ public class ProjectPanel extends JPanel {
 		}
 	};
 	
-	private ActionListener actionRemoveFieldCommand = new ActionListener() {
+	private ActionListener actionDropFieldCommand = new ActionListener() {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			MainWindow.dropFieldCommandDialog.insertNew(currentSelectedScript);
@@ -166,10 +157,6 @@ public class ProjectPanel extends JPanel {
 		}
 	};
 	
-	private Project project;
-	private List<Script> scriptList;
-	private Script currentSelectedScript = null;
-	
 	private void updateCommandList() {
 		if(currentSelectedScript == null)
 			return;
@@ -184,40 +171,105 @@ public class ProjectPanel extends JPanel {
 	}
 	
 	public ProjectPanel() {
-		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
-		lblResultingTable = new JLabel("Tabela resultante");
-		cbShowRemovedFields = new JCheckBox("Show removed");
-		cbShowRemovedFields.addActionListener(actionSetShowRemovedFields);
-
-		Box resultingTableTitleBox = Box.createHorizontalBox();
-		resultingTableTitleBox.add(lblResultingTable);
-		resultingTableTitleBox.add(Box.createHorizontalGlue());
-		resultingTableTitleBox.add(cbShowRemovedFields);
-
-		tableResultingTable = new TableFieldTable();
-		tableResultingTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
-		tableResultingTable.setFillsViewportHeight(true);
-		tableResultingTable.addFocusListener(new FocusListener() {
-			public void focusGained(FocusEvent e) {
-			}
-			
-			public void focusLost(FocusEvent e) {
-				CellEditor cellEditor = tableResultingTable.getCellEditor();
-				if (cellEditor != null) {
-					if (cellEditor.getCellEditorValue() != null)
-						cellEditor.stopCellEditing();
-					else
-						cellEditor.cancelCellEditing();
-				}
-				
-				//currentSelectedTable.setFields(table.getData());
-			}
-		});
+		defaultTitleFont = new Font("Tahoma", Font.BOLD, 11);
 		
-		tfScriptHeader = new JTextField();
-		btnNewScript = new JButton("Novo script");
+		setAlignmentY(Component.TOP_ALIGNMENT);
+		setAlignmentX(Component.LEFT_ALIGNMENT);
+		setBorder(new EmptyBorder(10, 10, 10, 10));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		JPanel panelHeader = new JPanel();
+		panelHeader.setAlignmentX(Component.LEFT_ALIGNMENT);
+		add(panelHeader);
+		
+		lblProjectName = new JLabel("PROJECT NAME");
+		lblProjectName.setFont(defaultTitleFont);
+		panelHeader.add(lblProjectName);
+		
+		Component rigidArea_2 = Box.createRigidArea(new Dimension(5, 5));
+		add(rigidArea_2);
+		
+		JSeparator separator_1 = new JSeparator();
+		add(separator_1);
+		
+		Component rigidArea_3 = Box.createRigidArea(new Dimension(5, 5));
+		add(rigidArea_3);
+		
+		JPanel panelData = new JPanel();
+		add(panelData);
+		panelData.setLayout(new BoxLayout(panelData, BoxLayout.Y_AXIS));
+		
+		JPanel panelScripts = new JPanel();
+		panelScripts.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panelData.add(panelScripts);
+		GridBagLayout gbl_panelScripts = new GridBagLayout();
+		gbl_panelScripts.columnWidths = new int[]{0, 0, 0};
+		gbl_panelScripts.rowHeights = new int[]{0, 0, 0, 0};
+		gbl_panelScripts.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelScripts.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panelScripts.setLayout(gbl_panelScripts);
+		
+		JLabel lblCommandsTitle = new JLabel("Comandos");
+		lblCommandsTitle.setFont(defaultTitleFont);
+		GridBagConstraints gbc_lblCommandsTitle = new GridBagConstraints();
+		gbc_lblCommandsTitle.anchor = GridBagConstraints.LINE_START;
+		gbc_lblCommandsTitle.insets = new Insets(0, 0, 5, 0);
+		gbc_lblCommandsTitle.gridx = 1;
+		gbc_lblCommandsTitle.gridy = 0;
+		panelScripts.add(lblCommandsTitle, gbc_lblCommandsTitle);
+		
+		JPanel panelScriptActions = new JPanel();
+		GridBagConstraints gbc_panelScriptActions = new GridBagConstraints();
+		gbc_panelScriptActions.insets = new Insets(0, 0, 5, 5);
+		gbc_panelScriptActions.anchor = GridBagConstraints.LINE_START;
+		gbc_panelScriptActions.weightx = 1.0;
+		gbc_panelScriptActions.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panelScriptActions.gridx = 0;
+		gbc_panelScriptActions.gridy = 1;
+		panelScripts.add(panelScriptActions, gbc_panelScriptActions);
+		panelScriptActions.setLayout(new BoxLayout(panelScriptActions, BoxLayout.X_AXIS));
+		
+		JButton btnNewScript = new JButton("Novo script");
 		btnNewScript.addActionListener(actionNewScript);
+		panelScriptActions.add(btnNewScript);
+		
+		JPanel panelCommandActions = new JPanel();
+		GridBagConstraints gbc_panelCommandActions = new GridBagConstraints();
+		gbc_panelCommandActions.insets = new Insets(0, 0, 5, 0);
+		gbc_panelCommandActions.anchor = GridBagConstraints.LINE_START;
+		gbc_panelCommandActions.weightx = 1.0;
+		gbc_panelCommandActions.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panelCommandActions.gridx = 1;
+		gbc_panelCommandActions.gridy = 1;
+		panelScripts.add(panelCommandActions, gbc_panelCommandActions);
+		panelCommandActions.setLayout(new BoxLayout(panelCommandActions, BoxLayout.X_AXIS));
+		
+		JButton buttonCreateTableCommand = new JButton("Create table");
+		buttonCreateTableCommand.addActionListener(actionCreateTableCommand);
+		panelCommandActions.add(buttonCreateTableCommand);
+		
+		JButton buttonAddFieldCommand = new JButton("Add field");
+		buttonAddFieldCommand.addActionListener(actionAddFieldCommand);
+		panelCommandActions.add(buttonAddFieldCommand);
+		
+		JButton buttonModifyFieldCommand = new JButton("Modify field");
+		buttonAddFieldCommand.addActionListener(actionModifyFieldCommand);
+		panelCommandActions.add(buttonModifyFieldCommand);
+		
+		JButton buttonDropFieldCommand = new JButton("Drop field");
+		buttonDropFieldCommand.addActionListener(actionDropFieldCommand);
+		panelCommandActions.add(buttonDropFieldCommand);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
+		gbc_scrollPane_1.weightx = 1.0;
+		gbc_scrollPane_1.weighty = 1.0;
+		gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_1.insets = new Insets(0, 0, 0, 5);
+		gbc_scrollPane_1.gridx = 0;
+		gbc_scrollPane_1.gridy = 2;
+		panelScripts.add(scrollPane_1, gbc_scrollPane_1);
 		
 		tableScripts = new TableScripts();
 		tableScripts.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -242,19 +294,16 @@ public class ProjectPanel extends JPanel {
 				}
 			}
 		});
+		scrollPane_1.setViewportView(tableScripts);
 		
-		//Commands Panel
-		btnCreateTableCommand = new JButton("Create Table");
-		btnCreateTableCommand.addActionListener(actionCreateTableCommand);
-		
-		btnAddFieldCommand = new JButton("Add field");
-		btnAddFieldCommand.addActionListener(actionAddFieldCommand);
-		
-		btnModifyFieldCommand = new JButton("Modify field");
-		btnModifyFieldCommand.addActionListener(actionModifyFieldCommand);
-		
-		btnDropFieldCommand = new JButton("Remove field");
-		btnDropFieldCommand.addActionListener(actionRemoveFieldCommand);
+		JScrollPane scrollPane_2 = new JScrollPane();
+		GridBagConstraints gbc_scrollPane_2 = new GridBagConstraints();
+		gbc_scrollPane_2.weighty = 1.0;
+		gbc_scrollPane_2.weightx = 1.0;
+		gbc_scrollPane_2.fill = GridBagConstraints.BOTH;
+		gbc_scrollPane_2.gridx = 1;
+		gbc_scrollPane_2.gridy = 2;
+		panelScripts.add(scrollPane_2, gbc_scrollPane_2);
 		
 		tableCommands = new TableCommands();
 		tableCommands.addMouseListener(new MouseAdapter() {
@@ -310,96 +359,83 @@ public class ProjectPanel extends JPanel {
 					} while(!validCommand);
 				}
 			}
-
 		});
-
-		panelCommandActionButtons = new JPanel();
-		panelCommandActionButtons.setLayout(new BoxLayout(panelCommandActionButtons, BoxLayout.X_AXIS));
-		panelCommandActionButtons.add(btnCreateTableCommand);
-		panelCommandActionButtons.add(btnAddFieldCommand);
-		panelCommandActionButtons.add(btnModifyFieldCommand);
-		panelCommandActionButtons.add(btnDropFieldCommand);
+		scrollPane_2.setViewportView(tableCommands);
 		
-		//
-		JButton buttonGenerate = new JButton("Gerar scripts");
-		buttonGenerate.addActionListener(actionGenerateScripts);
+		JLabel lblScriptsTitle = new JLabel("Scripts");
+		lblScriptsTitle.setFont(defaultTitleFont);
+		GridBagConstraints gbc_lblScriptsTitle = new GridBagConstraints();
+		gbc_lblScriptsTitle.anchor = GridBagConstraints.LINE_START;
+		gbc_lblScriptsTitle.insets = new Insets(0, 0, 5, 5);
+		gbc_lblScriptsTitle.gridx = 0;
+		gbc_lblScriptsTitle.gridy = 0;
+		panelScripts.add(lblScriptsTitle, gbc_lblScriptsTitle);
 		
-		panelHeader = new JPanel();
-		panelHeader.add(lblProjectTitle);
+		Component rigidArea = Box.createRigidArea(new Dimension(5, 5));
+		panelData.add(rigidArea);
 		
-		panelScripts = new JPanel();
-		panelScripts.setLayout(new GridBagLayout());
+		JSeparator separator = new JSeparator();
+		panelData.add(separator);
 		
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1;
-		gbc.weighty = 0;
-		gbc.anchor = GridBagConstraints.LINE_START;
-		gbc.fill = GridBagConstraints.NONE;
-		panelScripts.add(btnNewScript,gbc);
-
-		gbc.gridx = 1;
-		gbc.gridy = 0;
-		gbc.weightx = 1;
-		gbc.weighty = 0;
-		//gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.NONE;
-		panelScripts.add(panelCommandActionButtons,gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.weightx = 1;
-		gbc.weighty = 0;
-		//gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.BOTH;
-		panelScripts.add(new JScrollPane(tableScripts),gbc);
+		Component rigidArea_1 = Box.createRigidArea(new Dimension(5, 5));
+		panelData.add(rigidArea_1);
 		
-		gbc.gridx = 1;
-		gbc.gridy = 1;
-		gbc.weightx = 1;
-		gbc.weighty = 0;
-		//gbc.anchor = GridBagConstraints.CENTER;
-		gbc.fill = GridBagConstraints.BOTH;
-		panelScripts.add(new JScrollPane(tableCommands),gbc);
-
-		panelResult = new JPanel();
-		panelResult.setLayout(new BoxLayout(panelResult, BoxLayout.Y_AXIS));
-		panelResult.add(resultingTableTitleBox);
-		panelResult.add(new JScrollPane(tableResultingTable));
-/*
-		panelData = new JPanel();
-		panelData.setLayout(new GridBagLayout());
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1;
-		gbc.weighty = 0.5;
-		gbc.fill = GridBagConstraints.BOTH;
-		panelData.add(panelScripts, gbc);
-*/
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.gridwidth = 2;
-		gbc.gridheight = 1;
-		gbc.weightx = 1;
-		gbc.weighty = 0;
-		gbc.fill = GridBagConstraints.BOTH;
-		panelScripts.add(panelResult, gbc);
+		JPanel panelResultingTable = new JPanel();
+		panelResultingTable.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panelData.add(panelResultingTable);
+		panelResultingTable.setLayout(new BoxLayout(panelResultingTable, BoxLayout.Y_AXIS));
 		
-		panelFooter = new JPanel();
-		panelFooter.add(buttonGenerate);
+		JPanel panelResultingTableTitle = new JPanel();
+		panelResultingTableTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panelResultingTable.add(panelResultingTableTitle);
+		panelResultingTableTitle.setLayout(new BoxLayout(panelResultingTableTitle, BoxLayout.X_AXIS));
 		
-		add(panelHeader);
-		add(new JSeparator());
-		Box testBox = Box.createVerticalBox();
-		testBox.add(panelScripts);
-		add(testBox);
-		add(new JSeparator());
+		JLabel lblResultingTableTitle = new JLabel("Tabela resultante");
+		panelResultingTableTitle.add(lblResultingTableTitle);
+		lblResultingTableTitle.setFont(defaultTitleFont);
+		lblResultingTableTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+		
+		Component horizontalGlue_1 = Box.createHorizontalGlue();
+		panelResultingTableTitle.add(horizontalGlue_1);
+		
+		JCheckBox cbShowRemovedFields = new JCheckBox("Mostrar fields removidos");
+		cbShowRemovedFields.addActionListener(actionSetShowRemovedFields);
+		panelResultingTableTitle.add(cbShowRemovedFields);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		panelResultingTable.add(scrollPane);
+		scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		tableResultingTable = new TableFieldTable();
+		scrollPane.setViewportView(tableResultingTable);
+		
+		Component rigidArea_4 = Box.createRigidArea(new Dimension(5, 5));
+		add(rigidArea_4);
+		
+		JSeparator separator_2 = new JSeparator();
+		add(separator_2);
+		
+		Component rigidArea_5 = Box.createRigidArea(new Dimension(5, 5));
+		add(rigidArea_5);
+		
+		JPanel panelFooter = new JPanel();
+		panelFooter.setAlignmentX(Component.LEFT_ALIGNMENT);
 		add(panelFooter);
+		panelFooter.setLayout(new BoxLayout(panelFooter, BoxLayout.X_AXIS));
+		
+		Component horizontalGlue = Box.createHorizontalGlue();
+		panelFooter.add(horizontalGlue);
+		
+		JButton btnGenerateScripts = new JButton("Gerar scripts");
+		btnGenerateScripts.addActionListener(actionGenerateScripts);
+		panelFooter.add(btnGenerateScripts);
+		
+		Component horizontalGlue_2 = Box.createHorizontalGlue();
+		panelFooter.add(horizontalGlue_2);
 	}
-	
+
 	private void updateControls() {
-		lblProjectTitle.setText(MainWindow.projectHandler.getProject().getName());
+		lblProjectName.setText(MainWindow.projectHandler.getProject().getName());
 		tableScripts.setData(MainWindow.projectHandler.getProject().getScripts());
 		tableCommands.setData(currentSelectedScript != null ? currentSelectedScript.getCommands() : null);
 	}

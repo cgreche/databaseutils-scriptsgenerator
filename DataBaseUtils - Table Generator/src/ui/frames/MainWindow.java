@@ -38,10 +38,10 @@ public class MainWindow extends JFrame {
 	
 	public ProjectSettingsDialog projectSettingsDialog;
 	
-	static CreateTableCommandDialog createTableCommandDialog;
-	static AddFieldCommandDialog addFieldCommandDialog;
-	static MofidyFieldCommandDialog modifyFieldCommandDialog;
-	static DropFieldCommandDialog dropFieldCommandDialog;
+	public static CreateTableCommandDialog createTableCommandDialog;
+	public static AddFieldCommandDialog addFieldCommandDialog;
+	public static MofidyFieldCommandDialog modifyFieldCommandDialog;
+	public static DropFieldCommandDialog dropFieldCommandDialog;
 	
 	private ProjectPanel panelProject;
 	

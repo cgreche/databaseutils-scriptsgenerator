@@ -31,6 +31,7 @@ public abstract class Generator {
 	
 	public Generator(Project project) {
 		this.project = project;
+		setDefaultHeaderMessage(project.getDefaultScriptsHeaderMessage());
 	}
 	
 	public void generate(String basePath) {
@@ -46,7 +47,7 @@ public abstract class Generator {
 	}
 	
 	private void generateScript(Script script) {
-		List<Command> commands = script.getCommands();
+ 		List<Command> commands = script.getCommands();
 		if(commands == null || commands.isEmpty())
 			return;
 		
@@ -69,16 +70,18 @@ public abstract class Generator {
 		if(headerMessage == null)
 			headerMessage = defaultHeaderMessage;
 		if(headerMessage != null) {
-			headerMessage.replace("%projectName%", projectName);
-			headerMessage.replace("%scriptName%", scriptName);
+			headerMessage = headerMessage.replace("%projectName%", projectName);
+			headerMessage = headerMessage.replace("%scriptName%", scriptName);
 		}
 		
 		String outputFileNameTab = scriptBasePath + "/" + scriptName + ".tab";
 		FileWriter fileWriter;
 		try {
 			fileWriter = new FileWriter(outputFileNameTab);
-			if(headerMessage != null)
+			if(headerMessage != null) {
 				fileWriter.write(headerMessage);
+				fileWriter.append("\n");
+			}
 			for(Command command : commands) {
 				String resultContent = "";
 				if(command instanceof CreateTableCommand) {
