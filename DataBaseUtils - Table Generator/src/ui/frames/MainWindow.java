@@ -134,7 +134,7 @@ public class MainWindow extends JFrame {
 			
 			Project project = projectHandler.getProject();
 			if(project == null) {
-				JOptionPane.showMessageDialog(MainWindow.this, "Não há projeto aberto");
+				JOptionPane.showMessageDialog(MainWindow.this, "Nï¿½o hï¿½ projeto aberto");
 				return;
 			}
 			
@@ -153,7 +153,7 @@ public class MainWindow extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			if(projectHandler != null) {
 				if(projectHandler.getProjectState() != ProjectHandler.ProjectState.MODIFIED_SAVED) {
-					String message = "As últimas alterações do projeto não foram salvas.\nDeseja salvar o projeto antes de sair?";
+					String message = "As ï¿½ltimas alteraï¿½ï¿½es do projeto nï¿½o foram salvas.\nDeseja salvar o projeto antes de sair?";
 					int result = JOptionPane.showConfirmDialog(MainWindow.this, message, null, JOptionPane.YES_NO_OPTION);
 					if(result == JOptionPane.YES_OPTION){
 						final JFileChooser fc = new JFileChooser();
@@ -234,10 +234,10 @@ public class MainWindow extends JFrame {
 	public void viewProject(Project project) {
 		panelProject.setProject(project);
 		panelProject.setVisible(true);
-		setStatuText("Projeto carregado." + " Número de scripts: " + project.getScripts().size());
+		setStatuText("Projeto carregado." + " Nï¿½mero de scripts: " + project.getScripts().size());
 	}
 	
-	void setStatuText(String text) {
+	public void setStatuText(String text) {
 		statusBar.setText(text);
 	}
 }
