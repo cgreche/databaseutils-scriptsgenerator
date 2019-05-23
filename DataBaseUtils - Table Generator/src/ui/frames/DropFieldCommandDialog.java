@@ -16,6 +16,16 @@ import structs.DropFieldCommand;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
+import java.awt.Component;
+import javax.swing.JPanel;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.awt.Font;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JSeparator;
+import javax.swing.Box;
+import java.awt.Dimension;
 
 //16-04-2019
 
@@ -23,7 +33,7 @@ import structs.TableField;
 public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 	private JLabel lblField;
 	private JComboBox<TableField> ddField;
-	private JButton buttonSave;
+	private JButton btnSave;
 	
 	//
 	boolean editMode;
@@ -31,9 +41,17 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 
 	private Script parentScript;
 	private Table currentTable;
+	private JPanel panelActions;
+	private JPanel panel;
+	private JSeparator separator;
+	private Component rigidArea;
+	private Component rigidArea_1;
+	private Component horizontalGlue;
+	private Component horizontalGlue_1;
 	
 	public DropFieldCommandDialog(JFrame parent) {
 		super(parent);
+		setTitle("Comando DropField");
 		
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -43,12 +61,48 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 			}
 		});
 		
-		lblField = new JLabel("Campo");
-		ddField = new JComboBox<TableField>();
-		this.setLayout(new BoxLayout(this.getContentPane(),BoxLayout.Y_AXIS));
+		panel = new JPanel();
+		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
-		buttonSave = new JButton("Salvar");
-		buttonSave.addActionListener(new ActionListener() {
+		lblField = new JLabel("Campo");
+		lblField.setFont(new Font("Tahoma", Font.BOLD, 11));
+		panel.add(lblField);
+		ddField = new JComboBox<TableField>();
+		ddField.setMaximumSize(new Dimension(32767, 20));
+		panel.add(ddField);
+		ddField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		
+		rigidArea = Box.createRigidArea(new Dimension(20, 20));
+		rigidArea.setPreferredSize(new Dimension(5, 5));
+		rigidArea.setMinimumSize(new Dimension(5, 5));
+		rigidArea.setMaximumSize(new Dimension(5, 5));
+		panel.add(rigidArea);
+		
+		separator = new JSeparator();
+		separator.setMaximumSize(new Dimension(32767, 2));
+		panel.add(separator);
+		
+		rigidArea_1 = Box.createRigidArea(new Dimension(20, 20));
+		rigidArea_1.setPreferredSize(new Dimension(5, 5));
+		rigidArea_1.setMinimumSize(new Dimension(5, 5));
+		rigidArea_1.setMaximumSize(new Dimension(5, 5));
+		panel.add(rigidArea_1);
+		
+		panelActions = new JPanel();
+		panel.add(panelActions);
+		panelActions.setAlignmentX(Component.LEFT_ALIGNMENT);
+		panelActions.setLayout(new BoxLayout(panelActions, BoxLayout.X_AXIS));
+		
+		horizontalGlue = Box.createHorizontalGlue();
+		panelActions.add(horizontalGlue);
+		
+		btnSave = new JButton("Salvar");
+		panelActions.add(btnSave);
+		
+		horizontalGlue_1 = Box.createHorizontalGlue();
+		panelActions.add(horizontalGlue_1);
+		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				currentCommand.setField((TableField)ddField.getSelectedItem());
@@ -57,10 +111,8 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 			}
 		});
 		
-		add(lblField);
-		add(ddField);
-		add(buttonSave);
-		this.pack();
+		this.setContentPane(panel);
+		this.setSize(new Dimension(350, 134));
 	}
 	
 	public void updateControls() {

@@ -115,7 +115,15 @@ public class Script {
 		}
 		return true;
 	}
-
+	
+	public boolean hasCreateTableCommand() {
+		for(Command command : commands) {
+			if(command instanceof CreateTableCommand) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public String getName() {
 		return name;

@@ -85,6 +85,9 @@ public class TableField implements Cloneable {
 	
 	@Override
 	public String toString() {
-		return name + " (" + size + ")";
+		String result = name;
+		if(size != null && !"".equals(size))
+			result += " (" + size + ")";
+		return result;
 	}
 }

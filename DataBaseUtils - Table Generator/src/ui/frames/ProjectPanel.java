@@ -38,13 +38,18 @@ import ui.TableScripts;
 import ui.resultingtable.TableFieldTable;
 
 /**
- * Painel de construção/edição do projeto
+ * Painel de construï¿½ï¿½o/ediï¿½ï¿½o do projeto
  * @author cesar.reche
  *
  */
 public class ProjectPanel extends JPanel {
 	private JLabel lblProjectName;
 	private TableScripts tableScripts;
+	
+	private JButton btnCreateTableCommand;
+	private JButton btnAddFieldCommand;
+	private JButton btnModifyFieldCommand;
+	private JButton btnDropFieldCommand;
 	private TableCommands tableCommands;
 	private TableFieldTable tableResultingTable;
 	
@@ -68,7 +73,6 @@ public class ProjectPanel extends JPanel {
 			Script script = new Script();
 			scriptList.add(script);
 			//
-			tableScripts.updateUI();
 		}
 	};
 	
@@ -125,6 +129,7 @@ public class ProjectPanel extends JPanel {
 					currentSelectedScript.addCommand(command);
 					//
 					tableCommands.updateUI();
+					updateControls();
 				}
 			}
 		}
@@ -137,7 +142,7 @@ public class ProjectPanel extends JPanel {
 			Project project = MainWindow.projectHandler.getProject();
 			
 			if(project.getScriptsGenerationBasePath() == null) {
-				JOptionPane.showMessageDialog(ProjectPanel.this, "O caminho para geração de scripts não foi definido.\nAbra as propriedades do projeto e defina um caminho.");
+				JOptionPane.showMessageDialog(ProjectPanel.this, "O caminho para geraï¿½ï¿½o de scripts nï¿½o foi definido.\nAbra as propriedades do projeto e defina um caminho.");
 				return;
 			}
 			
@@ -147,9 +152,9 @@ public class ProjectPanel extends JPanel {
 				handler.generateScripts();
 			}
 			else {
-				String message = "Os scripts não puderam ser gerados:\n";
+				String message = "Os scripts nï¿½o puderam ser gerados:\n";
 				if((errors & Project.ERROR_UNNAMED_SCRIPT) != 0) {
-					message += "-Há scripts sem nome.";
+					message += "-Hï¿½ scripts sem nome.";
 				}
 				
 				JOptionPane.showMessageDialog(null,message);
@@ -245,21 +250,21 @@ public class ProjectPanel extends JPanel {
 		panelScripts.add(panelCommandActions, gbc_panelCommandActions);
 		panelCommandActions.setLayout(new BoxLayout(panelCommandActions, BoxLayout.X_AXIS));
 		
-		JButton buttonCreateTableCommand = new JButton("Create table");
-		buttonCreateTableCommand.addActionListener(actionCreateTableCommand);
-		panelCommandActions.add(buttonCreateTableCommand);
+		btnCreateTableCommand = new JButton("Create table");
+		btnCreateTableCommand.addActionListener(actionCreateTableCommand);
+		panelCommandActions.add(btnCreateTableCommand);
 		
-		JButton buttonAddFieldCommand = new JButton("Add field");
-		buttonAddFieldCommand.addActionListener(actionAddFieldCommand);
-		panelCommandActions.add(buttonAddFieldCommand);
+		btnAddFieldCommand = new JButton("Add field");
+		btnAddFieldCommand.addActionListener(actionAddFieldCommand);
+		panelCommandActions.add(btnAddFieldCommand);
 		
-		JButton buttonModifyFieldCommand = new JButton("Modify field");
-		buttonAddFieldCommand.addActionListener(actionModifyFieldCommand);
-		panelCommandActions.add(buttonModifyFieldCommand);
+		btnModifyFieldCommand = new JButton("Modify field");
+		btnModifyFieldCommand.addActionListener(actionModifyFieldCommand);
+		panelCommandActions.add(btnModifyFieldCommand);
 		
-		JButton buttonDropFieldCommand = new JButton("Drop field");
-		buttonDropFieldCommand.addActionListener(actionDropFieldCommand);
-		panelCommandActions.add(buttonDropFieldCommand);
+		btnDropFieldCommand = new JButton("Drop field");
+		btnDropFieldCommand.addActionListener(actionDropFieldCommand);
+		panelCommandActions.add(btnDropFieldCommand);
 		
 		JScrollPane scrollPane_1 = new JScrollPane();
 		GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
@@ -289,6 +294,9 @@ public class ProjectPanel extends JPanel {
 				int index = tableScripts.getSelectedRow();
 				System.out.println("" + index);
 				if(index >= 0 && index < scriptList.size()) {
+					if(scriptList.get(index) == currentSelectedScript) {
+						currentSelectedScript = null;
+					}
 					scriptList.remove(index);
 					tableScripts.refresh();
 				}
@@ -351,7 +359,7 @@ public class ProjectPanel extends JPanel {
 								updateColumnTable();
 							}
 							else {
-								JOptionPane.showMessageDialog(ProjectPanel.this, "O comando não pode ser modificado, pois há comandos posteriores dependentes do mesmo.\nVerifique o conteúdo do comando atual ou altere os comandos dependentes para execução deste procedimento.");
+								JOptionPane.showMessageDialog(ProjectPanel.this, "O comando nï¿½o pode ser modificado, pois hï¿½ comandos posteriores dependentes do mesmo.\nVerifique o conteï¿½do do comando atual ou altere os comandos dependentes para execuï¿½ï¿½o deste procedimento.");
 							}
 							//update UI
 
@@ -435,9 +443,14 @@ public class ProjectPanel extends JPanel {
 	}
 
 	private void updateControls() {
-		lblProjectName.setText(MainWindow.projectHandler.getProject().getName());
-		tableScripts.setData(MainWindow.projectHandler.getProject().getScripts());
+		lblProjectName.setText(project.getName());
+		tableScripts.setData(project.getScripts());
 		tableCommands.setData(currentSelectedScript != null ? currentSelectedScript.getCommands() : null);
+		boolean hasCreateTableCommand = currentSelectedScript != null && currentSelectedScript.hasCreateTableCommand();
+		btnCreateTableCommand.setEnabled(!hasCreateTableCommand);
+		btnAddFieldCommand.setEnabled(hasCreateTableCommand);
+		btnModifyFieldCommand.setEnabled(hasCreateTableCommand);
+		btnDropFieldCommand.setEnabled(hasCreateTableCommand);
 	}
 	
 	public void setProject(Project project) {

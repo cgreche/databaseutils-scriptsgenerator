@@ -27,6 +27,7 @@ import structs.GenericTypes;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
+import java.awt.Font;
 
 //16-04-2019
 @SuppressWarnings("serial")
@@ -62,15 +63,16 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	private AddFieldCommand currentCommand;
 	private Script parentScript;
 	private Table currentTable;
+	private TableField currentField;
 	private JPanel panelFieldData;
 	private JSeparator separator;
 	private JPanel panel;
 	
 	public AddFieldCommandDialog(JFrame parent) {
 		super(parent);
+		setTitle("Comando AddField");
 		panel = new JPanel();
 		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		this.setContentPane(panel);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		panelFieldData = new JPanel();
@@ -83,6 +85,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.setLayout(gbl_panelFieldData);
 		
 		lblName = new JLabel("Nome");
+		lblName.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblName = new GridBagConstraints();
 		gbc_lblName.anchor = GridBagConstraints.WEST;
 		gbc_lblName.insets = new Insets(0, 0, 0, 5);
@@ -100,6 +103,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.add(tfName, gbc_tfName);
 		
 		lblType = new JLabel("Tipo");
+		lblType.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblType = new GridBagConstraints();
 		gbc_lblType.anchor = GridBagConstraints.WEST;
 		gbc_lblType.insets = new Insets(0, 0, 0, 5);
@@ -123,6 +127,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		ddType.addItem(GenericTypes.LONGTEXT);
 				
 		lblSize = new JLabel("Tamanho");
+		lblSize.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblSize = new GridBagConstraints();
 		gbc_lblSize.anchor = GridBagConstraints.WEST;
 		gbc_lblSize.insets = new Insets(0, 0, 0, 5);
@@ -138,6 +143,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.add(tfReferencedColumn, gbc_tfReferencedColumn);
 		
 		lblPk = new JLabel("PK");
+		lblPk.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblPk = new GridBagConstraints();
 		gbc_lblPk.anchor = GridBagConstraints.WEST;
 		gbc_lblPk.insets = new Insets(0, 0, 0, 5);
@@ -153,6 +159,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.add(cbPk, gbc_cbPk);
 						
 		lblFk= new JLabel("FK");
+		lblFk.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblFk = new GridBagConstraints();
 		gbc_lblFk.anchor = GridBagConstraints.WEST;
 		gbc_lblFk.insets = new Insets(0, 0, 0, 5);
@@ -168,6 +175,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.add(cbFk, gbc_cbFk);
 								
 		lblNotNull = new JLabel("Not Null");
+		lblNotNull.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblNotNull = new GridBagConstraints();
 		gbc_lblNotNull.anchor = GridBagConstraints.WEST;
 		gbc_lblNotNull.insets = new Insets(0, 0, 0, 5);
@@ -183,6 +191,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.add(cbNotNull, gbc_cbNotNull);
 										
 		lblReferencedTable = new JLabel("Tabela referenciada");
+		lblReferencedTable.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblReferencedTable = new GridBagConstraints();
 		gbc_lblReferencedTable.anchor = GridBagConstraints.WEST;
 		gbc_lblReferencedTable.insets = new Insets(0, 0, 0, 5);
@@ -199,6 +208,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		panelFieldData.add(tfReferencedTable, gbc_tfReferencedTable);
 												
 		lblReferencedColumn = new JLabel("Campo referenciado");
+		lblReferencedColumn.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_lblReferencedColumn = new GridBagConstraints();
 		gbc_lblReferencedColumn.anchor = GridBagConstraints.WEST;
 		gbc_lblReferencedColumn.insets = new Insets(0, 0, 0, 5);
@@ -249,7 +259,8 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		});
 		panel.add(btnSave);
 		
-		panel.setSize(new Dimension(620,150));
+		this.setContentPane(panel);
+		this.setSize(new Dimension(620,150));
 	}
 	
 	private boolean validateFields() {
@@ -292,7 +303,8 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		this.parentScript = parentScript;
 		currentTable = parentScript.getResultingTable();
 		editMode = false;
-		currentCommand = new AddFieldCommand(parentScript, currentTable, null);
+		currentField = new TableField();
+		currentCommand = new AddFieldCommand(parentScript, currentTable, currentField);
 		updateControls();
 		this.setVisible(true);
 	}
@@ -301,6 +313,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		if(command != null) {
 			parentScript = command.getScript();
 			resultData = (AddFieldCommand) command.clone();
+			currentField = command.getField().clone();
 			currentCommand = command.clone();
 			currentTable = command.getRefTable();
 		}
