@@ -6,6 +6,13 @@ import java.awt.event.WindowEvent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
+/**
+ * 
+ * Generic class for dialogs
+ * @author cesar.reche@techne.com.br
+ * @since 16/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class Dialog<T> extends JDialog {
 	

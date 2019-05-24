@@ -12,7 +12,7 @@ import generators.OracleGenerator;
 
 /**
  * 
- * Project handler is a helper class for making operations over a project
+ * Project handler is a helper class for making operations over a project.
  * @author cesar.reche@techne.com.br
  * @since 26/04/2019
  *
@@ -103,7 +103,6 @@ public class ProjectHandler {
 		if((genProfiles & Project.PROFILE_MYSQL) != 0) {
 			generator = new MySQLGenerator(project);
 			generator.generate(basePath + "/MySQL");
-
 		}
 		
 	}

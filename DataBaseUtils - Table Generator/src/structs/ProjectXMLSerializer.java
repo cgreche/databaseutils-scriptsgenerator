@@ -22,7 +22,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-//06/05/2019
+/**
+ * 
+ * XML Serializer for Projects.
+ * @author cesar.reche@techne.com.br
+ * @since 06/05/2019
+ *
+ */
 public class ProjectXMLSerializer implements ProjectSerializer {
 	
 	String isoDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";

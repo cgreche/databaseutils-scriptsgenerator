@@ -4,7 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-//10/04/2019
+/**
+ * 
+ * Class for representing Scripts.
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public class Script {
 	private String name;
 	private Date creationDate;

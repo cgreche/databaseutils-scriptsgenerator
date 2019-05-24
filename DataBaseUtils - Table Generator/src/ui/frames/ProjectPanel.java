@@ -39,8 +39,9 @@ import ui.components.TableScripts;
 import ui.components.resultingtable.ResultingTable;
 
 /**
- * Painel de construção/edição do projeto
+ * Painel de construção/edição do Projeto.
  * @author cesar.reche
+ * @since 10/04/2019
  *
  */
 public class ProjectPanel extends JPanel {

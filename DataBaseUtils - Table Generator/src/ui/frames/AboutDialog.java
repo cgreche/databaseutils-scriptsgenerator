@@ -9,13 +9,16 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.FlowLayout;
 import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import javax.swing.border.EmptyBorder;
-import java.awt.BorderLayout;
 
-//24/05/2019
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 24/05/2019
+ *
+ */
 public class AboutDialog extends Dialog {
 	public AboutDialog(JFrame parent) {
 		super(parent);

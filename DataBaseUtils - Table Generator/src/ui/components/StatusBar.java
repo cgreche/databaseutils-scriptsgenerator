@@ -11,7 +11,13 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import javax.swing.JButton;
 
-//16/05/2018
+/**
+ * 
+ * A component representing a StatusBar.
+ * @author cesar.reche@techne.com.br
+ * @since 16/05/2018
+ *
+ */
 public class StatusBar extends JPanel {
 	
 	private Color backgroundColor;

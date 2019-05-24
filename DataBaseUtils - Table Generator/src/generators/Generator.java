@@ -16,7 +16,7 @@ import structs.Script;
 
 /**
  * 
- * Base class for Script Generator implementations
+ * Base class for Script Generator implementations.
  * @author cesar.reche@techne.com.br
  * @since 10/04/2019
  *

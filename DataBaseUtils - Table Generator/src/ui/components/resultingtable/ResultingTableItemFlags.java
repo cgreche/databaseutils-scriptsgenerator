@@ -1,6 +1,11 @@
 package ui.components.resultingtable;
 
-//11/04/2019
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 11/04/2019
+ *
+ */
 public class ResultingTableItemFlags {
 	public static final int ORIGINAL = 0;
 	public static final int ADDED_LATER = 1;

@@ -31,8 +31,12 @@ import structs.Table;
 import structs.TableField;
 import ui.components.fieldtypecombobox.FieldTypeComboBox;
 
-//16-04-2019
-
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 16/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	

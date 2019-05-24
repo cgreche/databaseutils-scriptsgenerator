@@ -23,8 +23,12 @@ import javax.swing.JSeparator;
 import javax.swing.Box;
 import java.awt.Dimension;
 
-//16-04-2019
-
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 16/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 	private JLabel lblField;

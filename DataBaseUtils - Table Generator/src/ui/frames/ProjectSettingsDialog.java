@@ -25,6 +25,12 @@ import javax.swing.JScrollPane;
 import java.awt.FlowLayout;
 import java.awt.Font;
 
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 03/05/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class ProjectSettingsDialog extends Dialog<Project> {
 	

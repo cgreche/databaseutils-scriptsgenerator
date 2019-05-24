@@ -5,7 +5,13 @@ import javax.swing.JComboBox;
 import structs.FieldType;
 import structs.GenericTypes;
 
-//24 05 2019
+/**
+ * 
+ * A combobox for listing fields Generic Types.
+ * @author cesar.reche@techne.com.br
+ * @since 24/05/2019
+ *
+ */
 public class FieldTypeComboBox extends JComboBox<FieldType> {
 	public FieldTypeComboBox() {
 		super();

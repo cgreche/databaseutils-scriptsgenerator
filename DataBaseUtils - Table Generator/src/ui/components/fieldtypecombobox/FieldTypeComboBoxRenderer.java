@@ -8,8 +8,13 @@ import javax.swing.ListCellRenderer;
 
 import structs.FieldType;
 
-//11/04/2019
-
+/**
+ * 
+ * A combobox for listing fields Generic Types.
+ * @author cesar.reche@techne.com.br
+ * @since 11/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class FieldTypeComboBoxRenderer extends JLabel implements ListCellRenderer<FieldType> {
 

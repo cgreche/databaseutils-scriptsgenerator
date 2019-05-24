@@ -20,8 +20,13 @@ import structs.FieldType;
 import structs.TableField;
 import ui.components.fieldtypecombobox.FieldTypeComboBox;
 
-//11/04/2019
-
+/**
+ * 
+ * A table for adding and removing fields for a CreateTableCommand.
+ * @author cesar.reche@techne.com.br
+ * @since 11/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class TableCreateTableFields extends JTable {
 	

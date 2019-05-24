@@ -19,8 +19,13 @@ import structs.Command;
 import structs.Script;
 import ui.frames.ProjectPanel;
 
-//06/05/2019
-
+/**
+ * 
+ * Table for command list (view).
+ * @author cesar.reche@techne.com.br
+ * @since 06/05/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class TableCommands extends JTable {
 	
@@ -88,11 +93,8 @@ public class TableCommands extends JTable {
 			
 			deleteButton = new JButton();
 			deleteButton.addActionListener(new ActionListener() {
-				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//System.out.println("WOW");
-					
 				}
 			});
 			TableColumnModel columnModel = table.getColumnModel();

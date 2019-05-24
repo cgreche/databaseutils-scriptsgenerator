@@ -1,6 +1,12 @@
 package structs;
 
-//10/04/2019
+/**
+ * 
+ * Class for representing a Table Field.
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public class TableField implements Cloneable {
 	private String name;
 	private FieldType type;

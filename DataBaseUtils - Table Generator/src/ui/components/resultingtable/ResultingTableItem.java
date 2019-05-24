@@ -2,8 +2,12 @@ package ui.components.resultingtable;
 
 import structs.TableField;
 
-//11/04/2019
-
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 11/04/2019
+ *
+ */
 public class ResultingTableItem {
 	private TableField field;
 	private int flags;

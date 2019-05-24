@@ -2,8 +2,6 @@ package ui.frames;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,8 +28,12 @@ import javax.swing.Box;
 import java.awt.Dimension;
 import javax.swing.JSeparator;
 
-//16-04-2019
-
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 16/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 	

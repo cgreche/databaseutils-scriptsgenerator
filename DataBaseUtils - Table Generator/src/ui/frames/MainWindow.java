@@ -24,6 +24,12 @@ import ui.components.StatusBar;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
 	

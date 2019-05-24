@@ -24,8 +24,13 @@ import structs.Script;
 import structs.Table;
 import structs.TableField;
 
-//11/04/2019
-
+/**
+ * 
+ * A table for showing the result of a table after a serie of commands.
+ * @author cesar.reche@techne.com.br
+ * @since 11/04/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class ResultingTable extends JTable {
 	

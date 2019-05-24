@@ -3,7 +3,13 @@ package structs;
 import java.util.ArrayList;
 import java.util.List;
 
-//10/04/2019
+/**
+ * 
+ * Class for representing a Table.
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public class Table implements Cloneable {
 	private String name;
 	private List<TableField> fields;

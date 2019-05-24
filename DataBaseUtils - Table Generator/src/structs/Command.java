@@ -2,7 +2,7 @@ package structs;
 
 /**
  * 
- * Base class for commands
+ * Base class for commands.
  * @author cesar.reche@techne.com.br
  * @since 10/04/2019
  *

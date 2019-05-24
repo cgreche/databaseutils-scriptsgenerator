@@ -9,8 +9,12 @@ import structs.Constraints;
 import structs.FieldType;
 import structs.TableField;
 
-//11/04/2019
-
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 11/04/2019
+ *
+ */
 public class TableCreateTableFieldsModel extends AbstractTableModel {
 	
 	private static final long serialVersionUID = -1L;

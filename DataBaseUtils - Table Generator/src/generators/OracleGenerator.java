@@ -19,7 +19,7 @@ import structs.TableField;
 
 /**
  * 
- * Script Generator for OracleDB
+ * Script Generator for OracleDB.
  * @author cesar.reche@techne.com.br
  * @since 10/04/2019
  *
@@ -112,7 +112,7 @@ public class OracleGenerator extends Generator {
 		
 		for(TableField field : fkFields) {
 			resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
-			+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
+			+ "\n\t REFERENCES " + field.getReferencedTable() + "(" + field.getReferencedColumn() + ") ENABLE\n"
 			+ "/\n";
 		}
 

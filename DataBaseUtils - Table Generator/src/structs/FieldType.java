@@ -2,7 +2,7 @@ package structs;
 
 /**
  * 
- * Class that represents the type of a table field
+ * Class that represents the type of a table field.
  * @author cesar.reche@techne.com.br
  * @since 10/04/2019
  *

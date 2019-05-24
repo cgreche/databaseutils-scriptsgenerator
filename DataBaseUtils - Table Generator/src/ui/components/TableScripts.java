@@ -17,8 +17,13 @@ import javax.swing.table.TableColumnModel;
 
 import structs.Script;
 
-//06/05/2019
-
+/**
+ * 
+ * Table for script list (view).
+ * @author cesar.reche@techne.com.br
+ * @since 06/05/2019
+ *
+ */
 @SuppressWarnings("serial")
 public class TableScripts extends JTable {
 	
