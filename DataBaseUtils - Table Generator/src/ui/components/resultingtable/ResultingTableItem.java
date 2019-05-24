@@ -4,11 +4,11 @@ import structs.TableField;
 
 //11/04/2019
 
-public class TableFieldTableItem {
+public class ResultingTableItem {
 	private TableField field;
 	private int flags;
 	
-	public TableFieldTableItem(TableField field, int flags) {
+	public ResultingTableItem(TableField field, int flags) {
 		this.field = field;
 		this.flags = flags;
 	}

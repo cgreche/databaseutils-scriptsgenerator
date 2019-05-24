@@ -2,8 +2,6 @@ package ui.frames;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -11,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 import structs.DropFieldCommand;
 import structs.Script;
@@ -94,9 +93,11 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentCommand.setField((TableField)ddField.getSelectedItem());
-				DropFieldCommandDialog.this.setResult(true,currentCommand);
-				DropFieldCommandDialog.this.dispose();
+				dialogControlsToObject(currentCommand);
+				if(validateDropFieldCommand(currentCommand)) {
+					DropFieldCommandDialog.this.setResult(true,currentCommand);
+					DropFieldCommandDialog.this.dispose();
+				}
 			}
 		});
 		
@@ -104,13 +105,25 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 		this.setSize(new Dimension(350, 134));
 	}
 	
-	public void updateControls() {
+	private void updateControls() {
 		ddField.removeAllItems();
 		List<TableField> fields = currentTable.getFields();
 		for(TableField field : fields) {
 			ddField.addItem(field);
 		}
 		ddField.setSelectedItem(currentCommand.getField());
+	}
+	
+	private void dialogControlsToObject(DropFieldCommand command) {
+		command.setField((TableField)ddField.getSelectedItem());	
+	}
+	
+	private boolean validateDropFieldCommand(DropFieldCommand command) {
+		if(command.getField() == null) {
+			JOptionPane.showMessageDialog(this,"O campo a ser removido não foi informado.");
+			return false;
+		}
+		return true;
 	}
 	
 	public void insertNew(Script parentScript) {

@@ -10,9 +10,9 @@ public class Script {
 	private Date creationDate;
 	private Date lastModifiedDate;
 	private List<Command> commands;
-	private String basePath;
 	
-	private String headerMessage;
+	private String basePath; //NOT IMPLEMENTED - TODO
+	private String headerMessage; //NOT IMPLEMENTED - TODO
 	
 	public Script() {
 		this.lastModifiedDate = this.creationDate = new Date();

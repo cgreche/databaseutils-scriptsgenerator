@@ -27,44 +27,57 @@ import structs.TableField;
 //11/04/2019
 
 @SuppressWarnings("serial")
-public class TableFieldTable extends JTable {
+public class ResultingTable extends JTable {
 	
-	private TableFieldsTableModel model;
+	private ResultingTableModel model;
 	DefaultTableCellRenderer tableCellRenderer;
 	
 	private boolean showRemoved;
 	
-	public TableFieldTable() {
-		model = new TableFieldsTableModel();
+	public ResultingTable() {
+		model = new ResultingTableModel();
 		setModel(model);
 		
 		showRemoved = false;
 		
-		RowFilter<TableFieldsTableModel, Integer> filter = new RowFilter<TableFieldsTableModel, Integer>() {
-			public boolean include(Entry<? extends TableFieldsTableModel, ? extends Integer> entry) {
-				TableFieldTableItem item = entry.getModel().getData().get(entry.getIdentifier());
-				return ((item.getFlags() & TableFieldFlags.DROPPED) == 0) || showRemoved;
+		RowFilter<ResultingTableModel, Integer> filter = new RowFilter<ResultingTableModel, Integer>() {
+			public boolean include(Entry<? extends ResultingTableModel, ? extends Integer> entry) {
+				ResultingTableItem item = entry.getModel().getData().get(entry.getIdentifier());
+				return (item.getFlags() != ResultingTableItemFlags.DROPPED) || showRemoved;
 			}
 		};
 		
-		TableRowSorter<TableFieldsTableModel> sorter = new TableRowSorter<TableFieldsTableModel>(model);
+		TableRowSorter<ResultingTableModel> sorter = new TableRowSorter<ResultingTableModel>(model);
 		sorter.setRowFilter(filter);
 		this.setRowSorter(sorter);
 		
 		tableCellRenderer = new DefaultTableCellRenderer() {
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-				TableFieldTableItem tfi = model.getData().get(row);
+				List<ResultingTableItem> data = model.getData();
+				int index = 0;
+				int i = 0;
+				ResultingTableItem rti;
+				for(ResultingTableItem rti2 : data) {
+					if((rti2.getFlags() != ResultingTableItemFlags.DROPPED) || showRemoved) {
+						if(i == row)
+							break;
+						else
+							++i;
+					}
+					++index;
+				}
+				rti = model.getData().get(index);
 				Color addedLaterColor = new Color(0,0,255);
 				Color modifiedColor = new Color(240,180,0);
 				Color droppedColor = new Color(255,0,0);
 				Color defaultColor = new Color(0,0,0);
 				Color currentColor = defaultColor;
-				if((tfi.getFlags() & TableFieldFlags.ADDED_LATER) != 0)
+				if(rti.getFlags() == ResultingTableItemFlags.ADDED_LATER)
 					currentColor = addedLaterColor;
-				else if((tfi.getFlags() & TableFieldFlags.MODIFIED) != 0)
+				else if(rti.getFlags() == ResultingTableItemFlags.MODIFIED)
 					currentColor = modifiedColor;
-				else if((tfi.getFlags() & TableFieldFlags.DROPPED) != 0)
+				else if(rti.getFlags() == ResultingTableItemFlags.DROPPED)
 					currentColor = droppedColor;
 				
 				setFont(table.getFont());
@@ -81,17 +94,6 @@ public class TableFieldTable extends JTable {
 		};
 		this.setDefaultRenderer(String.class, tableCellRenderer);
 
-		JComboBox<FieldType> comboBox = new JComboBox<>();
-		comboBox.setRenderer(new FieldTypeComboBoxRenderer());
-		comboBox.addItem(GenericTypes.TEXT);
-		comboBox.addItem(GenericTypes.NUMERIC);
-		comboBox.addItem(GenericTypes.DATE);
-		comboBox.addItem(GenericTypes.TIMESTAMP);
-		comboBox.addItem(GenericTypes.BLOB);
-		comboBox.addItem(GenericTypes.LONGTEXT);
-
-		TableColumn fieldTypeColumn = this.getColumnModel().getColumn(1);
-		fieldTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
 	}
 	
 	public void showRemoved(boolean show) {
@@ -129,15 +131,15 @@ public class TableFieldTable extends JTable {
 	}
 	
 	public void addField(TableField field, boolean original) {
-		model.addRow(new TableFieldTableItem(field, original ? TableFieldFlags.ORIGINAL : TableFieldFlags.ADDED_LATER));
+		model.addRow(new ResultingTableItem(field, original ? ResultingTableItemFlags.ORIGINAL : ResultingTableItemFlags.ADDED_LATER));
 	}
 	
 	public void modifyField(TableField currentField, TableField newField) {
-		List<TableFieldTableItem> tfiList = model.getData();
+		List<ResultingTableItem> tfiList = model.getData();
 		for(int i = 0; i < tfiList.size(); ++i) {
 			if(currentField.getName().equals(tfiList.get(i).getField().getName())) {
 				tfiList.get(i).setField(newField);
-				tfiList.get(i).setFlags(TableFieldFlags.MODIFIED);
+				tfiList.get(i).setFlags(ResultingTableItemFlags.MODIFIED);
 				model.fireTableRowsUpdated(i, i);
 				model.fireTableDataChanged(); //this calls the filter again
 				return;
@@ -146,10 +148,10 @@ public class TableFieldTable extends JTable {
 	}
 	
 	public void dropField(TableField field) {
-		List<TableFieldTableItem> tfiList = model.getData();
+		List<ResultingTableItem> tfiList = model.getData();
 		for(int i = 0; i < tfiList.size(); ++i) {
 			if(field.getName().equals(tfiList.get(i).getField().getName())) {
-				tfiList.get(i).setFlags(TableFieldFlags.DROPPED);
+				tfiList.get(i).setFlags(ResultingTableItemFlags.DROPPED);
 				model.fireTableRowsUpdated(i, i);
 				model.fireTableDataChanged(); //this calls the filter again
 				return;
@@ -158,7 +160,7 @@ public class TableFieldTable extends JTable {
 	}
 	
 	public void removeField(TableField field) {
-		List<TableFieldTableItem> tfiList = model.getData();
+		List<ResultingTableItem> tfiList = model.getData();
 		for(int i = 0; i < tfiList.size(); ++i) {
 			if(field.getName().equals(tfiList.get(i).getField().getName())) {
 				tfiList.remove(i);
@@ -169,16 +171,16 @@ public class TableFieldTable extends JTable {
 	}
 	
 	public void addRow(TableField tf) {
-		model.addRow(new TableFieldTableItem(tf,TableFieldFlags.ORIGINAL));
+		model.addRow(new ResultingTableItem(tf,ResultingTableItemFlags.ORIGINAL));
 	}
 	
 	public void addEmptyRow() {
-		model.addRow(new TableFieldTableItem(new TableField(),0));
+		model.addRow(new ResultingTableItem(new TableField(),0));
 	}
 	
 	public List<TableField> getData() {
 		List<TableField> fields = new ArrayList<>();
-		for(TableFieldTableItem tfi : model.getData()) {
+		for(ResultingTableItem tfi : model.getData()) {
 			fields.add(tfi.getField());
 		}
 		return fields;

@@ -11,16 +11,16 @@ import structs.TableField;
 
 //11/04/2019
 
-public class TableFieldsTableModel extends AbstractTableModel {
+public class ResultingTableModel extends AbstractTableModel {
 		
 	private static final long serialVersionUID = -1L;
 	
-	List<TableFieldTableItem> data = new ArrayList<>();
+	List<ResultingTableItem> data = new ArrayList<>();
 	String[] columnNames = {"Nome", "Tipo", "Tamanho", "PK", "FK", "Not null", "Tabela referenciada", "Coluna refenciada"};
 	
 	@Override
 	public Object getValueAt(int row, int col) {
-		TableFieldTableItem fieldItem = data.get(row);
+		ResultingTableItem fieldItem = data.get(row);
 		TableField field = fieldItem.getField();
 		if(col == 0) return field.getName();
 		if(col == 1) return field.getType() != null ? field.getType().getName() : null;
@@ -35,7 +35,7 @@ public class TableFieldsTableModel extends AbstractTableModel {
 	
 	@Override
 	public void setValueAt(Object value, int row, int col) {
-		TableFieldTableItem fieldItem = data.get(row);
+		ResultingTableItem fieldItem = data.get(row);
 		TableField field = fieldItem.getField();
 		if(col == 0) field.setName((String)value);
 		if(col == 1) field.setType((FieldType)value);
@@ -96,16 +96,16 @@ public class TableFieldsTableModel extends AbstractTableModel {
 		return false;
 	}
 	
-	public void addRow(TableFieldTableItem field) {
+	public void addRow(ResultingTableItem field) {
 		data.add(field);
 		fireTableRowsInserted(data.size()-1, data.size()-1);
 	}
 	
 	public void addEmptyRow() {
-		addRow(new TableFieldTableItem(new TableField(),0));
+		addRow(new ResultingTableItem(new TableField(),0));
 	}
 	
-	public List<TableFieldTableItem> getData() {
+	public List<ResultingTableItem> getData() {
 		return data;
 	}
 	

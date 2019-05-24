@@ -1,9 +1,16 @@
 package ui.frames;
 
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -11,25 +18,18 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import structs.Constraints;
 import structs.FieldType;
-import structs.GenericTypes;
 import structs.ModifyFieldCommand;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import java.awt.Component;
-import javax.swing.JSeparator;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.Box;
-import java.awt.Dimension;
-import java.awt.Font;
+import ui.components.fieldtypecombobox.FieldTypeComboBox;
 
 //16-04-2019
 
@@ -51,7 +51,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	private JPanel panel_2;
 	private JSeparator separator;
 	private JLabel lblSize;
-	private JComboBox<FieldType> ddType;
+	private FieldTypeComboBox ddType;
 	private JTextField tfSize;
 	private JCheckBox cbPk;
 	private JCheckBox cbFk;
@@ -192,7 +192,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		gbc_lblReferencedColumn.gridy = 0;
 		panel_2.add(lblReferencedColumn, gbc_lblReferencedColumn);
 		
-		ddType = new JComboBox<FieldType>();
+		ddType = new FieldTypeComboBox();
 		ddType.setMinimumSize(new Dimension(100, 20));
 		ddType.setAlignmentX(0.0f);
 		GridBagConstraints gbc_ddType = new GridBagConstraints();
@@ -203,12 +203,6 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		gbc_ddType.gridx = 0;
 		gbc_ddType.gridy = 1;
 		panel_2.add(ddType, gbc_ddType);
-		ddType.addItem(GenericTypes.TEXT);
-		ddType.addItem(GenericTypes.NUMERIC);
-		ddType.addItem(GenericTypes.DATE);
-		ddType.addItem(GenericTypes.TIMESTAMP);
-		ddType.addItem(GenericTypes.BLOB);
-		ddType.addItem(GenericTypes.LONGTEXT);
 		
 		tfSize = new JTextField();
 		GridBagConstraints gbc_tfSize = new GridBagConstraints();
@@ -340,7 +334,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	private void dialogControlsToObject(ModifyFieldCommand command) {
 		TableField oldField = (TableField)ddField.getSelectedItem();
 		TableField newField = command.getNewField();
-		newField.setName(oldField.getName());
+		newField.setName(oldField != null ? oldField.getName() : null);
 		newField.setType((FieldType)ddType.getSelectedItem());
 		newField.setSize(tfSize.getText().trim());
 		int constraints = 0;

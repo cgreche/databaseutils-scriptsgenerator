@@ -36,7 +36,7 @@ import structs.ProjectHandler;
 import structs.Script;
 import ui.components.TableCommands;
 import ui.components.TableScripts;
-import ui.components.resultingtable.TableFieldTable;
+import ui.components.resultingtable.ResultingTable;
 
 /**
  * Painel de construção/edição do projeto
@@ -52,7 +52,7 @@ public class ProjectPanel extends JPanel {
 	private JButton btnModifyFieldCommand;
 	private JButton btnDropFieldCommand;
 	private TableCommands tableCommands;
-	private TableFieldTable tableResultingTable;
+	private ResultingTable tableResultingTable;
 	
 	private Font defaultTitleFont;
 
@@ -153,7 +153,7 @@ public class ProjectPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			int index = tableScripts.getSelectedRow();
-			if(index < 0 || index >= currentSelectedScript.getCommands().size())
+			if(index < 0 || index >= scriptList.size())
 				return;
 			if(scriptList.get(index) == currentSelectedScript) {
 				currentSelectedScript = null;
@@ -247,7 +247,7 @@ public class ProjectPanel extends JPanel {
 			Project project = MainWindow.projectHandler.getProject();
 			
 			if(project.getScriptsGenerationBasePath() == null) {
-				JOptionPane.showMessageDialog(ProjectPanel.this, "O caminho para gera��o de scripts n�o foi definido.\nAbra as propriedades do projeto e defina um caminho.");
+				JOptionPane.showMessageDialog(ProjectPanel.this, "O caminho para geração de scripts não foi definido.\nAbra as propriedades do projeto e defina um caminho.");
 				return;
 			}
 			
@@ -257,9 +257,13 @@ public class ProjectPanel extends JPanel {
 				handler.generateScripts();
 			}
 			else {
-				String message = "Os scripts n�o puderam ser gerados:\n";
+				String message = "A Geração de Scripts não pode continuar:\n";
 				if((errors & Project.ERROR_UNNAMED_SCRIPT) != 0) {
-					message += "Há scripts sem nome";
+					message += "Há scripts sem nome;\n";
+				}
+				
+				if((errors & Project.ERROR_SCRIPT_WITHOUT_COMMANDS) != 0) {
+					message += "Há scripts sem comandos;\n";
 				}
 				
 				JOptionPane.showMessageDialog(null,message);
@@ -455,7 +459,7 @@ public class ProjectPanel extends JPanel {
 		panelResultingTable.add(scrollPane);
 		scrollPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
-		tableResultingTable = new TableFieldTable();
+		tableResultingTable = new ResultingTable();
 		scrollPane.setViewportView(tableResultingTable);
 		
 		Component rigidArea_4 = Box.createRigidArea(new Dimension(5, 5));

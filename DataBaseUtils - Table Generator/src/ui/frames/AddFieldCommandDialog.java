@@ -2,6 +2,7 @@ package ui.frames;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -11,7 +12,6 @@ import java.awt.event.ActionListener;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,11 +23,10 @@ import javax.swing.border.EmptyBorder;
 import structs.AddFieldCommand;
 import structs.Constraints;
 import structs.FieldType;
-import structs.GenericTypes;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
-import java.awt.Font;
+import ui.components.fieldtypecombobox.FieldTypeComboBox;
 
 //16-04-2019
 @SuppressWarnings("serial")
@@ -37,7 +36,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	private JTextField tfName;
 
 	private JLabel lblType;
-	private JComboBox<FieldType> ddType;
+	private FieldTypeComboBox ddType;
 	
 	private JLabel lblSize;
 	private JTextField tfSize;
@@ -110,7 +109,7 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		gbc_lblType.gridx = 1;
 		gbc_lblType.gridy = 0;
 		panelFieldData.add(lblType, gbc_lblType);
-		ddType = new JComboBox<FieldType>();
+		ddType = new FieldTypeComboBox();
 		GridBagConstraints gbc_ddType = new GridBagConstraints();
 		gbc_ddType.anchor = GridBagConstraints.LINE_START;
 		gbc_ddType.weightx = 1.0;
@@ -119,12 +118,6 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		gbc_ddType.gridx = 1;
 		gbc_ddType.gridy = 1;
 		panelFieldData.add(ddType, gbc_ddType);
-		ddType.addItem(GenericTypes.TEXT);
-		ddType.addItem(GenericTypes.NUMERIC);
-		ddType.addItem(GenericTypes.DATE);
-		ddType.addItem(GenericTypes.TIMESTAMP);
-		ddType.addItem(GenericTypes.BLOB);
-		ddType.addItem(GenericTypes.LONGTEXT);
 				
 		lblSize = new JLabel("Tamanho");
 		lblSize.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -280,12 +273,12 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 	private boolean validateAddFieldCommand(AddFieldCommand command) {
 		TableField field = command.getField();
 		if(field.getName() == null || "".contentEquals(field.getName())) {
-			JOptionPane.showMessageDialog(this, "Há campos da tabela com nome não informado.");
+			JOptionPane.showMessageDialog(this, "O nome não foi informado.");
 			return false;
 		}
 		
 		if(field.getType() == null) {
-			JOptionPane.showMessageDialog(this, "Há campos da tabela com tipo não informado.");
+			JOptionPane.showMessageDialog(this, "O tipo não foi informado.");
 			return false;
 		}
 

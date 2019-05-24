@@ -1,4 +1,4 @@
-package ui.components.resultingtable;
+package ui.components.fieldtypecombobox;
 
 import java.awt.Component;
 

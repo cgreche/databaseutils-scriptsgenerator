@@ -72,6 +72,8 @@ public abstract class Generator {
 		if(headerMessage != null) {
 			headerMessage = headerMessage.replace("%projectName%", projectName);
 			headerMessage = headerMessage.replace("%scriptName%", scriptName);
+			headerMessage = headerMessage.replace("%applicationName%", application.Properties.APPLICATION_NAME);
+			headerMessage = headerMessage.replace("%applicationVersion%", application.Properties.APPLICATION_VERSION);
 		}
 		
 		String outputFileNameTab = scriptBasePath + "/" + scriptName + ".tab";

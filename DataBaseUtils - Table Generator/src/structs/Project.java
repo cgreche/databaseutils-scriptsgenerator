@@ -10,6 +10,7 @@ public class Project implements Cloneable {
 	
 	public static final long ERROR_NONE = 0;
 	public static final long ERROR_UNNAMED_SCRIPT = 1;
+	public static final long ERROR_SCRIPT_WITHOUT_COMMANDS = 2;
 	
 	private String name;
 	private List<Script> scripts;
@@ -83,6 +84,10 @@ public class Project implements Cloneable {
 			for(Script script : scripts) {
 				if(script.getName() == null || "".equals(script.getName())) {
 					errors |= ERROR_UNNAMED_SCRIPT;
+				}
+				
+				if(script.getCommands().isEmpty()) {
+					errors |= ERROR_SCRIPT_WITHOUT_COMMANDS;
 				}
 			}
 		}

@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.AbstractCellEditor;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -18,9 +17,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 import structs.FieldType;
-import structs.GenericTypes;
 import structs.TableField;
-import ui.components.resultingtable.FieldTypeComboBoxRenderer;
+import ui.components.fieldtypecombobox.FieldTypeComboBox;
 
 //11/04/2019
 
@@ -101,14 +99,7 @@ public class TableCreateTableFields extends JTable {
 		};
 		this.setDefaultRenderer(String.class, tableCellRenderer);
 
-		JComboBox<FieldType> comboBox = new JComboBox<>();
-		comboBox.setRenderer(new FieldTypeComboBoxRenderer());
-		comboBox.addItem(GenericTypes.TEXT);
-		comboBox.addItem(GenericTypes.NUMERIC);
-		comboBox.addItem(GenericTypes.DATE);
-		comboBox.addItem(GenericTypes.TIMESTAMP);
-		comboBox.addItem(GenericTypes.BLOB);
-		comboBox.addItem(GenericTypes.LONGTEXT);
+		FieldTypeComboBox comboBox = new FieldTypeComboBox();
 
 		TableColumn fieldTypeColumn = this.getColumnModel().getColumn(1);
 		fieldTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
