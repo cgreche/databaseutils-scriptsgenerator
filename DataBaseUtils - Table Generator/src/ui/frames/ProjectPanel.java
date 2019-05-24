@@ -257,6 +257,7 @@ public class ProjectPanel extends JPanel {
 			long errors = handler.validate();
 			if(errors == 0) {
 				handler.generateScripts();
+				JOptionPane.showMessageDialog(ProjectPanel.this, "A geração de scripts está concluída.");
 			}
 			else {
 				String message = "A Geração de Scripts não pode continuar:\n";
