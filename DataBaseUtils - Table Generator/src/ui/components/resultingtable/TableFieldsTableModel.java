@@ -1,4 +1,4 @@
-package ui.resultingtable;
+package ui.components.resultingtable;
 
 import java.util.ArrayList;
 import java.util.List;

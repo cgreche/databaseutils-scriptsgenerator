@@ -20,7 +20,7 @@ import javax.swing.table.TableColumnModel;
 import structs.FieldType;
 import structs.GenericTypes;
 import structs.TableField;
-import ui.resultingtable.FieldTypeComboBoxRenderer;
+import ui.components.resultingtable.FieldTypeComboBoxRenderer;
 
 //11/04/2019
 

@@ -73,7 +73,7 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		tfProjectName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		tfProjectName.setMinimumSize(new Dimension(4, 20));
 		
-		lblDefaultHeaderMessage = new JLabel("Mensagem de header padr„o para scripts");
+		lblDefaultHeaderMessage = new JLabel("Mensagem de header padr√£o para scripts");
 		lblDefaultHeaderMessage.setFont(new Font("Tahoma", Font.BOLD, 11));
 		
 		JPanel panel = new JPanel();
@@ -240,17 +240,17 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		long generationProfiles = project.getGenerationProfiles();
 
 		if(name == null || "".equals(name)) {
-			JOptionPane.showMessageDialog(this, "O nome do projeto n„o foi informado.");
+			JOptionPane.showMessageDialog(this, "O nome do projeto n√£o foi informado.");
 			return false;
 		}
 		
 		if(scriptsGenerationPath == null || "".equals(scriptsGenerationPath)) {
-			JOptionPane.showMessageDialog(this, "O caminho de geraÁ„o dos scripts n„o foi informado.");
+			JOptionPane.showMessageDialog(this, "O caminho de gera√ß√£oo dos scripts n√£o foi informado.");
 			return false;
 		}
 		
 		if(generationProfiles == 0) {
-			JOptionPane.showMessageDialog(this, "Nenhum perfil de geraÁ„o selecionado.");
+			JOptionPane.showMessageDialog(this, "Nenhum perfil de gera√ß√£o selecionado.");
 			return false;
 		}
 		

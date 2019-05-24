@@ -1,4 +1,4 @@
-package ui.resultingtable;
+package ui.components.resultingtable;
 
 //11/04/2019
 public class TableFieldFlags {

@@ -1,4 +1,4 @@
-package ui;
+package ui.components;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
@@ -15,28 +14,35 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
-import structs.Command;
 import structs.Script;
-import ui.frames.ProjectPanel;
 
 //06/05/2019
 
 @SuppressWarnings("serial")
-public class TableCommands extends JTable {
+public class TableScripts extends JTable {
 	
-	public static class TableCommandsModel extends AbstractTableModel {
+	public static class TableScriptsModel extends AbstractTableModel {
 		
 		private static final long serialVersionUID = -1L;
 		
 		String[] columnNames = {"Nome", "Remover"};
-		private List<Command> data;
+		private List<Script> data;
+		
+		@Override
+		public void setValueAt(Object value, int row, int col) {
+			if(data == null || row >= data.size())
+				return;
+			Script script = data.get(row);
+			if(col == 0)
+				script.setName((String)value);
+		}
 		
 		@Override
 		public Object getValueAt(int row, int col) {
 			if(data == null || row >= data.size())
 				return null;
-			Command commands = data.get(row);
-			if(col == 0) return commands.toString();
+			Script script = data.get(row);
+			if(col == 0) return script.getName();
 			return null;
 		}
 		
@@ -63,14 +69,14 @@ public class TableCommands extends JTable {
 		
 		@Override
 		public boolean isCellEditable(int row, int col) {
-			return col == 1;
+			return true;
 		}
 		
-		public void setData(List<Command> data) {
+		public void setData(List<Script> data) {
 			this.data = data;
 		}
 		
-		public List<Command> getData() {
+		public List<Script> getData() {
 			return data;
 		}
 		
@@ -78,7 +84,7 @@ public class TableCommands extends JTable {
 	
 	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
 		private JTable table;
-
+		
 		private ActionListener action;
 		
 		private JButton deleteButton;
@@ -120,33 +126,29 @@ public class TableCommands extends JTable {
 		public void setDeleteAction(ActionListener action) {
 			this.action = action;
 		}
-		
 	}
+	
+	private TableScriptsModel model;
+	private List<Script> data;
 	
 	private DeleteButton deleteButton;
 	
-	private TableCommandsModel model;
-	private List<Command> data;
-	
-	public TableCommands() {
+	public TableScripts() {
 		super();
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
-		model = new TableCommandsModel();
+		model = new TableScriptsModel();
 		this.setModel(model);
 		
 		deleteButton = new DeleteButton(this,1);
 	}
 	
-	public void setData(List<Command> commandList) {
-		if(this.data != commandList) {
-			this.data = commandList;
-			model.setData(commandList);
-			model.fireTableDataChanged();
-		}
+	public void setData(List<Script> scriptList) {
+		this.data = scriptList;
+		model.setData(data);
+		model.fireTableDataChanged();
 	}
 	
-	public List<Command> getData() {
+	public List<Script> getData() {
 		return data;
 	}
 	

@@ -111,7 +111,7 @@ public class MySQLGenerator extends Generator {
 			+ "/\n";
 		}
 		
-		String outputFilename = "c:/temp/MySQL/" + table.getName() + ".con";
+		String outputFilename = basePath + "/" + command.getScript().getName() + ".con";
 		try {
 			FileWriter fileWriter = new FileWriter(outputFilename);
 			fileWriter.write(resultContent);

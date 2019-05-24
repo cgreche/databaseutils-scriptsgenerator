@@ -34,9 +34,9 @@ import structs.ModifyFieldCommand;
 import structs.Project;
 import structs.ProjectHandler;
 import structs.Script;
-import ui.TableCommands;
-import ui.TableScripts;
-import ui.resultingtable.TableFieldTable;
+import ui.components.TableCommands;
+import ui.components.TableScripts;
+import ui.components.resultingtable.TableFieldTable;
 
 /**
  * Painel de construção/edição do projeto

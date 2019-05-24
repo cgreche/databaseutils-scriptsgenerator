@@ -2,8 +2,6 @@ package ui.frames;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -12,6 +10,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import structs.Constraints;
@@ -22,7 +21,6 @@ import structs.Script;
 import structs.Table;
 import structs.TableField;
 import javax.swing.JPanel;
-import java.awt.FlowLayout;
 import javax.swing.border.EmptyBorder;
 import java.awt.Component;
 import javax.swing.JSeparator;
@@ -68,7 +66,6 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	private Component rigidArea_3;
 	
 	private JButton btnSave;
-
 	
 	private Script parentScript;
 	private Table currentTable;
@@ -77,37 +74,9 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 
 	boolean editMode;
 	
-	private void updateControlsWithOldFieldInfo() {
-		TableField field = (TableField)ddField.getSelectedItem();
-		if(field != null) {
-			ddType.setSelectedItem(field.getType());
-			tfSize.setText(field.getSize());
-			cbPk.setSelected(field.isPK());
-			cbFk.setSelected(field.isFK());
-			cbNotNull.setSelected(field.isNotNull());
-			tfReferencedTable.setText(field.getReferencedTable());
-			tfReferencedField.setText(field.getReferencedColumn());
-		}
-		else {
-			ddType.setSelectedItem(null);
-			tfSize.setText(null);
-			cbPk.setSelected(false);
-			cbFk.setSelected(false);
-			cbNotNull.setSelected(false);
-			tfReferencedTable.setText(null);
-			tfReferencedField.setText(null);
-		}
-	}
-	
 	public MofidyFieldCommandDialog(JFrame parent) {
 		super(parent);
 		setTitle("Comando AddField");
-		
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-			}
-		});
 		
 		panel = new JPanel();
 		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -119,20 +88,21 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		panel_1 = new JPanel();
 		panel_1.setAlignmentX(Component.LEFT_ALIGNMENT);
 		panel.add(panel_1);
-				panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.Y_AXIS));
+		panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.Y_AXIS));
+
+		lblField = new JLabel("Campo");
+		lblField.setFont(new Font("Tahoma", Font.BOLD, 11));
+		panel_1.add(lblField);
 		
-				lblField = new JLabel("Campo");
-				lblField.setFont(new Font("Tahoma", Font.BOLD, 11));
-				panel_1.add(lblField);
-				ddField = new JComboBox<TableField>();
-				ddField.setAlignmentX(Component.LEFT_ALIGNMENT);
-				panel_1.add(ddField);
-				ddField.addActionListener(new ActionListener () {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						updateControlsWithOldFieldInfo();
-					}
-				});
+		ddField = new JComboBox<TableField>();
+		ddField.setAlignmentX(Component.LEFT_ALIGNMENT);
+		ddField.addActionListener(new ActionListener () {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateControlsWithOldFieldInfo();
+			}
+		});
+		panel_1.add(ddField);
 		
 		rigidArea = Box.createRigidArea(new Dimension(20, 20));
 		rigidArea.setMinimumSize(new Dimension(5, 5));
@@ -314,26 +284,11 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		btnSave.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
-				TableField oldField = (TableField)ddField.getSelectedItem();
-				
-				currentNewField.setType((FieldType)ddType.getSelectedItem());
-				currentNewField.setSize(tfSize.getText());
-				int constraints = 0;
-				if(cbPk.isSelected())
-					constraints |= Constraints.PK;
-				if(cbFk.isSelected())
-					constraints |= Constraints.FK;
-				if(cbNotNull.isSelected())
-					constraints |= Constraints.NOT_NULL;
-				currentNewField.setConstraints(constraints);
-				currentNewField.setReferencedTable(tfReferencedTable.getText());
-				currentNewField.setReferencedColumn(tfReferencedField.getText());
-				
-				currentCommand.setOldField(oldField);
-				currentCommand.setNewField(currentNewField);
-				MofidyFieldCommandDialog.this.setResult(true, currentCommand);
-				MofidyFieldCommandDialog.this.dispose();
+				dialogControlsToObject(currentCommand);
+				if(validateModifyFieldCommand(currentCommand)) {
+					MofidyFieldCommandDialog.this.setResult(true, currentCommand);
+					MofidyFieldCommandDialog.this.dispose();
+				}
 			}
 		});
 		
@@ -358,6 +313,63 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		cbNotNull.setSelected((constraints & Constraints.NOT_NULL) != 0);
 		tfReferencedTable.setText(currentNewField.getReferencedTable());
 		tfReferencedField.setText(currentNewField.getReferencedColumn());
+	}
+	
+	private void updateControlsWithOldFieldInfo() {
+		TableField field = (TableField)ddField.getSelectedItem();
+		if(field != null) {
+			ddType.setSelectedItem(field.getType());
+			tfSize.setText(field.getSize());
+			cbPk.setSelected(field.isPK());
+			cbFk.setSelected(field.isFK());
+			cbNotNull.setSelected(field.isNotNull());
+			tfReferencedTable.setText(field.getReferencedTable());
+			tfReferencedField.setText(field.getReferencedColumn());
+		}
+		else {
+			ddType.setSelectedItem(null);
+			tfSize.setText(null);
+			cbPk.setSelected(false);
+			cbFk.setSelected(false);
+			cbNotNull.setSelected(false);
+			tfReferencedTable.setText(null);
+			tfReferencedField.setText(null);
+		}
+	}
+	
+	private void dialogControlsToObject(ModifyFieldCommand command) {
+		TableField oldField = (TableField)ddField.getSelectedItem();
+		TableField newField = command.getNewField();
+		newField.setName(oldField.getName());
+		newField.setType((FieldType)ddType.getSelectedItem());
+		newField.setSize(tfSize.getText().trim());
+		int constraints = 0;
+		if(cbPk.isSelected())
+			constraints |= Constraints.PK;
+		if(cbFk.isSelected())
+			constraints |= Constraints.FK;
+		if(cbNotNull.isSelected())
+			constraints |= Constraints.NOT_NULL;
+		newField.setConstraints(constraints);
+		newField.setReferencedTable(tfReferencedTable.getText());
+		newField.setReferencedColumn(tfReferencedField.getText());
+		command.setOldField(oldField);
+	}
+	
+	private boolean validateModifyFieldCommand(ModifyFieldCommand command) {
+		TableField oldField = command.getOldField();
+		TableField newField = command.getNewField();
+		if(oldField == null) {
+			JOptionPane.showMessageDialog(this, "O campo a ser modificado não foi informado.");
+			return false;
+		}
+		
+		if(newField.getType() == null) {
+			JOptionPane.showMessageDialog(this, "O tipo não foi informado.");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public void insertNew(Script parentScript) {

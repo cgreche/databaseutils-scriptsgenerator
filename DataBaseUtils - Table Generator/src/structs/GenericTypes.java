@@ -4,7 +4,7 @@ package structs;
 
 public class GenericTypes {
 	public static FieldType TEXT = new FieldType("TEXT","TEXTO",true,true);
-	public static FieldType NUMERIC = new FieldType("NUMERIC","NUMÉRICO",true,true);
+	public static FieldType NUMERIC = new FieldType("NUMERIC","NUMÃ‰RICO",true,true);
 	public static FieldType DATE = new FieldType("DATE","DATA",true,true);
 	public static FieldType TIMESTAMP = new FieldType("TIMESTAMP","TIMESTAMP",true,true);
 	public static FieldType BLOB = new FieldType("BLOB","BLOB",true,true);

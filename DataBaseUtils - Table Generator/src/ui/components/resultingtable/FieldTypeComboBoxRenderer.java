@@ -1,4 +1,4 @@
-package ui.resultingtable;
+package ui.components.resultingtable;
 
 import java.awt.Component;
 

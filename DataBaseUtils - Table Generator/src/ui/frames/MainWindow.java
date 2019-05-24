@@ -19,7 +19,8 @@ import application.Main;
 import structs.Project;
 import structs.ProjectHandler;
 import structs.ProjectHandler.ProjectState;
-import ui.StatusBar;
+import ui.components.StatusBar;
+
 import java.awt.Color;
 
 @SuppressWarnings("serial")

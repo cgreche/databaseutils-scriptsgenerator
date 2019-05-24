@@ -110,7 +110,7 @@ public class OracleGenerator extends Generator {
 			+ "/\n";
 		}
 
-		String outputFilename = "c:/temp/OracleDB/" + table.getName() + ".con";
+		String outputFilename = basePath + "/" + command.getScript().getName() + ".con";
 		try {
 			FileWriter fileWriter = new FileWriter(outputFilename);
 			fileWriter.write(resultContent);
