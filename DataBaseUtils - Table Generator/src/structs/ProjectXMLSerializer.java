@@ -321,8 +321,11 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 			command = parseModifyFieldCommand(elem,parentScript,project);
 		else if("DropFieldCommand".contentEquals(typeStr))
 			command = parseDropFieldCommand(elem,parentScript,project);
-		else
-			command = null; //TODO
+		else {
+			//Invalid command
+			//TODO: exception
+			command = null;
+		}
 		
 		return command;
 	}
@@ -351,8 +354,9 @@ public class ProjectXMLSerializer implements ProjectSerializer {
 					type = GenericTypes.BLOB;
 				else if("LONGTEXT".contentEquals(strValue))
 					type = GenericTypes.LONGTEXT;
-				else
-					; //TODO
+				else {
+					continue; //TODO: Exception: invalid dataType
+				}
 				
 				field.setType(type);
 			}

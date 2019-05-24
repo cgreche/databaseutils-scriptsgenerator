@@ -5,6 +5,11 @@ import java.awt.Dimension;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.SwingConstants;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import javax.swing.JButton;
 
 //16/05/2018
 public class StatusBar extends JPanel {
@@ -14,9 +19,11 @@ public class StatusBar extends JPanel {
 	private JLabel lblText;
 	
 	public StatusBar() {
+		setBorder(new EmptyBorder(0, 10, 0, 0));
 		lblText = new JLabel("");
 		setBackgroundColor(new Color(0xC3C3C3));
-		setTextColor(new Color(0xff0000));
+		setTextColor(new Color(0x000000));
+		setLayout(new FlowLayout(FlowLayout.LEFT));
 		this.add(lblText);
 		this.setPreferredSize(new Dimension(this.getMaximumSize().width,26));
 	}

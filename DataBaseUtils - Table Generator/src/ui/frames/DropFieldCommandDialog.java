@@ -18,9 +18,6 @@ import structs.Table;
 import structs.TableField;
 import java.awt.Component;
 import javax.swing.JPanel;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 import java.awt.Font;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JSeparator;
@@ -52,14 +49,6 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 	public DropFieldCommandDialog(JFrame parent) {
 		super(parent);
 		setTitle("Comando DropField");
-		
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				if(!editMode) {
-				}
-			}
-		});
 		
 		panel = new JPanel();
 		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -121,6 +110,7 @@ public class DropFieldCommandDialog extends Dialog<DropFieldCommand> {
 		for(TableField field : fields) {
 			ddField.addItem(field);
 		}
+		ddField.setSelectedItem(currentCommand.getField());
 	}
 	
 	public void insertNew(Script parentScript) {

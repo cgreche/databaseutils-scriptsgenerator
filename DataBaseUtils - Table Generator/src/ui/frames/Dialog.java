@@ -1,5 +1,8 @@
 package ui.frames;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -14,6 +17,13 @@ public class Dialog<T> extends JDialog {
 	public Dialog(JFrame parent) {
 		super(parent,true);
 		this.parent = parent;
+		
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				Dialog.this.onClose();
+			}
+		});
 	}
 	
 	public boolean getResult() {
@@ -37,5 +47,9 @@ public class Dialog<T> extends JDialog {
 	public void setVisible(boolean visible) {
 		setLocationRelativeTo(getParent());
 		super.setVisible(visible);
+	}
+	
+	public void onClose() {
+		setResult(false,null);
 	}
 }

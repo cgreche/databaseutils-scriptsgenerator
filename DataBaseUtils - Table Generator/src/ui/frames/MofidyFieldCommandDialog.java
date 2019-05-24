@@ -42,25 +42,12 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	private JComboBox<TableField> ddField;
 	
 	private JLabel lblType;
-
 	private JLabel lblPk;
-	
 	private JLabel lblFk;
-
 	private JLabel lblNotNull;
-
 	private JLabel lblReferencedTable;
-
 	private JLabel lblReferencedColumn;
-
-	private JButton btnSave;
 	
-	boolean editMode;
-	
-	private Script parentScript;
-	private Table currentTable;
-	private ModifyFieldCommand currentCommand;
-	private TableField currentNewField;
 	private JPanel panel;
 	private JPanel panel_1;
 	private JPanel panel_2;
@@ -79,6 +66,38 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	private JPanel panel_3;
 	private JSeparator separator_1;
 	private Component rigidArea_3;
+	
+	private JButton btnSave;
+
+	
+	private Script parentScript;
+	private Table currentTable;
+	private ModifyFieldCommand currentCommand;
+	private TableField currentNewField;
+
+	boolean editMode;
+	
+	private void updateControlsWithOldFieldInfo() {
+		TableField field = (TableField)ddField.getSelectedItem();
+		if(field != null) {
+			ddType.setSelectedItem(field.getType());
+			tfSize.setText(field.getSize());
+			cbPk.setSelected(field.isPK());
+			cbFk.setSelected(field.isFK());
+			cbNotNull.setSelected(field.isNotNull());
+			tfReferencedTable.setText(field.getReferencedTable());
+			tfReferencedField.setText(field.getReferencedColumn());
+		}
+		else {
+			ddType.setSelectedItem(null);
+			tfSize.setText(null);
+			cbPk.setSelected(false);
+			cbFk.setSelected(false);
+			cbNotNull.setSelected(false);
+			tfReferencedTable.setText(null);
+			tfReferencedField.setText(null);
+		}
+	}
 	
 	public MofidyFieldCommandDialog(JFrame parent) {
 		super(parent);
@@ -111,14 +130,7 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 				ddField.addActionListener(new ActionListener () {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						TableField item = (TableField)ddField.getSelectedItem();
-						ddType.setSelectedItem(item.getType());
-						tfSize.setText(item.getSize());
-						cbPk.setSelected(item.isPK());
-						cbFk.setSelected(item.isFK());
-						cbNotNull.setSelected(item.isNotNull());
-						tfReferencedTable.setText(item.getReferencedTable());
-						tfReferencedField.setText(item.getReferencedColumn());
+						updateControlsWithOldFieldInfo();
 					}
 				});
 		
@@ -221,6 +233,12 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 		gbc_ddType.gridx = 0;
 		gbc_ddType.gridy = 1;
 		panel_2.add(ddType, gbc_ddType);
+		ddType.addItem(GenericTypes.TEXT);
+		ddType.addItem(GenericTypes.NUMERIC);
+		ddType.addItem(GenericTypes.DATE);
+		ddType.addItem(GenericTypes.TIMESTAMP);
+		ddType.addItem(GenericTypes.BLOB);
+		ddType.addItem(GenericTypes.LONGTEXT);
 		
 		tfSize = new JTextField();
 		GridBagConstraints gbc_tfSize = new GridBagConstraints();
@@ -324,11 +342,22 @@ public class MofidyFieldCommandDialog extends Dialog<ModifyFieldCommand> {
 	}
 		
 	public void updateControls() {
-		//TODO
 		ddField.removeAllItems();
 		List<TableField> fields = currentTable.getFields();
 		for(TableField field : fields)
 			ddField.addItem(field);
+		ddField.setSelectedItem(currentCommand.getOldField());
+		
+		//
+		
+		ddType.setSelectedItem(currentCommand.getOldField());
+		tfSize.setText(currentNewField.getSize());
+		int constraints = currentNewField.getConstraints();
+		cbPk.setSelected((constraints & Constraints.PK) != 0);
+		cbFk.setSelected((constraints & Constraints.FK) != 0);
+		cbNotNull.setSelected((constraints & Constraints.NOT_NULL) != 0);
+		tfReferencedTable.setText(currentNewField.getReferencedTable());
+		tfReferencedField.setText(currentNewField.getReferencedColumn());
 	}
 	
 	public void insertNew(Script parentScript) {

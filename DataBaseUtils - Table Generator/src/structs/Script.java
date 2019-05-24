@@ -85,6 +85,8 @@ public class Script {
 				resultingTable = ((CreateTableCommand) command).getTable().clone();
 			}
 			else if(command instanceof AddFieldCommand) {
+				if(resultingTable == null)
+					return false;
 				AddFieldCommand afc = (AddFieldCommand)command;
 				if(resultingTable.getFieldByName(afc.getField().getName()) != null) {
 					//Field already exists
@@ -93,6 +95,8 @@ public class Script {
 				resultingTable.getFields().add(afc.getField());
 			}
 			else if(command instanceof ModifyFieldCommand) {
+				if(resultingTable == null)
+					return false;
 				ModifyFieldCommand mfc = (ModifyFieldCommand)command;
 				int fieldIndex = resultingTable.getFieldIndex(mfc.getOldField());
 				if(fieldIndex == -1) {
@@ -103,6 +107,8 @@ public class Script {
 					resultingTable.getFields().set(fieldIndex, mfc.getNewField());
 			}
 			else if(command instanceof DropFieldCommand) {
+				if(resultingTable == null)
+					return false;
 				DropFieldCommand dfc = (DropFieldCommand)command;
 				int fieldIndex = resultingTable.getFieldIndex(dfc.getField());
 				if(fieldIndex == -1) {

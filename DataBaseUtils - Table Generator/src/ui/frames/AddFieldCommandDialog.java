@@ -233,25 +233,10 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				TableField field = new TableField();
-				field.setName(tfName.getText());
-				field.setType((FieldType)ddType.getSelectedItem());
-				field.setSize(tfSize.getText());
-				int constraints = 0;
-				if(cbPk.isSelected())
-					constraints |= Constraints.PK;
-				if(cbFk.isSelected())
-					constraints |= Constraints.FK;
-				if(cbNotNull.isSelected())
-					constraints |= Constraints.NOT_NULL;
-				field.setConstraints(constraints);
-				field.setReferencedTable(tfReferencedTable.getText());
-				field.setReferencedColumn(tfReferencedColumn.getText());
-				currentCommand.setField(field);
-				
-				if(!validateFields())
+				dialogControlsToObject(currentCommand);
+				if(!validateAddFieldCommand(currentCommand))
 					return;
-
+				
 				AddFieldCommandDialog.this.setResult(true,currentCommand);
 				AddFieldCommandDialog.this.dispose();
 			}
@@ -261,30 +246,6 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		
 		this.setContentPane(panel);
 		this.setSize(new Dimension(620,150));
-	}
-	
-	private boolean validateFields() {
-		Table table = currentTable;
-		TableField field = currentCommand.getField();
-
-		if(field.getName() == null || "".contentEquals(field.getName())) {
-			JOptionPane.showMessageDialog(this, "H� campos da tabela com nome n�o informado.");
-			return false;
-		}
-		
-		if(field.getType() == null) {
-			JOptionPane.showMessageDialog(this, "H� campos da tabela com tipo n�o informado.");
-			return false;
-		}
-		
-		for(TableField f : table.getFields()) {
-			if(f.getName().equals(field.getName())) {
-				JOptionPane.showMessageDialog(this, "O nome escolhido j� existe na tabela destino.");
-				return false;
-			}
-		}
-		
-		return true;
 	}
 	
 	public void updateControls() {
@@ -297,6 +258,46 @@ public class AddFieldCommandDialog extends Dialog<AddFieldCommand> {
 		cbNotNull.setSelected((field.getConstraints() & Constraints.NOT_NULL) != 0);
 		tfReferencedTable.setText(field.getReferencedTable());
 		tfReferencedColumn.setText(field.getReferencedColumn());
+	}
+	
+	private void dialogControlsToObject(AddFieldCommand command) {
+		TableField field = command.getField();
+		field.setName(tfName.getText().trim());
+		field.setType((FieldType)ddType.getSelectedItem());
+		field.setSize(tfSize.getText().trim());
+		int constraints = 0;
+		if(cbPk.isSelected())
+			constraints |= Constraints.PK;
+		if(cbFk.isSelected())
+			constraints |= Constraints.FK;
+		if(cbNotNull.isSelected())
+			constraints |= Constraints.NOT_NULL;
+		field.setConstraints(constraints);
+		field.setReferencedTable(tfReferencedTable.getText().trim());
+		field.setReferencedColumn(tfReferencedColumn.getText().trim());
+	}
+	
+	private boolean validateAddFieldCommand(AddFieldCommand command) {
+		TableField field = command.getField();
+		if(field.getName() == null || "".contentEquals(field.getName())) {
+			JOptionPane.showMessageDialog(this, "Há campos da tabela com nome não informado.");
+			return false;
+		}
+		
+		if(field.getType() == null) {
+			JOptionPane.showMessageDialog(this, "Há campos da tabela com tipo não informado.");
+			return false;
+		}
+
+		Table table = command.getRefTable();
+		for(TableField f : table.getFields()) {
+			if(f.getName().equals(field.getName())) {
+				JOptionPane.showMessageDialog(this, "O nome escolhido já existe na tabela destino.");
+				return false;
+			}
+		}
+		
+		return true;
 	}
 	
 	public void insertNew(Script parentScript) {

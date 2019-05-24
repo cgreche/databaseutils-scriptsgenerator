@@ -59,23 +59,6 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 		super(parent);
 		setTitle("Comando CreateTable");
 		
-		this.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosed(WindowEvent e) {
-				//
-			}
-			
-			@Override
-			public void windowClosing(WindowEvent e) {
-				setResult(false,null);
-			}
-			
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				
-			}
-		});
-
 		lblTableName = new JLabel("Nome da tabela");
 		lblTableName.setFont(new Font("Tahoma", Font.BOLD, 11));
 		tfTableName = new JTextField();
@@ -133,12 +116,8 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				String tableName = tfTableName.getText();
-				
-				//currentCommand references currentTable
-				currentTable.setName(tableName);
-
-				if(validateFields()) {
+				dialogControlsToObject(currentCommand);
+				if(validateCreateTableCommand(currentCommand)) {
 					setResult(true,currentCommand);
 					CreateTableCommandDialog.this.dispose();
 				}
@@ -150,27 +129,40 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 		this.setSize(new Dimension(800, 600));
 	}
 	
-	private boolean validateFields() {
-		if(currentTable.getName() == null || "".contentEquals(currentTable.getName())) {
-			JOptionPane.showMessageDialog(this, "Nome da tabela n�o informado.");
+	private void updateControls() {
+		tfTableName.setText(currentTable.getName());
+		tableFields.setData(currentFields);
+	}
+	
+	private void dialogControlsToObject(CreateTableCommand command) {
+		Table table = command.getTable();
+		table.setName(tfTableName.getText().trim());
+		table.setFields(tableFields.getData());
+	}
+	
+	private boolean validateCreateTableCommand(CreateTableCommand command) {
+		Table table = command.getTable();
+		
+		if(table.getName() == null || "".contentEquals(table.getName())) {
+			JOptionPane.showMessageDialog(this, "Nome da tabela não informado.");
 			return false;
 		}
 		
 		Set<String> fieldNames = new HashSet<String>();
-		List<TableField> fields = currentTable.getFields();
+		List<TableField> fields = table.getFields();
 		for(TableField field : fields) {
 			if(field.getName() == null || "".contentEquals(field.getName())) {
-				JOptionPane.showMessageDialog(this, "H� campos da tabela com nome n�o informado.");
+				JOptionPane.showMessageDialog(this, "Há campos da tabela com nome não informado.");
 				return false;
 			}
 			
 			if(field.getType() == null) {
-				JOptionPane.showMessageDialog(this, "H� campos da tabela com tipo n�o informado.");
+				JOptionPane.showMessageDialog(this, "Há campos da tabela com tipo não informado.");
 				return false;
 			}
 			
 			if(fieldNames.contains(field.getName())) {
-				JOptionPane.showMessageDialog(this, "N�o pode haver campos com nome repetidos na tabela.");
+				JOptionPane.showMessageDialog(this, "Não pode haver campos com nomes repetidos na tabela.");
 				return false;
 			}
 			
@@ -178,11 +170,6 @@ public class CreateTableCommandDialog extends Dialog<CreateTableCommand> {
 		}
 		
 		return true;
-	}
-	
-	private void updateControls() {
-		tfTableName.setText(currentTable.getName());
-		tableFields.setData(currentFields);
 	}
 	
 	public void insertNew(Script parentScript) {

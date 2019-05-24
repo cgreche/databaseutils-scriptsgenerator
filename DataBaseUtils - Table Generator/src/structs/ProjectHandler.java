@@ -17,7 +17,7 @@ public class ProjectHandler {
 		NEW,
 		LOADED_UNMODIFIED,
 		LOADED_MODIFIED,
-		MODIFIED_SAVED
+		SAVED
 	}
 	
 	private Project project;
@@ -48,15 +48,13 @@ public class ProjectHandler {
 			e.printStackTrace();
 		}
 		
+		setProjectState(ProjectState.SAVED);
 		return true;
-		
 	}
 	
 	public boolean save() {
 		if(currentSavePath == null)
 			return false;
-		if(projectState == ProjectState.LOADED_MODIFIED)
-			setProjectState(ProjectState.MODIFIED_SAVED);
 		return save(currentSavePath);
 	}
 	

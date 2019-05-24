@@ -34,6 +34,8 @@ public class TableCreateTableFieldsModel extends AbstractTableModel {
 	
 	@Override
 	public void setValueAt(Object value, int row, int col) {
+		if(row >= data.size())
+			return;
 		TableField field = data.get(row);
 		if(col == 0) field.setName((String)value);
 		if(col == 1) field.setType((FieldType)value);

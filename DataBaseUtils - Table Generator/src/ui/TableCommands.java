@@ -7,13 +7,17 @@ import java.util.List;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import structs.Command;
+import structs.Script;
+import ui.frames.ProjectPanel;
 
 //06/05/2019
 
@@ -74,7 +78,8 @@ public class TableCommands extends JTable {
 	
 	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
 		private JTable table;
-		private int mnemonic;
+
+		private ActionListener action;
 		
 		private JButton deleteButton;
 		private Object editorValue;
@@ -108,33 +113,37 @@ public class TableCommands extends JTable {
 		
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 			JButton button = new JButton("Remover");
-			button.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					data.remove(row);
-					refresh();
-				}
-			});
+			button.addActionListener(action);
 			return button;
 		}
+		
+		public void setDeleteAction(ActionListener action) {
+			this.action = action;
+		}
+		
 	}
+	
+	private DeleteButton deleteButton;
 	
 	private TableCommandsModel model;
 	private List<Command> data;
 	
 	public TableCommands() {
 		super();
+		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
 		model = new TableCommandsModel();
 		this.setModel(model);
 		
-		new DeleteButton(this,1);
+		deleteButton = new DeleteButton(this,1);
 	}
 	
 	public void setData(List<Command> commandList) {
-		this.data = commandList;
-		model.setData(commandList);
-		model.fireTableDataChanged();
+		if(this.data != commandList) {
+			this.data = commandList;
+			model.setData(commandList);
+			model.fireTableDataChanged();
+		}
 	}
 	
 	public List<Command> getData() {
@@ -143,5 +152,9 @@ public class TableCommands extends JTable {
 	
 	public void refresh() {
 		model.fireTableDataChanged();
+	}
+	
+	public void setDeleteAction(ActionListener action) {
+		deleteButton.setDeleteAction(action);
 	}
 }

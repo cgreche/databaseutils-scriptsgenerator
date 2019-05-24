@@ -116,13 +116,16 @@ public class Test {
 		field3.setConstraints(Constraints.PK);
 		field3.setType(GenericTypes.TIMESTAMP);
 		script.addCommand(new AddFieldCommand(script,table2,field3));
-		script.addCommand(new DropFieldCommand(script,table2,field3));
 		
+		table2 = script.getResultingTable();
+		script.addCommand(new DropFieldCommand(script,table2,table2.getFieldByName("GUILHERME")));
+		
+		table2 = script.getResultingTable();
 		TableField fieldID2Old = table2.getFieldByName("ID2");
-		TableField fieldID2 = fieldID2Old.clone();
-		fieldID2.setType(GenericTypes.TEXT);
-		fieldID2.setSize("100");
-		script.addCommand(new ModifyFieldCommand(script,table2,fieldID2Old,fieldID2));
+		TableField fieldID2New = fieldID2Old.clone();
+		fieldID2New.setType(GenericTypes.TEXT);
+		fieldID2New.setSize("100");
+		script.addCommand(new ModifyFieldCommand(script,table2,fieldID2Old,fieldID2New));
 		return script;
 	}
 	

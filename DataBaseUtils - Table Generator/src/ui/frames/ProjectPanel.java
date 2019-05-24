@@ -25,6 +25,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import application.Main;
 import structs.AddFieldCommand;
 import structs.Command;
 import structs.CreateTableCommand;
@@ -38,7 +39,7 @@ import ui.TableScripts;
 import ui.resultingtable.TableFieldTable;
 
 /**
- * Painel de constru��o/edi��o do projeto
+ * Painel de construção/edição do projeto
  * @author cesar.reche
  *
  */
@@ -72,7 +73,9 @@ public class ProjectPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			Script script = new Script();
 			scriptList.add(script);
-			//
+			tableScripts.refresh();
+			
+			Main.mainWindow.notifyProjectChanged();
 		}
 	};
 	
@@ -84,8 +87,11 @@ public class ProjectPanel extends JPanel {
 				CreateTableCommand command = MainWindow.createTableCommandDialog.getResultData();
 				if(command != null) {
 					currentSelectedScript.addCommand(command);
+					currentSelectedScript.notifyScriptChanged();
 					//
-					tableCommands.updateUI();
+					updateCommandsControls();
+					updateResultingTable();
+					Main.mainWindow.notifyProjectChanged();
 				}
 			}
 		}
@@ -98,8 +104,11 @@ public class ProjectPanel extends JPanel {
 			if(MainWindow.addFieldCommandDialog.getResult()) {
 				AddFieldCommand command = MainWindow.addFieldCommandDialog.getResultData();
 				currentSelectedScript.addCommand(command);
+				currentSelectedScript.notifyScriptChanged();
 				//
-				tableCommands.updateUI();
+				updateCommandsControls();
+				updateResultingTable();
+				Main.mainWindow.notifyProjectChanged();
 			}
 		}
 	};
@@ -112,8 +121,11 @@ public class ProjectPanel extends JPanel {
 				ModifyFieldCommand command = MainWindow.modifyFieldCommandDialog.getResultData();
 				if(command != null) {
 					currentSelectedScript.addCommand(command);
+					currentSelectedScript.notifyScriptChanged();
 					//
-					tableCommands.updateUI();
+					updateCommandsControls();
+					updateResultingTable();
+					Main.mainWindow.notifyProjectChanged();
 				}
 			}
 		}
@@ -127,11 +139,104 @@ public class ProjectPanel extends JPanel {
 				DropFieldCommand command = MainWindow.dropFieldCommandDialog.getResultData();
 				if(command != null) {
 					currentSelectedScript.addCommand(command);
+					currentSelectedScript.notifyScriptChanged();
 					//
-					tableCommands.updateUI();
-					updateControls();
+					updateCommandsControls();
+					updateResultingTable();
+					Main.mainWindow.notifyProjectChanged();
 				}
 			}
+		}
+	};
+	
+	private ActionListener actionRemoveScript = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = tableScripts.getSelectedRow();
+			if(index < 0 || index >= currentSelectedScript.getCommands().size())
+				return;
+			if(scriptList.get(index) == currentSelectedScript) {
+				currentSelectedScript = null;
+			}
+			scriptList.remove(index);
+			tableScripts.refresh();
+			Main.mainWindow.notifyProjectChanged();
+		}
+	};
+	
+	private ActionListener actionRemoveCommand = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = tableCommands.getSelectedRow();
+			if(currentSelectedScript == null || index < 0 || index >= currentSelectedScript.getCommands().size())
+				return;
+			
+			//Save the command, so we can set it back in case the command become invalid
+			Command command = currentSelectedScript.getCommands().get(index);
+			currentSelectedScript.getCommands().remove(index);
+			if(!currentSelectedScript.validate()) {
+				currentSelectedScript.getCommands().add(index,command);
+				JOptionPane.showMessageDialog(ProjectPanel.this, "O comando não pôde ser removido, pois há comandos posteriores dependentes do mesmo.");
+				return;
+			}
+			
+			currentSelectedScript.notifyScriptChanged();
+			
+			tableCommands.refresh();
+			updateResultingTable();
+			Main.mainWindow.notifyProjectChanged();
+		}
+	};
+	
+	private ActionListener actionEditSelectedCommand = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = tableCommands.getSelectedRow();
+			Command command = tableCommands.getData().get(index);
+			
+			boolean result = false;
+			Dialog<?> dialog = null;
+			boolean validCommand;
+			do {
+				if(command instanceof CreateTableCommand) {
+					MainWindow.createTableCommandDialog.edit((CreateTableCommand)command);
+					dialog = MainWindow.createTableCommandDialog;
+				}
+				else if(command instanceof AddFieldCommand) {
+					MainWindow.addFieldCommandDialog.edit((AddFieldCommand)command);
+					dialog = MainWindow.addFieldCommandDialog;
+				}
+				else if(command instanceof ModifyFieldCommand) {
+					MainWindow.modifyFieldCommandDialog.edit((ModifyFieldCommand)command);
+					dialog = MainWindow.modifyFieldCommandDialog;
+				}
+				else if(command instanceof DropFieldCommand) {
+					MainWindow.dropFieldCommandDialog.edit((DropFieldCommand)command);
+					dialog = MainWindow.dropFieldCommandDialog;
+				}
+				else {
+					return;
+				}
+				
+				validCommand = true;
+				result = dialog.getResult();
+				if(result) {
+					Command resultCommand = (Command)dialog.getResultData();
+					//Change the command at the current index and try to validate
+					currentSelectedScript.getCommands().set(index, resultCommand);
+					validCommand = currentSelectedScript.validate();
+					if(validCommand) {
+						updateCommandsControls();
+						updateResultingTable();
+						Main.mainWindow.notifyProjectChanged();
+					}
+					else {
+						//If the script turned invalid, change the command back to the original
+						currentSelectedScript.getCommands().set(index, command);
+						JOptionPane.showMessageDialog(ProjectPanel.this, "O comando não pôde ser modificado, pois há comandos posteriores dependentes do mesmo.\nVerifique o conteúdo do comando atual ou altere os comandos dependentes para execução deste procedimento.");
+					}
+				}
+			} while(!validCommand);
 		}
 	};
 	
@@ -154,7 +259,7 @@ public class ProjectPanel extends JPanel {
 			else {
 				String message = "Os scripts n�o puderam ser gerados:\n";
 				if((errors & Project.ERROR_UNNAMED_SCRIPT) != 0) {
-					message += "-H� scripts sem nome.";
+					message += "Há scripts sem nome";
 				}
 				
 				JOptionPane.showMessageDialog(null,message);
@@ -162,16 +267,7 @@ public class ProjectPanel extends JPanel {
 		}
 	};
 	
-	private void updateCommandList() {
-		if(currentSelectedScript == null)
-			return;
-		List<Command> commands = currentSelectedScript.getCommands();
-		if(commands == null)
-			return;
-		tableCommands.setData(commands);
-	}
-	
-	private void updateColumnTable() {
+	private void updateResultingTable() {
 		tableResultingTable.setData(currentSelectedScript);
 	}
 	
@@ -283,25 +379,12 @@ public class ProjectPanel extends JPanel {
 				if(!e.getValueIsAdjusting()) {
 					int selectionIndex = ((DefaultListSelectionModel)e.getSource()).getAnchorSelectionIndex();
 					currentSelectedScript = selectionIndex >= 0 ? scriptList.get(selectionIndex) : null;
-					updateCommandList();
-					updateColumnTable();
+					updateCommandsControls();
+					updateResultingTable();
 				}
 			}
 		});
-		tableScripts.setDeleteAction(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int index = tableScripts.getSelectedRow();
-				System.out.println("" + index);
-				if(index >= 0 && index < scriptList.size()) {
-					if(scriptList.get(index) == currentSelectedScript) {
-						currentSelectedScript = null;
-					}
-					scriptList.remove(index);
-					tableScripts.refresh();
-				}
-			}
-		});
+		tableScripts.setDeleteAction(actionRemoveScript);
 		scrollPane_1.setViewportView(tableScripts);
 		
 		JScrollPane scrollPane_2 = new JScrollPane();
@@ -315,59 +398,17 @@ public class ProjectPanel extends JPanel {
 		
 		tableCommands = new TableCommands();
 		tableCommands.addMouseListener(new MouseAdapter() {
-			
 			@Override
 			public void mouseClicked(MouseEvent evt) {
 				TableCommands table = (TableCommands)evt.getSource();
 				if(evt.getClickCount() == 2) {
-					// Double-click detected
 					int index = table.rowAtPoint(evt.getPoint());
-					Command command = table.getData().get(index);
-					
-					boolean result = false;
-					Dialog<?> dialog = null;
-					boolean validCommand;
-					do {
-						if(command instanceof CreateTableCommand) {
-							MainWindow.createTableCommandDialog.edit((CreateTableCommand)command);
-							dialog = MainWindow.createTableCommandDialog;
-						}
-						else if(command instanceof AddFieldCommand) {
-							MainWindow.addFieldCommandDialog.edit((AddFieldCommand)command);
-							dialog = MainWindow.addFieldCommandDialog;
-						}
-						else if(command instanceof ModifyFieldCommand) {
-							MainWindow.modifyFieldCommandDialog.edit((ModifyFieldCommand)command);
-							dialog = MainWindow.modifyFieldCommandDialog;
-						}
-						else if(command instanceof DropFieldCommand) {
-							MainWindow.dropFieldCommandDialog.edit((DropFieldCommand)command);
-							dialog = MainWindow.dropFieldCommandDialog;
-						}
-						else {
-							return;
-						}
-						
-						validCommand = true;
-						result = dialog.getResult();
-						if(result) {
-							Command resultCommand = (Command)dialog.getResultData();
-							currentSelectedScript.getCommands().set(index, resultCommand);
-							validCommand = currentSelectedScript.validate();
-							if(validCommand) {
-								tableCommands.updateUI();
-								updateColumnTable();
-							}
-							else {
-								JOptionPane.showMessageDialog(ProjectPanel.this, "O comando n�o pode ser modificado, pois h� comandos posteriores dependentes do mesmo.\nVerifique o conte�do do comando atual ou altere os comandos dependentes para execu��o deste procedimento.");
-							}
-							//update UI
-
-						}
-					} while(!validCommand);
+					table.setRowSelectionInterval(index, index);
+					actionEditSelectedCommand.actionPerformed(null);
 				}
 			}
 		});
+		tableCommands.setDeleteAction(actionRemoveCommand);
 		scrollPane_2.setViewportView(tableCommands);
 		
 		JLabel lblScriptsTitle = new JLabel("Scripts");
@@ -441,16 +482,24 @@ public class ProjectPanel extends JPanel {
 		Component horizontalGlue_2 = Box.createHorizontalGlue();
 		panelFooter.add(horizontalGlue_2);
 	}
+	
+	private void updateCommandsControls() {
+		List<Command> commands = currentSelectedScript != null ? currentSelectedScript.getCommands() : null;
+		if(tableCommands.getData() != commands)
+			tableCommands.setData(commands);
+		else
+			tableCommands.refresh();
+		boolean hasCreateTableCommand = currentSelectedScript != null && currentSelectedScript.hasCreateTableCommand();
+		btnCreateTableCommand.setEnabled(currentSelectedScript != null && !hasCreateTableCommand);
+		btnAddFieldCommand.setEnabled(hasCreateTableCommand);
+		btnModifyFieldCommand.setEnabled(hasCreateTableCommand);
+		btnDropFieldCommand.setEnabled(hasCreateTableCommand);
+	}
 
 	private void updateControls() {
 		lblProjectName.setText(project.getName());
 		tableScripts.setData(project.getScripts());
-		tableCommands.setData(currentSelectedScript != null ? currentSelectedScript.getCommands() : null);
-		boolean hasCreateTableCommand = currentSelectedScript != null && currentSelectedScript.hasCreateTableCommand();
-		btnCreateTableCommand.setEnabled(!hasCreateTableCommand);
-		btnAddFieldCommand.setEnabled(hasCreateTableCommand);
-		btnModifyFieldCommand.setEnabled(hasCreateTableCommand);
-		btnDropFieldCommand.setEnabled(hasCreateTableCommand);
+		updateCommandsControls();
 	}
 	
 	public void setProject(Project project) {

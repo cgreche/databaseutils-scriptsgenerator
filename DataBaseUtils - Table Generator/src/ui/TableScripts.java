@@ -8,6 +8,7 @@ import java.util.List;
 import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -118,13 +119,7 @@ public class TableScripts extends JTable {
 		
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 			JButton button = new JButton("Remover");
-			button.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					action.actionPerformed(e);
-				}
-			});
+			button.addActionListener(action);
 			return button;
 		}
 		
@@ -140,6 +135,7 @@ public class TableScripts extends JTable {
 	
 	public TableScripts() {
 		super();
+		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		model = new TableScriptsModel();
 		this.setModel(model);
 		

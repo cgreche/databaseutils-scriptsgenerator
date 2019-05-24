@@ -15,9 +15,12 @@ import javax.swing.JSeparator;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import application.Main;
 import structs.Project;
 import structs.ProjectHandler;
+import structs.ProjectHandler.ProjectState;
 import ui.StatusBar;
+import java.awt.Color;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -101,7 +104,7 @@ public class MainWindow extends JFrame {
 			}
 			
 			if(projectHandler.save()) {
-				setStatuText("Projeto salvo com sucesso.");
+				updateStatusText();
 			}
 		}
 	};
@@ -119,7 +122,10 @@ public class MainWindow extends JFrame {
 			int returnVal = fc.showSaveDialog(MainWindow.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				File file = fc.getSelectedFile();
-				projectHandler.save(file.getPath());
+				projectHandler.setSavePath(file.getPath());
+				if(projectHandler.save()) {
+					updateStatusText();
+				}
 			} else {
 				return;
 			}
@@ -134,7 +140,7 @@ public class MainWindow extends JFrame {
 			
 			Project project = projectHandler.getProject();
 			if(project == null) {
-				JOptionPane.showMessageDialog(MainWindow.this, "N�o h� projeto aberto");
+				JOptionPane.showMessageDialog(MainWindow.this, "Não há projeto aberto");
 				return;
 			}
 			
@@ -152,8 +158,8 @@ public class MainWindow extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(projectHandler != null) {
-				if(projectHandler.getProjectState() != ProjectHandler.ProjectState.MODIFIED_SAVED) {
-					String message = "As �ltimas altera��es do projeto n�o foram salvas.\nDeseja salvar o projeto antes de sair?";
+				if(projectHandler.getProjectState() != ProjectHandler.ProjectState.SAVED) {
+					String message = "As últimas alterações do projeto n�o foram salvas.\nDeseja salvar o projeto antes de sair?";
 					int result = JOptionPane.showConfirmDialog(MainWindow.this, message, null, JOptionPane.YES_NO_OPTION);
 					if(result == JOptionPane.YES_OPTION){
 						final JFileChooser fc = new JFileChooser();
@@ -177,6 +183,7 @@ public class MainWindow extends JFrame {
 	
 	public MainWindow() {
 		super("eSocial Techne Database Utils - Scripts generator");
+		setTitle(application.Properties.APPLICATION_NAME);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		menuBar = new JMenuBar();
@@ -223,8 +230,8 @@ public class MainWindow extends JFrame {
 		dropFieldCommandDialog = new DropFieldCommandDialog(this);
 		
 		panelProject = new ProjectPanel();
-		this.add(panelProject,BorderLayout.CENTER);
-		this.add(statusBar,BorderLayout.PAGE_END);
+		getContentPane().add(panelProject,BorderLayout.CENTER);
+		getContentPane().add(statusBar,BorderLayout.PAGE_END);
 		this.setSize(1024, 768);
 		
 		panelProject.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -234,10 +241,47 @@ public class MainWindow extends JFrame {
 	public void viewProject(Project project) {
 		panelProject.setProject(project);
 		panelProject.setVisible(true);
-		setStatuText("Projeto carregado." + " N�mero de scripts: " + project.getScripts().size());
+		setTitle(application.Properties.APPLICATION_NAME + (project != null ? " - " + project.getName() : ""));
+		updateStatusText();
 	}
 	
 	public void setStatuText(String text) {
 		statusBar.setText(text);
+	}
+	
+	public void updateStatusText() {
+		if(projectHandler == null) {
+			statusBar.setText("");
+			return;
+		}
+		Project project = projectHandler.getProject();
+		ProjectState projectState = projectHandler.getProjectState();
+		String stateStr;
+		if(projectState == ProjectState.NEW) {
+			stateStr = "não salvo"; 
+		}
+		else if(projectState == ProjectState.LOADED_UNMODIFIED) {
+			stateStr = "carregado";
+		}
+		else if(projectState == ProjectState.LOADED_MODIFIED) {
+			stateStr = "modificado, não salvo";
+		}
+		else if(projectState == ProjectState.SAVED) {
+			stateStr = "salvo";
+		}
+		else {
+			statusBar.setText("");
+			return;
+		}
+		
+		setStatuText("Projeto " + stateStr + ". " + "Número de scripts: " + project.getScripts().size());
+	}
+	
+	public void notifyProjectChanged() {
+		if(projectHandler == null) {
+			return;
+		}
+		projectHandler.notifyProjectChanged();
+		updateStatusText();
 	}
 }

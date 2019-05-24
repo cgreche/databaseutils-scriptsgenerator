@@ -2,7 +2,7 @@ package structs;
 
 //15/04/2019
 
-public class CreateTableCommand extends Command implements Cloneable {
+public class CreateTableCommand extends Command {
 	private Table table;
 	
 	public CreateTableCommand(Script script, Table table) {
@@ -21,14 +21,6 @@ public class CreateTableCommand extends Command implements Cloneable {
 	@Override
 	public String toString() {
 		return "Create Table (" + table.getName() + ")";
-	}
-	
-	@Override
-	public CreateTableCommand clone() {
-		CreateTableCommand command = (CreateTableCommand)super.clone();
-		if(table != null)
-			command.table = table.clone();
-		return command;
 	}
 	
 }

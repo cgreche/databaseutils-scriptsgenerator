@@ -1,11 +1,12 @@
+package application;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import ui.frames.MainWindow;
 
-public class Application {
-	
+public class Main {
+			
 	public static MainWindow mainWindow;
 	
 	public static void main(String [] args) {
