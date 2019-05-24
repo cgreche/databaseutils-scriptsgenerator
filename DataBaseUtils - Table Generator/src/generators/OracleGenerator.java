@@ -17,7 +17,13 @@ import structs.Project;
 import structs.Table;
 import structs.TableField;
 
-//10/04/2019
+/**
+ * 
+ * Script Generator for OracleDB
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public class OracleGenerator extends Generator {
 	
 	private static final List<FieldType> oracleTypes;

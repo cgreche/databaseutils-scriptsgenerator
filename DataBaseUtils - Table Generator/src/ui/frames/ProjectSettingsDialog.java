@@ -19,13 +19,8 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import structs.Project;
-import tests.Test;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 import javax.swing.Box;
 import javax.swing.JSeparator;
-import javax.swing.UIManager;
 import javax.swing.JScrollPane;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -40,13 +35,12 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 	private JLabel labelGenerationTargetPath;
 	private JPanel panelSearchTargetPath;
 		private JTextField tfGenerationTargetPath;
-		private JButton buttonSearchGenTargetPath;
+		private JButton btnSearchGenTargetPath;
 
 	private JButton btnCreateProject;
 	
 	//
-	boolean editMode;
-	private Project project;
+
 	private JPanel panel_2;
 	private JSeparator separator;
 	private JScrollPane scrollPane;
@@ -61,6 +55,11 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 	private JCheckBox cbProfileMySQL;
 	private JSeparator separator_1;
 	private Component rigidArea_6;
+	
+	//
+	boolean editMode;
+	private Project currentProject;
+	
 	
 	public ProjectSettingsDialog(JFrame parent) {
 		super(parent);
@@ -97,9 +96,9 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		tfGenerationTargetPath.setAlignmentX(Component.LEFT_ALIGNMENT);
 		tfGenerationTargetPath.setMinimumSize(new Dimension(4, 20));
 		
-		buttonSearchGenTargetPath = new JButton("Buscar");
-		buttonSearchGenTargetPath.setPreferredSize(new Dimension(65, 20));
-		buttonSearchGenTargetPath.addActionListener(new ActionListener() {
+		btnSearchGenTargetPath = new JButton("Buscar");
+		btnSearchGenTargetPath.setPreferredSize(new Dimension(65, 20));
+		btnSearchGenTargetPath.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				final JFileChooser fc = new JFileChooser();
@@ -114,7 +113,7 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		});
 		
 		panelSearchTargetPath.add(tfGenerationTargetPath);
-		panelSearchTargetPath.add(buttonSearchGenTargetPath);
+		panelSearchTargetPath.add(btnSearchGenTargetPath);
 		
 		rigidArea_1 = Box.createRigidArea(new Dimension(5, 5));
 		panel.add(rigidArea_1);
@@ -185,14 +184,14 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 				if(cbProfileMySQL.isSelected())
 					generationProfiles |= Project.PROFILE_MYSQL;
 				
-				project.setName(projectName);
-				project.setScriptsGenerationBasePath(generationTargetPath);
-				project.setDefaultScriptsHeaderMessage(defaultHeaderMessage);
-				project.setGenerationProfiles(generationProfiles);
+				currentProject.setName(projectName);
+				currentProject.setScriptsGenerationBasePath(generationTargetPath);
+				currentProject.setDefaultScriptsHeaderMessage(defaultHeaderMessage);
+				currentProject.setGenerationProfiles(generationProfiles);
 				
-				fieldsToObject(project);
-				if(validateProject(project)) {
-					ProjectSettingsDialog.this.setResult(true, project);
+				dialogControlsToObject(currentProject);
+				if(validateProject(currentProject)) {
+					ProjectSettingsDialog.this.setResult(true, currentProject);
 					ProjectSettingsDialog.this.dispose();
 				}
 			}
@@ -204,16 +203,17 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 	
 	public void insertNew() {
 		editMode = false;
-		//TODO
-		this.project = Test.newProject();
-		//
+		this.currentProject = new Project();
+		
+		updateControls();
 		this.setResult(false, null);
 		this.setVisible(true);
 	}
 	
 	public void edit(Project project) {
 		editMode = true;
-		this.project = project.clone();
+		this.currentProject = project.clone();
+		updateControls();
 		this.setResult(false, null);
 		this.setVisible(true);
 	}
@@ -222,7 +222,19 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		return editMode;
 	}
 	
-	private void fieldsToObject(Project project) {
+	private void updateControls() {
+		tfProjectName.setText(currentProject.getName());
+		tfGenerationTargetPath.setText(currentProject.getScriptsGenerationBasePath());
+		
+		long generationProfiles = currentProject.getGenerationProfiles();
+		cbProfileOracleDB.setSelected((generationProfiles & Project.PROFILE_ORACLE_DB) != 0);
+		cbProfileMySQL.setSelected((generationProfiles & Project.PROFILE_MYSQL) != 0);
+		
+		taDefaultHeaderMessage.setText(currentProject.getDefaultScriptsHeaderMessage());
+		btnCreateProject.setText(editMode ? "Salvar" : "Criar");
+	}
+	
+	private void dialogControlsToObject(Project project) {
 		project.setName(tfProjectName.getText().trim());
 		project.setScriptsGenerationBasePath(tfGenerationTargetPath.getText().trim());
 		long generationProfiles = 0;
@@ -245,7 +257,7 @@ public class ProjectSettingsDialog extends Dialog<Project> {
 		}
 		
 		if(scriptsGenerationPath == null || "".equals(scriptsGenerationPath)) {
-			JOptionPane.showMessageDialog(this, "O caminho de geraçãoo dos scripts não foi informado.");
+			JOptionPane.showMessageDialog(this, "O caminho de geração dos scripts não foi informado.");
 			return false;
 		}
 		

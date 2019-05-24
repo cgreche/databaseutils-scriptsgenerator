@@ -1,6 +1,12 @@
 package structs;
 
-//10/04/2019
+/**
+ * 
+ * Base class for commands
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public class Command implements Cloneable {
 	public enum Type {
 		CREATE_TABLE,

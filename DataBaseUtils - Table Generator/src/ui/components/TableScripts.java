@@ -9,6 +9,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.CellEditorListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -33,8 +34,13 @@ public class TableScripts extends JTable {
 			if(data == null || row >= data.size())
 				return;
 			Script script = data.get(row);
-			if(col == 0)
-				script.setName((String)value);
+			if(col == 0) {
+				if(!value.equals(script.getName())) {
+					script.setName((String)value);
+					script.notifyScriptChanged();
+					application.Main.mainWindow.notifyProjectChanged();
+				}
+			}
 		}
 		
 		@Override
@@ -83,27 +89,10 @@ public class TableScripts extends JTable {
 	}
 	
 	public class DeleteButton extends AbstractCellEditor implements TableCellRenderer, TableCellEditor {
-		private JTable table;
-		
 		private ActionListener action;
 		
-		private JButton deleteButton;
 		private Object editorValue;
-		public DeleteButton(JTable table, int column) {
-			this.table = table;
-			
-			deleteButton = new JButton();
-			deleteButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					//System.out.println("WOW");
-					
-				}
-			});
-			TableColumnModel columnModel = table.getColumnModel();
-			columnModel.getColumn(column).setCellRenderer(this);
-			columnModel.getColumn(column).setCellEditor(this);
+		public DeleteButton() {
 		}
 		
 		@Override
@@ -112,9 +101,7 @@ public class TableScripts extends JTable {
 		}
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			deleteButton.setText("Remover");
-			deleteButton.setIcon(null);
-			return deleteButton;
+			return new JButton("Remover");
 		}
 		
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -136,10 +123,12 @@ public class TableScripts extends JTable {
 	public TableScripts() {
 		super();
 		setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		putClientProperty("terminateEditOnFocusLost", true);
 		model = new TableScriptsModel();
 		this.setModel(model);
-		
-		deleteButton = new DeleteButton(this,1);
+		deleteButton = new DeleteButton();
+		this.getColumnModel().getColumn(1).setCellRenderer(deleteButton);
+		this.getColumnModel().getColumn(1).setCellEditor(deleteButton);
 	}
 	
 	public void setData(List<Script> scriptList) {

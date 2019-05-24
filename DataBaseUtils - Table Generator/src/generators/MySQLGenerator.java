@@ -17,7 +17,13 @@ import structs.Project;
 import structs.Table;
 import structs.TableField;
 
-//10/04/2019
+/**
+ * 
+ * Script Generator for MySQL
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public class MySQLGenerator extends Generator {
 	
 	private static final List<FieldType> MYSQL_TYPES;
@@ -107,7 +113,7 @@ public class MySQLGenerator extends Generator {
 			return;
 		for(TableField field : fkFields) {
 			resultContent += "ALTER TABLE "+ table.getName() + " ADD CONSTRAINT FOREIGN KEY (" + field.getName() + ")"
-			+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID) ENABLE\n"
+			+ "\n\t REFERENCES " + field.getReferencedTable() + "(GUID)\n"
 			+ "/\n";
 		}
 		

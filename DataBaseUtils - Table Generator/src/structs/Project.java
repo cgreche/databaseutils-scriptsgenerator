@@ -3,6 +3,16 @@ package structs;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 
+ * Class that represents a project, that can be created, opened, modified and saved.
+ * A project holds normalized data about tables and fields (columns).
+ * This data is used for generating the script files.
+ * @author cesar.reche@techne.com.br
+ * @since 03/05/2019
+ *
+ */
+
 public class Project implements Cloneable {
 	
 	public static final int PROFILE_ORACLE_DB = 1;

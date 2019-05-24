@@ -1,13 +1,5 @@
 package application;
 
-/* TODO:
- * Notify script changed on Script rename
-Enviar para github
-Dialog Autor
-Melhorar validação de scripts antes da geração
-Mudar Criar/Salvar para Proriedades de Projeto
- */
-
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 

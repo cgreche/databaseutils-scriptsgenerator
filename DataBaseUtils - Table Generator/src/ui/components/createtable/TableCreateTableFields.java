@@ -1,4 +1,4 @@
-package ui.frames.createtable;
+package ui.components.createtable;
 
 import java.awt.Color;
 import java.awt.Component;

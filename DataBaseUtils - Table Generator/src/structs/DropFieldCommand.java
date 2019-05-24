@@ -1,6 +1,11 @@
 package structs;
 
-//03/05/2019
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 03/05/2019
+ *
+ */
 public class DropFieldCommand extends Command {
 	private Table refTable;
 	private TableField field;

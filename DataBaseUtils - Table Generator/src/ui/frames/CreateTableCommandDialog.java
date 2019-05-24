@@ -21,7 +21,8 @@ import structs.CreateTableCommand;
 import structs.Script;
 import structs.Table;
 import structs.TableField;
-import ui.frames.createtable.TableCreateTableFields;
+import ui.components.createtable.TableCreateTableFields;
+
 import java.awt.Component;
 import javax.swing.border.EmptyBorder;
 import java.awt.Font;

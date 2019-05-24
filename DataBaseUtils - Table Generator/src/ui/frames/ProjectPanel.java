@@ -159,6 +159,7 @@ public class ProjectPanel extends JPanel {
 				currentSelectedScript = null;
 			}
 			scriptList.remove(index);
+			tableScripts.getCellEditor().stopCellEditing();
 			tableScripts.refresh();
 			Main.mainWindow.notifyProjectChanged();
 		}
@@ -181,8 +182,8 @@ public class ProjectPanel extends JPanel {
 			}
 			
 			currentSelectedScript.notifyScriptChanged();
-			
-			tableCommands.refresh();
+			tableCommands.getCellEditor().stopCellEditing();
+			updateCommandsControls();
 			updateResultingTable();
 			Main.mainWindow.notifyProjectChanged();
 		}

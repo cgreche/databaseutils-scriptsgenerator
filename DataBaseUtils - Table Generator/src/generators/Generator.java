@@ -14,7 +14,13 @@ import structs.ModifyFieldCommand;
 import structs.Project;
 import structs.Script;
 
-//10/04/2019
+/**
+ * 
+ * Base class for Script Generator implementations
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 public abstract class Generator {
 	
 	protected Project project;

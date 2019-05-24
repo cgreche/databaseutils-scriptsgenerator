@@ -1,6 +1,12 @@
 package structs;
 
-//10/04/2019
+/**
+ * 
+ * Class that represents the type of a table field
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 
 public class FieldType {
 	

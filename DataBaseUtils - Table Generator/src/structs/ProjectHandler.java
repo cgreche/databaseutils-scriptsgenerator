@@ -10,7 +10,14 @@ import generators.Generator;
 import generators.MySQLGenerator;
 import generators.OracleGenerator;
 
-//26/04/2019
+/**
+ * 
+ * Project handler is a helper class for making operations over a project
+ * @author cesar.reche@techne.com.br
+ * @since 26/04/2019
+ *
+ */
+
 public class ProjectHandler {
 	
 	public static enum ProjectState {

@@ -1,6 +1,11 @@
 package structs;
 
-//10/04/2019
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 10/04/2019
+ *
+ */
 
 public class Constraints {
 	public static final int PK = 1;

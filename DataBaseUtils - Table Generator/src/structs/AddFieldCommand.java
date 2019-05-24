@@ -1,7 +1,11 @@
 package structs;
 
-//15/04/2019
-
+/**
+ * 
+ * @author cesar.reche@techne.com.br
+ * @since 15/04/2019
+ *
+ */
 public class AddFieldCommand extends Command {
 
 	private Table refTable;
